@@ -1,4 +1,4 @@
-import os, json, requests, random
+import os, json, random, requests
 from flask import Flask, request, jsonify
 from openai import OpenAI
 
@@ -11,92 +11,96 @@ client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 FB_SEND_URL = f"https://graph.facebook.com/v19.0/me/messages?access_token={PAGE_TOKEN}"
 
 # ===================================
-# TỰ ĐỘNG NẠP TOÀN BỘ FILE JSON TRONG /data
+#  NẠP TẤT CẢ FILE JSON TRONG /data
 # ===================================
 def load_all_json():
+    data = {}
     data_folder = "data"
-    all_data = {}
     if not os.path.exists(data_folder):
-        return all_data
+        return data
     for filename in os.listdir(data_folder):
         if filename.endswith(".json"):
             path = os.path.join(data_folder, filename)
-            try:
-                with open(path, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
+                try:
                     content = json.load(f)
-                    all_data[filename.replace(".json", "")] = content
-            except Exception as e:
-                print(f"Lỗi đọc {filename}:", e)
-    return all_data
+                    data[filename.replace(".json", "")] = content
+                except Exception as e:
+                    print("❌ Lỗi đọc file", filename, ":", e)
+    print("✅ Đã nạp:", list(data.keys()))
+    return data
 
-# Nạp toàn bộ dữ liệu JSON
 DATABASE = load_all_json()
-print("✅ Đã nạp dữ liệu:", list(DATABASE.keys()))
-
 
 # ===================================
-# HÀM TÌM TRONG TOÀN BỘ CƠ SỞ DỮ LIỆU
+#  XỬ LÝ TIN NHẮN NGƯỜI DÙNG
 # ===================================
-def find_in_database(user_text):
+def find_reply(user_text):
     text = user_text.lower()
-    for name, info in DATABASE.items():
 
-        # --- Nếu là chatbot Ctt ---
-        if "chatbot" in name or "ctt" in name:
-            if any(k in text for k in ["chatbot", "bán chatbot", "trợ lý ảo", "dùng thử", "cài đặt"]):
-                # Tìm nhóm phù hợp
-                for group, items in info.items():
-                    if any(x in text for x in [group.replace("_", " "), group]):
-                        return random.choice(items)
-                # Nếu không khớp cụ thể → trả lời ngẫu nhiên nhóm chào hoặc lợi_ích
-                return random.choice(info.get("chào", info.get("lợi_ích", ["Đây là Chatbot Ctt — trợ lý AI miễn phí 7 ngày!"])))
+    # --- Ưu tiên Chatbot Ctt ---
+    if any(k in text for k in ["chatbot", "ctt", "trợ lý ảo", "bán chatbot", "dùng thử", "cài chatbot"]):
+        data = DATABASE.get("quangcao_chatbot_ctt", {})
+        if not data:
+            return None
+        # Dò từng nhóm
+        for key, responses in data.items():
+            if any(k in text for k in key.split("_")):
+                return random.choice(responses)
+        # Nếu không khớp nhóm → trả lời chào hoặc lợi ích
+        return random.choice(data.get("chào", data.get("lợi_ích", ["Chatbot Ctt giúp shop bạn trả lời khách 24/7!"])))
 
-        # --- Nếu là quán ăn (ví dụ Ốc Ngon 18) ---
-        if "Tên quán" in info:
-            # Tìm sản phẩm
-            for danh_muc, items in info.get("Danh mục món", {}).items():
-                if isinstance(items, dict):
-                    for mon, gia in items.items():
-                        if mon.lower() in text:
-                            return f"👉 {mon} ({danh_muc}) có giá {gia} nha!"
-            # Tìm quảng cáo
-            qc = info.get("Quảng cáo quán", {})
-            if any(x in text for x in ["chào", "hello", "xin chào"]):
-                return random.choice(qc.get("chào", []))
-            if any(x in text for x in ["giới thiệu", "có gì ngon", "quán này", "đặc biệt", "món ngon"]):
-                return random.choice(qc.get("giới_thiệu", []))
-            if any(x in text for x in ["khuyến mãi", "giảm giá", "ưu đãi"]):
-                return random.choice(qc.get("khuyến_mãi", []))
-            if any(x in text for x in ["địa chỉ", "ở đâu", "map", "liên hệ", "số điện thoại"]):
-                return random.choice(qc.get("liên_hệ", []))
-            if any(x in text for x in ["cảm ơn", "hẹn gặp", "bye"]):
-                return random.choice(qc.get("kết_thúc", []))
+    # --- Ưu tiên Quán Ốc ---
+    if any(k in text for k in ["ốc", "ngon", "hàu", "lẩu", "ngao", "hương", "ốc đồng", "nhậu"]):
+        data = DATABASE.get("oc_ngon_18", {})
+        if not data:
+            return None
 
+        # Kiểm tra món trong menu
+        for category, items in data.get("Danh mục món", {}).items():
+            if isinstance(items, dict):
+                for mon, gia in items.items():
+                    if mon.lower() in text:
+                        return f"👉 {mon} ({category}) có giá {gia} nha!"
+
+        # Nếu không phải món → xem quảng cáo
+        qc = data.get("Quảng cáo quán", {})
+        if any(k in text for k in ["chào", "hello", "xin chào"]):
+            return random.choice(qc.get("chào", []))
+        if any(k in text for k in ["giới thiệu", "có gì ngon", "quán này", "đặc biệt", "món ngon"]):
+            return random.choice(qc.get("giới_thiệu", []))
+        if any(k in text for k in ["khuyến mãi", "giảm giá", "ưu đãi"]):
+            return random.choice(qc.get("khuyến_mãi", []))
+        if any(k in text for k in ["địa chỉ", "ở đâu", "liên hệ", "số điện thoại", "map"]):
+            return random.choice(qc.get("liên_hệ", []))
+        if any(k in text for k in ["cảm ơn", "bye", "tạm biệt", "hẹn gặp"]):
+            return random.choice(qc.get("kết_thúc", []))
+        return random.choice(data.get("Quảng cáo quán", {}).get("giới_thiệu", []))
+
+    # --- Không thuộc dữ liệu có sẵn ---
     return None
 
-
 # ===================================
-# GỌI OPENAI HOẶC TRA TỪ JSON
+#  GỌI OPENAI KHI KHÔNG CÓ TRONG DỮ LIỆU
 # ===================================
 def call_openai(user_text):
-    reply = find_in_database(user_text)
-    if reply:
-        return reply
+    local_reply = find_reply(user_text)
+    if local_reply:
+        return local_reply
 
-    # fallback nếu không có dữ liệu trong JSON
+    # fallback dùng OpenAI nếu không tìm thấy trong JSON
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Bạn là chatbot thân thiện, hỗ trợ khách hàng và giới thiệu sản phẩm."},
+            {"role": "system", "content": "Bạn là chatbot thân thiện hỗ trợ khách hàng, trả lời ngắn gọn tiếng Việt."},
             {"role": "user", "content": user_text}
         ],
-        temperature=0.5,
+        temperature=0.4,
     )
     return resp.choices[0].message.content.strip()
 
-
 # ===================================
-# GỬI TIN TRẢ LỜI VỀ MESSENGER
+#  GỬI TIN NHẮN VỀ FACEBOOK
 # ===================================
 def send_text(psid, text):
     requests.post(FB_SEND_URL, json={
@@ -105,7 +109,7 @@ def send_text(psid, text):
     }, timeout=15)
 
 # ===================================
-# ROUTE FACEBOOK WEBHOOK
+#  WEBHOOK FACEBOOK
 # ===================================
 @app.route("/webhook", methods=["GET"])
 def verify():
@@ -122,19 +126,13 @@ def webhook():
         for evt in entry.get("messaging", []):
             psid = evt.get("sender", {}).get("id")
             msg = evt.get("message", {}).get("text")
-            if not msg and "postback" in evt:
-                msg = evt["postback"].get("payload") or evt["postback"].get("title")
-
             if psid and msg:
                 try:
                     reply = call_openai(msg)
                 except Exception as e:
-                    reply = "Xin lỗi, hệ thống đang bận."
+                    reply = "Xin lỗi, hệ thống đang bận. Vui lòng thử lại sau."
                     print("OpenAI error:", e)
-                try:
-                    send_text(psid, reply)
-                except Exception as e:
-                    print("Send error:", e)
+                send_text(psid, reply)
     return "EVENT_RECEIVED"
 
 @app.route("/health")
@@ -143,4 +141,3 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
-
