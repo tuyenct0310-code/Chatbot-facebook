@@ -92,7 +92,8 @@ def call_openai(user_text):
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Bạn là chatbot thân thiện hỗ trợ khách hàng, trả lời ngắn gọn tiếng Việt."},
+            {"role": "system", "content": "Bạn là Chatbot Ctt – nói chuyện vui vẻ, tự nhiên như người thật. Trả lời ngắn gọn, có cảm xúc, thêm emoji phù hợp."}
+
             {"role": "user", "content": user_text}
         ],
         temperature=0.4,
@@ -141,4 +142,5 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
 
