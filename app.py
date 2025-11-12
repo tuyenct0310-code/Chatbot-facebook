@@ -51,7 +51,7 @@ def find_reply(user_text):
         return random.choice(data.get("chào", data.get("lợi_ích", ["Chatbot Ctt giúp shop bạn trả lời khách 24/7!"])))
 
     # --- Ưu tiên Quán Ốc ---
-    if any(k in text for k in ["ốc", "ngon", "hàu", "lẩu", "ngao", "hương", "ốc đồng", "nhậu"]):
+    if any(k in text for k in ["ốc", "ngon", "hàu", "lẩu", "ngao", "hương", "ốc đồng", "nhậu", "quán", "bàn", "tối", "món", "mon", "phục vụ"]):
         data = DATABASE.get("oc_ngon_18", {})
         if not data:
             return None
@@ -141,3 +141,4 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
