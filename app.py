@@ -89,13 +89,15 @@ def call_openai(user_text):
         return local_reply
 
     # fallback dùng OpenAI nếu không tìm thấy trong JSON
+    context = json.dumps(DATABASE, ensure_ascii=False)
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Bạn là Chatbot Ctt – nói chuyện vui vẻ, tự nhiên như người thật. Trả lời ngắn gọn, có cảm xúc, thêm emoji phù hợp."}
-
+            {"role": "system", "content": f"Bạn là Chatbot Ctt. Dưới đây là dữ liệu quán và chatbot:\n{context}\nHãy trả lời ngắn gọn, thân thiện."},
             {"role": "user", "content": user_text}
-        ],
+        ]
+    )
+
         temperature=0.4,
     )
     return resp.choices[0].message.content.strip()
@@ -142,5 +144,6 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
 
 
