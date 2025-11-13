@@ -15,27 +15,36 @@ FB_SEND_URL = f"https://graph.facebook.com/v19.0/me/messages?access_token={PAGE_
 
 
 # ===================================
-#  NẠP KNOWLEDGE BASE (CHỈ 1 FILE)
+#  NẠP KNOWLEDGE BASE (TẤT CẢ FILE)
 # ===================================
-def load_knowledge_base(filename="data/kientruc_xyz.json"):
+def load_all_data(data_folder="data"):
     """
-    Nạp 1 file JSON duy nhất làm "não" cho bot.
-    File này BẮT BUỘC phải nằm trong thư mục /data
+    Nạp TẤT CẢ file JSON trong thư mục /data.
+    Mỗi tên file sẽ là một "key" trong DATABASE.
+    Vd: data/product_sofa.json -> DATABASE['product_sofa'] = { ... }
     """
-    if not os.path.exists(filename):
-        print(f"❌ LỖI NGHIÊM TRỌNG: Không tìm thấy file knowledge base '{filename}'.")
-        return None
-    try:
-        with open(filename, "r", encoding="utf-8") as f:
-            content = json.load(f)
-            print(f"✅ Đã nạp thành công knowledge base: {filename}")
-            return content
-    except Exception as e:
-        print(f"❌ Lỗi đọc file {filename}: {e}")
-        return None
+    database = {}
+    if not os.path.exists(data_folder):
+        print(f"❌ LỖI NGHIÊM TRỌNG: Không tìm thấy thư mục knowledge base '{data_folder}'.")
+        return database
+        
+    for filename in os.listdir(data_folder):
+        if filename.endswith(".json"):
+            path = os.path.join(data_folder, filename)
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    content = json.load(f)
+                    # Dùng tên file (bỏ .json) làm key
+                    file_key = filename.replace(".json", "")
+                    database[file_key] = content
+            except Exception as e:
+                print(f"❌ Lỗi đọc file {filename}: {e}")
+                
+    print(f"✅ Đã nạp thành công các file: {list(database.keys())}")
+    return database
 
 # Nạp "não" cho bot khi khởi động
-DATABASE = load_knowledge_base()
+DATABASE = load_all_data()
 
 
 # ===================================
@@ -43,39 +52,36 @@ DATABASE = load_knowledge_base()
 # ===================================
 def find_in_json(user_text):
     """
-    Tìm các câu trả lời nhanh (fast-path) để tiết kiệm API OpenAI.
-    Chỉ xử lý các câu hỏi đơn giản, cố định.
+    Tìm các câu trả lời nhanh (fast-path) chung chung, KHÔNG liên quan đến sản phẩm.
+    Để tiết kiệm API OpenAI.
     """
     text = user_text.lower()
     
     if not DATABASE:
-        print("Debug: DATABASE is None, skipping find_in_json")
         return None # Trả về None nếu không nạp được "não"
 
-    # Chỉ còn logic cho Kiến Trúc Sư XYZ
-    triggers = DATABASE.get("chatbot_triggers", [])
-    if not triggers: 
-        print("Debug: chatbot_triggers is empty, skipping find_in_json")
-        return None
+    # Tìm trong file kientruc_xyz (hoặc 1 file config chung)
+    # Giả sử file config của bạn tên là 'kientruc_xyz.json'
+    config_triggers = DATABASE.get("kientruc_xyz", {}).get("chatbot_triggers", [])
+    
+    if not config_triggers:
+        # Nếu không có file config, tự tạo trigger "giá chatbot"
+         if any(k in text for k in ["con bot này", "chatbot này", "ai làm bot"]):
+            return "Tôi là một chatbot AI demo. Nếu bạn muốn một chatbot tương tự, vui lòng liên hệ [Email/SĐT Của Bạn] nhé!"
+         return None
 
-    # Trả lời nhanh các câu hỏi đơn giản (để tiết kiệm API)
-    if any(k in text for k in ["chào", "hello", "bạn là ai", "xin chào"]):
-        resp = next((t["response"] for t in triggers if t["intent"] == "greet_hello"), None)
-        if resp: return resp
-        
-    if any(k in text for k in ["giá", "chi phí", "báo giá", "bao nhiêu tiền"]):
-        resp = next((t["response"] for t in triggers if t["intent"] == "ask_project_pricing"), None)
-        if resp: return resp
-
-    if any(k in text for k in ["liên hệ", "địa chỉ", "văn phòng"]):
-        resp = next((t["response"] for t in triggers if t["intent"] == "ask_contact"), None)
+    # Trả lời nhanh các câu hỏi chung
+    if any(k in text for k in ["chào", "hello", "xin chào"]):
+        resp = next((t["response"] for t in config_triggers if t["intent"] == "greet_hello"), None)
         if resp: return resp
         
     if any(k in text for k in ["con bot này", "chatbot này", "ai làm bot"]):
-        resp = next((t["response"] for t in triggers if t["intent"] == "ask_chatbot_pricing"), None)
+        resp = next((t["response"] for t in config_triggers if t["intent"] == "ask_chatbot_pricing"), None)
         if resp: return resp
+        
+    # Câu hỏi về GIÁ và LIÊN HỆ của sản phẩm -> Để OpenAI tự trả lời
+    # Vì bot cần biết khách hỏi về sản phẩm nào trước.
 
-    # Nếu không khớp bất kỳ logic nào ở trên, trả về None
     return None
 
 
@@ -84,9 +90,9 @@ def find_in_json(user_text):
 # ===================================
 def call_openai(user_text):
     """
-    Gọi OpenAI (Smart-path) khi fast-path không xử lý được.
+    Gọi OpenAI (Smart-path) cho tất cả các câu hỏi phức tạp về sản phẩm.
     """
-    # 1. Thử trả lời nhanh bằng JSON trước
+    # 1. Thử trả lời nhanh bằng JSON trước (chỉ câu chào, câu meta)
     local_reply = find_in_json(user_text)
     if local_reply:
         print("✅ Trả lời nhanh (JSON)")
@@ -101,17 +107,21 @@ def call_openai(user_text):
     # Nạp toàn bộ "não" cho OpenAI đọc
     context = json.dumps(DATABASE, ensure_ascii=False, indent=2)
     
-    # --- CẬP NHẬT SYSTEM PROMPT (Đơn giản hóa) ---
+    # --- SYSTEM PROMPT "ĐA SẢN PHẨM" CỰC KỲ QUAN TRỌNG ---
     system_prompt = (
-        "Bạn là trợ lý AI của 'KTS Sáng Tạo (XYZ Studio)', một công ty kiến trúc. "
-        "Nhiệm vụ của bạn là trả lời khách hàng một cách chuyên nghiệp, thân thiện, dựa trên dữ liệu JSON về công ty dưới đây:\n"
+        "Bạn là một trợ lý bán hàng AI thông minh. 'Não' của bạn chứa thông tin về TẤT CẢ các sản phẩm công ty đang bán, được lưu trong một file JSON lớn dưới đây. "
+        "Mỗi key cấp cao nhất trong JSON là mã sản phẩm (ví dụ: 'product_sofa_A', 'kientruc_xyz').\n"
         f"{context}\n"
-        "--- QUY TẮC ---\n"
-        "- Hãy dùng dữ liệu trong 'chatbot_triggers' để trả lời các câu hỏi phổ biến (chào hỏi, giá, liên hệ) nếu có thể."
-        "- Khi khách hỏi về dự án, triết lý, hãy phân tích JSON và trả lời."
-        "- Luôn trả lời ngắn gọn, có cảm xúc, thêm emoji phù hợp."
-        "- Đừng bịa thông tin không có trong JSON."
-        "- Nếu khách hỏi về 'con bot này', hãy dùng intent 'ask_chatbot_pricing'."
+        "--- QUY TRÌNH LÀM VIỆC CỦA BẠN ---\N"
+        "1. **Đọc câu hỏi của khách.** (Vd: 'Cho tôi hỏi giá Nhà Hàng Hiên')."
+        "2. **Quét JSON:** Tự động tìm xem 'Nhà Hàng Hiên' nằm ở đâu trong JSON (Nó nằm trong 'kientruc_xyz' -> 'highlight_projects')."
+        "3. **Tìm thông tin liên quan:** Tìm giá, mô tả, hoặc bất cứ thứ gì khách hỏi."
+        "4. **Trả lời:** Trả lời câu hỏi của khách một cách tự nhiên, ngắn gọn, thân thiện."
+        "--- QUY TẮC ---\N"
+        "- Đừng bao giờ nói 'Tôi sẽ tìm trong JSON'. Hãy hành động như bạn *đã biết* câu trả lời."
+        "- Nếu khách hỏi về 2 sản phẩm (Vd: 'so sánh sofa A và sofa B'), hãy tự tin tra cứu cả 2 file ('product_sofa_A' và 'product_sofa_B') và so sánh."
+        "- Luôn trả lời ngắn gọn, có cảm xúc, thêm emoji."
+        "- **Tuyệt đối không** bịa thông tin không có trong JSON."
     )
     
     messages = [
@@ -128,13 +138,13 @@ def call_openai(user_text):
         return resp.choices[0].message.content.strip()
     except Exception as e:
         print(f"❌ Lỗi OpenAI: {e}")
-        # Trả về lỗi nếu OpenAI không hoạt động
         return "Xin lỗi, hệ thống AI đang hơi bận. Bạn thử lại sau 1 phút nha 😅"
 
 
 # ===================================
 #  GỬI TIN NHẮN VỀ FACEBOOK
 # ===================================
+# (Giữ nguyên không đổi)
 def send_text(psid, text):
     if not psid or not text:
         return
@@ -151,6 +161,7 @@ def send_text(psid, text):
 # ===================================
 #  WEBHOOK FACEBOOK
 # ===================================
+# (Giữ nguyên không đổi)
 @app.route("/webhook", methods=["GET"])
 def verify():
     token = request.args.get("hub.verify_token")
@@ -189,11 +200,12 @@ def webhook():
 @app.route("/health")
 def health():
     # Kiểm tra xem DATABASE đã được nạp thành công hay chưa
-    data_loaded = DATABASE is not None and "company_profile" in DATABASE
+    data_loaded = DATABASE is not None and len(DATABASE.keys()) > 0
     return jsonify(
         ok=True, 
         data_loaded=data_loaded, 
-        brand_name=DATABASE.get("company_profile", {}).get("brandName", "Not Loaded") if DATABASE else "Error Loading DB"
+        num_files_loaded=len(DATABASE.keys()) if DATABASE else 0,
+        file_keys=list(DATABASE.keys()) if DATABASE else []
     )
 
 
