@@ -4,75 +4,78 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-PAGE_TOKEN   = os.environ["PAGE_ACCESS_TOKEN"]
-VERIFY_TOKEN = os.environ["VERIFY_TOKEN"]
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+# --- Lấy biến môi trường ---
+PAGE_TOKEN   = os.environ.get("PAGE_ACCESS_TOKEN", "YOUR_PAGE_ACCESS_TOKEN_HERE")
+VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "YOUR_VERIFY_TOKEN_HERE")
+OPENAI_KEY   = os.environ.get("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY_HERE")
 
+# --- Khởi tạo ---
+client = OpenAI(api_key=OPENAI_KEY)
 FB_SEND_URL = f"https://graph.facebook.com/v19.0/me/messages?access_token={PAGE_TOKEN}"
 
-# ===================================
-#  NẠP TOÀN BỘ FILE JSON TRONG /data
-# ===================================
-def load_all_json():
-    data = {}
-    data_folder = "data"
-    if not os.path.exists(data_folder):
-        return data
-    for filename in os.listdir(data_folder):
-        if filename.endswith(".json"):
-            path = os.path.join(data_folder, filename)
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    content = json.load(f)
-                    data[filename.replace(".json", "")] = content
-            except Exception as e:
-                print("❌ Lỗi đọc file", filename, ":", e)
-    print("✅ Đã nạp:", list(data.keys()))
-    return data
-
-DATABASE = load_all_json()
 
 # ===================================
-#  TÌM TRONG DỮ LIỆU JSON
+#  NẠP KNOWLEDGE BASE (CHỈ 1 FILE)
+# ===================================
+def load_knowledge_base(filename="data/kientruc_xyz.json"):
+    """
+    Nạp 1 file JSON duy nhất làm "não" cho bot.
+    File này BẮT BUỘC phải nằm trong thư mục /data
+    """
+    if not os.path.exists(filename):
+        print(f"❌ LỖI NGHIÊM TRỌNG: Không tìm thấy file knowledge base '{filename}'.")
+        return None
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            content = json.load(f)
+            print(f"✅ Đã nạp thành công knowledge base: {filename}")
+            return content
+    except Exception as e:
+        print(f"❌ Lỗi đọc file {filename}: {e}")
+        return None
+
+# Nạp "não" cho bot khi khởi động
+DATABASE = load_knowledge_base()
+
+
+# ===================================
+#  TÌM TRONG DỮ LIỆU JSON (Fast-path)
 # ===================================
 def find_in_json(user_text):
+    """
+    Tìm các câu trả lời nhanh (fast-path) để tiết kiệm API OpenAI.
+    Chỉ xử lý các câu hỏi đơn giản, cố định.
+    """
     text = user_text.lower()
+    
+    if not DATABASE:
+        print("Debug: DATABASE is None, skipping find_in_json")
+        return None # Trả về None nếu không nạp được "não"
 
-    # --- Chatbot Ctt ---
-    if any(k in text for k in ["chatbot", "ctt", "trợ lý ảo", "dùng thử", "cài chatbot"]):
-        data = DATABASE.get("quangcao_chatbot_ctt", {})
-        if not data:
-            return None
-        for key, replies in data.items():
-            if any(k in text for k in key.split("_")):
-                return random.choice(replies)
-        return random.choice(data.get("chào", data.get("lợi_ích", [])))
+    # Chỉ còn logic cho Kiến Trúc Sư XYZ
+    triggers = DATABASE.get("chatbot_triggers", [])
+    if not triggers: 
+        print("Debug: chatbot_triggers is empty, skipping find_in_json")
+        return None
 
-    # --- Quán Ốc ---
-    if any(k in text for k in ["ốc", "hàu", "lẩu", "ngao", "quán", "bàn", "món", "tối", "ngon"]):
-        data = DATABASE.get("oc_ngon_18", {})
-        if not data:
-            return None
-        # tìm món cụ thể
-        for cat, items in data.get("Danh mục món", {}).items():
-            if isinstance(items, dict):
-                for mon, gia in items.items():
-                    if mon.lower() in text:
-                        return f"🦪 {mon.title()} ({cat}) có giá {gia} nha bạn!"
-        # nếu không phải món → quảng cáo
-        qc = data.get("Quảng cáo quán", {})
-        if any(k in text for k in ["chào", "hello", "xin chào"]):
-            return random.choice(qc.get("chào", []))
-        if any(k in text for k in ["giới thiệu", "có gì ngon", "quán này", "món ngon"]):
-            return random.choice(qc.get("giới_thiệu", []))
-        if any(k in text for k in ["khuyến mãi", "giảm giá", "ưu đãi"]):
-            return random.choice(qc.get("khuyến_mãi", []))
-        if any(k in text for k in ["địa chỉ", "ở đâu", "liên hệ", "số điện thoại"]):
-            return random.choice(qc.get("liên_hệ", []))
-        if any(k in text for k in ["cảm ơn", "bye", "tạm biệt", "hẹn gặp"]):
-            return random.choice(qc.get("kết_thúc", []))
-        return random.choice(qc.get("giới_thiệu", []))
+    # Trả lời nhanh các câu hỏi đơn giản (để tiết kiệm API)
+    if any(k in text for k in ["chào", "hello", "bạn là ai", "xin chào"]):
+        resp = next((t["response"] for t in triggers if t["intent"] == "greet_hello"), None)
+        if resp: return resp
+        
+    if any(k in text for k in ["giá", "chi phí", "báo giá", "bao nhiêu tiền"]):
+        resp = next((t["response"] for t in triggers if t["intent"] == "ask_project_pricing"), None)
+        if resp: return resp
 
+    if any(k in text for k in ["liên hệ", "địa chỉ", "văn phòng"]):
+        resp = next((t["response"] for t in triggers if t["intent"] == "ask_contact"), None)
+        if resp: return resp
+        
+    if any(k in text for k in ["con bot này", "chatbot này", "ai làm bot"]):
+        resp = next((t["response"] for t in triggers if t["intent"] == "ask_chatbot_pricing"), None)
+        if resp: return resp
+
+    # Nếu không khớp bất kỳ logic nào ở trên, trả về None
     return None
 
 
@@ -80,43 +83,69 @@ def find_in_json(user_text):
 #  KẾT HỢP GPT ĐỂ TRẢ LỜI TỰ NHIÊN
 # ===================================
 def call_openai(user_text):
-    # Nếu có dữ liệu sẵn thì trả lời luôn
-    local = find_in_json(user_text)
-    if local:
-        return local
+    """
+    Gọi OpenAI (Smart-path) khi fast-path không xử lý được.
+    """
+    # 1. Thử trả lời nhanh bằng JSON trước
+    local_reply = find_in_json(user_text)
+    if local_reply:
+        print("✅ Trả lời nhanh (JSON)")
+        return local_reply
 
-    # Nếu không có → nhờ GPT trả lời tự nhiên
-    context = json.dumps(DATABASE, ensure_ascii=False)
+    # 2. Nếu không có → nhờ GPT trả lời tự nhiên (Smart-path)
+    print("🧠 Trả lời thông minh (OpenAI)")
+    
+    if not DATABASE:
+        return "Xin lỗi, 'não' của tôi đang được nạp, bạn thử lại sau 1 phút nhé! 😅"
+    
+    # Nạp toàn bộ "não" cho OpenAI đọc
+    context = json.dumps(DATABASE, ensure_ascii=False, indent=2)
+    
+    # --- CẬP NHẬT SYSTEM PROMPT (Đơn giản hóa) ---
+    system_prompt = (
+        "Bạn là trợ lý AI của 'KTS Sáng Tạo (XYZ Studio)', một công ty kiến trúc. "
+        "Nhiệm vụ của bạn là trả lời khách hàng một cách chuyên nghiệp, thân thiện, dựa trên dữ liệu JSON về công ty dưới đây:\n"
+        f"{context}\n"
+        "--- QUY TẮC ---\n"
+        "- Hãy dùng dữ liệu trong 'chatbot_triggers' để trả lời các câu hỏi phổ biến (chào hỏi, giá, liên hệ) nếu có thể."
+        "- Khi khách hỏi về dự án, triết lý, hãy phân tích JSON và trả lời."
+        "- Luôn trả lời ngắn gọn, có cảm xúc, thêm emoji phù hợp."
+        "- Đừng bịa thông tin không có trong JSON."
+        "- Nếu khách hỏi về 'con bot này', hãy dùng intent 'ask_chatbot_pricing'."
+    )
+    
     messages = [
-        {"role": "system", "content": (
-            "Bạn là Chatbot Ctt — một trợ lý AI thân thiện, nói chuyện tự nhiên như người thật. "
-            "Bạn biết dữ liệu của quán và chatbot trong JSON dưới đây:\n"
-            f"{context}\n"
-            "Khi khách hỏi món ăn hoặc chatbot, hãy trả lời ngắn gọn, có cảm xúc, thêm emoji phù hợp. "
-            "Đừng bịa thông tin ngoài dữ liệu."
-        )},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_text}
     ]
 
-    resp = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        temperature=0.7
-    )
-    return resp.choices[0].message.content.strip()
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini", # Dùng 4o-mini cho rẻ và nhanh
+            messages=messages,
+            temperature=0.7
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"❌ Lỗi OpenAI: {e}")
+        # Trả về lỗi nếu OpenAI không hoạt động
+        return "Xin lỗi, hệ thống AI đang hơi bận. Bạn thử lại sau 1 phút nha 😅"
 
 
 # ===================================
 #  GỬI TIN NHẮN VỀ FACEBOOK
 # ===================================
 def send_text(psid, text):
+    if not psid or not text:
+        return
     try:
         requests.post(FB_SEND_URL, json={
             "recipient": {"id": psid},
             "message": {"text": text}
         }, timeout=15)
+        print(f"✅ Đã gửi tin nhắn tới {psid}")
     except Exception as e:
-        print("Send error:", e)
+        print(f"❌ Lỗi gửi tin nhắn Facebook: {e}")
 
 
 # ===================================
@@ -127,7 +156,9 @@ def verify():
     token = request.args.get("hub.verify_token")
     challenge = request.args.get("hub.challenge")
     if token == VERIFY_TOKEN:
+        print("✅ Webhook đã xác thực!")
         return str(challenge)
+    print("❌ Sai VERIFY_TOKEN!")
     return "Sai verify token", 403
 
 
@@ -137,23 +168,34 @@ def webhook():
     for entry in data.get("entry", []):
         for evt in entry.get("messaging", []):
             psid = evt.get("sender", {}).get("id")
-            msg = evt.get("message", {}).get("text")
-            if psid and msg:
-                try:
-                    reply = call_openai(msg)
-                except Exception as e:
-                    reply = "Xin lỗi, hệ thống đang bận. Thử lại sau nha 😅"
-                    print("OpenAI error:", e)
+            msg_obj = evt.get("message", {})
+            msg_text = msg_obj.get("text")
+            
+            # Bỏ qua tin nhắn của chính Page
+            if msg_obj.get("is_echo"):
+                continue
+
+            if psid and msg_text:
+                print(f"👤 {psid} hỏi: {msg_text}")
+                # Gọi hàm xử lý chính
+                reply = call_openai(msg_text)
+                print(f"🤖 Bot trả lời: {reply}")
+                # Gửi trả lời về Facebook
                 send_text(psid, reply)
-    return "EVENT_RECEIVED"
+                
+    return "EVENT_RECEIVED", 200
 
 
 @app.route("/health")
 def health():
-    return jsonify(ok=True)
+    # Kiểm tra xem DATABASE đã được nạp thành công hay chưa
+    data_loaded = DATABASE is not None and "company_profile" in DATABASE
+    return jsonify(
+        ok=True, 
+        data_loaded=data_loaded, 
+        brand_name=DATABASE.get("company_profile", {}).get("brandName", "Not Loaded") if DATABASE else "Error Loading DB"
+    )
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
-
-
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080))) # Đổi port 5000 thành 8080 (phổ biến hơn cho web)
