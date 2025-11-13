@@ -21,7 +21,6 @@ def load_all_data(data_folder="data"):
     """
     Nạp TẤT CẢ file JSON trong thư mục /data.
     Mỗi tên file sẽ là một "key" trong DATABASE.
-    Vd: data/product_sofa.json -> DATABASE['product_sofa'] = { ... }
     """
     database = {}
     if not os.path.exists(data_folder):
@@ -34,7 +33,6 @@ def load_all_data(data_folder="data"):
             try:
                 with open(path, "r", encoding="utf-8") as f:
                     content = json.load(f)
-                    # Dùng tên file (bỏ .json) làm key
                     file_key = filename.replace(".json", "")
                     database[file_key] = content
             except Exception as e:
@@ -52,36 +50,25 @@ DATABASE = load_all_data()
 # ===================================
 def find_in_json(user_text):
     """
-    Tìm các câu trả lời nhanh (fast-path) chung chung, KHÔNG liên quan đến sản phẩm.
-    Để tiết kiệm API OpenAI.
+    (NÂNG CẤP) Tự động quét keywords trong chatbot_triggers của TẤT CẢ file.
     """
     text = user_text.lower()
     
     if not DATABASE:
-        return None # Trả về None nếu không nạp được "não"
+        return None
 
-    # Tìm trong file kientruc_xyz (hoặc 1 file config chung)
-    # Giả sử file config của bạn tên là 'kientruc_xyz.json'
-    config_triggers = DATABASE.get("kientruc_xyz", {}).get("chatbot_triggers", [])
-    
-    if not config_triggers:
-        # Nếu không có file config, tự tạo trigger "giá chatbot"
-         if any(k in text for k in ["con bot này", "chatbot này", "ai làm bot"]):
-            return "Tôi là một chatbot AI demo. Nếu bạn muốn một chatbot tương tự, vui lòng liên hệ [Email/SĐT Của Bạn] nhé!"
-         return None
-
-    # Trả lời nhanh các câu hỏi chung
-    if any(k in text for k in ["chào", "hello", "xin chào"]):
-        resp = next((t["response"] for t in config_triggers if t["intent"] == "greet_hello"), None)
-        if resp: return resp
+    # Vòng lặp quét tất cả các "não" (file)
+    for file_key, content in DATABASE.items():
+        triggers = content.get("chatbot_triggers", [])
         
-    if any(k in text for k in ["con bot này", "chatbot này", "ai làm bot"]):
-        resp = next((t["response"] for t in config_triggers if t["intent"] == "ask_chatbot_pricing"), None)
-        if resp: return resp
-        
-    # Câu hỏi về GIÁ và LIÊN HỆ của sản phẩm -> Để OpenAI tự trả lời
-    # Vì bot cần biết khách hỏi về sản phẩm nào trước.
+        for trigger in triggers:
+            keywords = trigger.get("keywords", [])
+            # Nếu bất kỳ từ khóa nào trong list keywords xuất hiện trong tin nhắn
+            if any(keyword in text for keyword in keywords):
+                # Trả về câu trả lời đã định sẵn
+                return random.choice(trigger.get("response", "").splitlines()) if isinstance(trigger.get("response"), str) else random.choice(trigger.get("response", [""]))
 
+    # Nếu không khớp bất kỳ logic nào ở trên, trả về None
     return None
 
 
@@ -90,9 +77,9 @@ def find_in_json(user_text):
 # ===================================
 def call_openai(user_text):
     """
-    Gọi OpenAI (Smart-path) cho tất cả các câu hỏi phức tạp về sản phẩm.
+    (NÂNG CẤP) Gọi OpenAI với System Prompt "xịn" hơn, có "vai trò" (persona).
     """
-    # 1. Thử trả lời nhanh bằng JSON trước (chỉ câu chào, câu meta)
+    # 1. Thử trả lời nhanh bằng JSON trước
     local_reply = find_in_json(user_text)
     if local_reply:
         print("✅ Trả lời nhanh (JSON)")
@@ -107,21 +94,30 @@ def call_openai(user_text):
     # Nạp toàn bộ "não" cho OpenAI đọc
     context = json.dumps(DATABASE, ensure_ascii=False, indent=2)
     
-    # --- SYSTEM PROMPT "ĐA SẢN PHẨM" CỰC KỲ QUAN TRỌNG ---
+    # Lấy persona từ file kientruc_xyz (hoặc file config chính)
+    persona_data = DATABASE.get("kientruc_xyz", {}).get("persona", {})
+    persona_role = persona_data.get("role", "Trợ lý AI")
+    persona_tone = persona_data.get("tone", "Thân thiện, chuyên nghiệp")
+    persona_goal = persona_data.get("goal", "Trả lời câu hỏi của khách hàng.")
+
+    # --- SYSTEM PROMPT (HAY HƠN) ---
     system_prompt = (
-        "Bạn là một trợ lý bán hàng AI thông minh. 'Não' của bạn chứa thông tin về TẤT CẢ các sản phẩm công ty đang bán, được lưu trong một file JSON lớn dưới đây. "
-        "Mỗi key cấp cao nhất trong JSON là mã sản phẩm (ví dụ: 'product_sofa_A', 'kientruc_xyz').\n"
-        f"{context}\n"
-        "--- QUY TRÌNH LÀM VIỆC CỦA BẠN ---\N"
-        "1. **Đọc câu hỏi của khách.** (Vd: 'Cho tôi hỏi giá Nhà Hàng Hiên')."
-        "2. **Quét JSON:** Tự động tìm xem 'Nhà Hàng Hiên' nằm ở đâu trong JSON (Nó nằm trong 'kientruc_xyz' -> 'highlight_projects')."
-        "3. **Tìm thông tin liên quan:** Tìm giá, mô tả, hoặc bất cứ thứ gì khách hỏi."
-        "4. **Trả lời:** Trả lời câu hỏi của khách một cách tự nhiên, ngắn gọn, thân thiện."
-        "--- QUY TẮC ---\N"
-        "- Đừng bao giờ nói 'Tôi sẽ tìm trong JSON'. Hãy hành động như bạn *đã biết* câu trả lời."
-        "- Nếu khách hỏi về 2 sản phẩm (Vd: 'so sánh sofa A và sofa B'), hãy tự tin tra cứu cả 2 file ('product_sofa_A' và 'product_sofa_B') và so sánh."
-        "- Luôn trả lời ngắn gọn, có cảm xúc, thêm emoji."
-        "- **Tuyệt đối không** bịa thông tin không có trong JSON."
+        f"--- BẠN LÀ AI ---\n"
+        f"Bạn là '{persona_role}', một trợ lý AI bán hàng. 'Não' của bạn chứa thông tin về TẤT CẢ các sản phẩm và dịch vụ của công ty, được lưu trong file JSON lớn dưới đây.\n"
+        f"Vai trò của bạn: {persona_role}\n"
+        f"Tính cách (Tone): {persona_tone}\n"
+        f"Mục tiêu (Goal): {persona_goal}\n\n"
+        f"--- DỮ LIỆU (NÃO) CỦA BẠN ---\n"
+        f"{context}\n\n"
+        "--- QUY TRÌNH LÀM VIỆC CỦA BẠN ---\n"
+        "1. **Đọc câu hỏi của khách.** (Vd: 'Cho tôi hỏi giá Nhà Hàng Hiên').\n"
+        "2. **Quét JSON:** Tự động tìm xem 'Nhà Hàng Hiên' nằm ở đâu trong JSON (Nó nằm trong 'kientruc_xyz' -> 'highlight_projects').\n"
+        "3. **Trả lời:** Trả lời câu hỏi của khách một cách tự nhiên, ngắn gọn, thân thiện, và *đúng với tính cách* của bạn.\n\n"
+        "--- QUY TẮC VÀNG (ĐỂ TRẢ LỜI 'HAY') ---\n"
+        "- **NHẬP VAI:** Hành động như một chuyên gia tư vấn tinh tế, không phải cái máy. Đừng bao giờ nói 'Tôi sẽ tìm trong JSON'. Hãy hành động như bạn *đã biết* câu trả lời.\n"
+        "- **GỢI MỞ:** Sau khi trả lời, hãy *luôn* chủ động hỏi một câu hỏi gợi mở. (Vd: 'Bạn có muốn xem thêm hình ảnh chi tiết của dự án này không ạ?', 'Bạn dự định xây nhà trên diện tích bao nhiêu m2?').\n"
+        "- **SO SÁNH:** Nếu khách hỏi so sánh 2 sản phẩm, hãy tự tin tra cứu cả 2 và so sánh.\n"
+        "- **TUYỆT ĐỐI KHÔNG** bịa thông tin không có trong JSON."
     )
     
     messages = [
@@ -131,7 +127,7 @@ def call_openai(user_text):
 
     try:
         resp = client.chat.completions.create(
-            model="gpt-4o-mini", # Dùng 4o-mini cho rẻ và nhanh
+            model="gpt-4o-mini",
             messages=messages,
             temperature=0.7
         )
@@ -182,16 +178,13 @@ def webhook():
             msg_obj = evt.get("message", {})
             msg_text = msg_obj.get("text")
             
-            # Bỏ qua tin nhắn của chính Page
             if msg_obj.get("is_echo"):
                 continue
 
             if psid and msg_text:
                 print(f"👤 {psid} hỏi: {msg_text}")
-                # Gọi hàm xử lý chính
                 reply = call_openai(msg_text)
                 print(f"🤖 Bot trả lời: {reply}")
-                # Gửi trả lời về Facebook
                 send_text(psid, reply)
                 
     return "EVENT_RECEIVED", 200
@@ -199,7 +192,6 @@ def webhook():
 
 @app.route("/health")
 def health():
-    # Kiểm tra xem DATABASE đã được nạp thành công hay chưa
     data_loaded = DATABASE is not None and len(DATABASE.keys()) > 0
     return jsonify(
         ok=True, 
@@ -210,4 +202,4 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080))) # Đổi port 5000 thành 8080 (phổ biến hơn cho web)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
