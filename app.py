@@ -99,7 +99,7 @@ def call_openai(user_text):
     ]
 
     resp = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=messages,
         temperature=0.7
     )
@@ -155,4 +155,5 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
 
