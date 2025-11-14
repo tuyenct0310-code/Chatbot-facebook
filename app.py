@@ -1,7 +1,6 @@
 import os, json, random, requests
 from flask import Flask, request, jsonify
 from openai import OpenAI
-# (Đã xóa import google.generativeai)
 
 app = Flask(__name__)
 
@@ -11,7 +10,6 @@ app = Flask(__name__)
 PAGE_TOKEN   = os.environ.get("PAGE_ACCESS_TOKEN", "")
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "")
 OPENAI_KEY   = os.environ.get("OPENAI_API_KEY", "")
-# (Đã xóa GEMINI_KEY)
 
 FB_SEND_URL = f"https://graph.facebook.com/v19.0/me/messages?access_token={PAGE_TOKEN}"
 
@@ -26,8 +24,15 @@ except Exception as e:
     client = None
 
 # ==========================
-#  (ĐÃ XÓA TOÀN BỘ KHỐI GEMINI)
+#  (MỚI) THỨ TỰ ƯU TIÊN FILE JSON
 # ==========================
+# Bot sẽ kiểm tra file "quangcao_chatbot_ctt" trước,
+# rồi mới tới "kientruc_xyz", và cuối cùng là "oc_ngon_18".
+FILE_PRIORITY_ORDER = [
+    "quangcao_chatbot_ctt",
+    "kientruc_xyz",
+    "oc_ngon_18"
+]
 
 # ==========================
 #  LOAD ALL JSON IN /data
@@ -53,7 +58,7 @@ def load_all_data(folder="data"):
 DATABASE = load_all_data()
 
 # ==========================
-#  TÌM TRONG JSON (Fast path)
+#  TÌM TRONG JSON (Fast path) - (ĐÃ SỬA)
 # ==========================
 def find_in_json(text):
     if not DATABASE:
@@ -61,16 +66,40 @@ def find_in_json(text):
 
     t = text.lower()
 
-    for file_key, data in DATABASE.items():
+    # (MỚI) Lặp qua danh sách ƯU TIÊN
+    for file_key in FILE_PRIORITY_ORDER:
+        data = DATABASE.get(file_key) # Lấy đúng file
+        if not data:
+            continue # Bỏ qua nếu file này không được nạp
+
         triggers = data.get("chatbot_triggers", [])
         for tr in triggers:
             keywords = tr.get("keywords", [])
             if any(k in t for k in keywords):
+                # TÌM THẤY -> Trả lời ngay
+                print(f"✅ Trả lời nhanh (JSON - Ưu tiên từ file: {file_key})")
                 resp = tr.get("response", "")
                 if isinstance(resp, list):
                     return random.choice(resp)
                 return random.choice(resp.splitlines())
-    return None
+
+    # (MỚI) Lặp qua các file CÒN LẠI
+    # (Phòng trường hợp bạn thêm file mới mà quên cập nhật list)
+    for file_key, data in DATABASE.items():
+        if file_key in FILE_PRIORITY_ORDER:
+            continue # Bỏ qua vì đã kiểm tra ở trên
+
+        triggers = data.get("chatbot_triggers", [])
+        for tr in triggers:
+            keywords = tr.get("keywords", [])
+            if any(k in t for k in keywords):
+                print(f"✅ Trả lời nhanh (JSON - File: {file_key})")
+                resp = tr.get("response", "")
+                if isinstance(resp, list):
+                    return random.choice(resp)
+                return random.choice(resp.splitlines())
+                
+    return None # Không tìm thấy ở bất kỳ file nào
 
 # ==========================
 #  CONTEXT FILTER (RAG mini)
@@ -79,6 +108,7 @@ def find_relevant_context(user_text):
     text = user_text.lower()
     result = {}
 
+    # (Lưu ý: Hàm này vẫn quét TẤT CẢ các file để gửi cho AI)
     for file_key, content in DATABASE.items():
         projects = content.get("highlight_projects", [])
         products = content.get("products", [])
@@ -107,7 +137,21 @@ def find_relevant_context(user_text):
 # ==========================
 def get_persona_and_context(user_text):
     ctx = find_relevant_context(user_text)
-    persona = DATABASE.get("kientruc_xyz", {}).get("persona", {})
+    
+    # (Quan trọng) Persona giờ sẽ lấy từ file ưu tiên
+    # Nó sẽ thử lấy persona từ 'quangcao_chatbot_ctt', 
+    # nếu không có, nó sẽ thử 'kientruc_xyz'
+    persona = {}
+    for file_key in FILE_PRIORITY_ORDER:
+        persona_data = DATABASE.get(file_key, {}).get("persona", {})
+        if persona_data:
+            persona = persona_data
+            print(f"ℹ️ Đã lấy Persona từ file: {file_key}")
+            break
+    
+    # Nếu không file ưu tiên nào có persona, lấy đại 1 cái
+    if not persona:
+         persona = DATABASE.get("kientruc_xyz", {}).get("persona", {})
 
     role = persona.get("role", "Trợ lý AI")
     tone = persona.get("tone", "Thân thiện, chuyên nghiệp")
@@ -137,7 +181,7 @@ def call_openai(system_prompt, user_text):
         raise Exception("OpenAI chưa khởi tạo")
 
     resp = client.chat.completions.create(
-        model="gpt-4o-mini",  # Dùng model OpenAI
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_text}
@@ -149,18 +193,13 @@ def call_openai(system_prompt, user_text):
     return resp.choices[0].message.content.strip()
 
 # ==========================
-#  (ĐÃ XÓA HÀM CALL_GEMINI)
-# ==========================
-
-# ==========================
-#  LOGIC TRẢ LỜI (ĐÃ SỬA)
+#  LOGIC TRẢ LỜI
 # ==========================
 def get_smart_reply(user_text):
-    # 1. JSON trước
+    # 1. JSON trước (Đã ưu tiên theo file)
     fast = find_in_json(user_text)
     if fast:
-        print("✅ Trả lời nhanh (JSON)")
-        return fast
+        return fast # Đã bao gồm log bên trong find_in_json
 
     if not DATABASE:
         return "Dữ liệu đang nạp, thử lại sau 1 phút nha 😅"
@@ -172,7 +211,6 @@ def get_smart_reply(user_text):
         print("🧠 Trả lời thông minh: OpenAI (gpt-4o-mini)")
         return call_openai(system_prompt, text)
     except Exception as e:
-        # Nếu OpenAI lỗi (ví dụ 429 Rate Limit), thì báo bận
         print(f"❌ OpenAI thất bại: {e}")
         return "Hệ thống AI đang hơi bận. Bạn thử lại sau 1 phút nha 😅"
 
@@ -214,7 +252,6 @@ def webhook():
 
             if psid and msg:
                 print(f"👤 {psid} hỏi: {msg}")
-                # Hàm này giờ chỉ gọi OpenAI
                 reply = get_smart_reply(msg) 
                 print(f"🤖 Bot trả lời: {reply}")
                 send_text(psid, reply)
