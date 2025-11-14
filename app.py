@@ -1,8 +1,7 @@
-# Deploy lai lan nua
 import os, json, random, requests
 from flask import Flask, request, jsonify
 from openai import OpenAI
-import google.generativeai as genai
+# (Đã xóa import google.generativeai)
 
 app = Flask(__name__)
 
@@ -12,7 +11,7 @@ app = Flask(__name__)
 PAGE_TOKEN   = os.environ.get("PAGE_ACCESS_TOKEN", "")
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "")
 OPENAI_KEY   = os.environ.get("OPENAI_API_KEY", "")
-GEMINI_KEY   = os.environ.get("GEMINI_API_KEY", "")
+# (Đã xóa GEMINI_KEY)
 
 FB_SEND_URL = f"https://graph.facebook.com/v19.0/me/messages?access_token={PAGE_TOKEN}"
 
@@ -27,28 +26,8 @@ except Exception as e:
     client = None
 
 # ==========================
-#  Gemini
+#  (ĐÃ XÓA TOÀN BỘ KHỐI GEMINI)
 # ==========================
-try:
-    genai.configure(api_key=GEMINI_KEY)
-    # (ĐÃ SỬA) Đổi tên model trong log cho đúng
-    print("✅ Gemini đã sẵn sàng (1.0 Pro)") 
-except Exception as e:
-    print("❌ Lỗi Gemini:", e)
-
-GEMINI_SAFETY_SETTINGS = [
-    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-]
-
-GEMINI_GENERATION_CONFIG = {
-    "temperature": 0.7,
-    "top_p": 1,
-    "top_k": 1,
-    "max_output_tokens": 200
-}
 
 # ==========================
 #  LOAD ALL JSON IN /data
@@ -158,7 +137,7 @@ def call_openai(system_prompt, user_text):
         raise Exception("OpenAI chưa khởi tạo")
 
     resp = client.chat.completions.create(
-        model="gpt-4o-mini",  # <-- (ĐÃ SỬA) Sửa lại tên model cho đúng
+        model="gpt-4o-mini",  # Dùng model OpenAI
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_text}
@@ -170,21 +149,11 @@ def call_openai(system_prompt, user_text):
     return resp.choices[0].message.content.strip()
 
 # ==========================
-#  CALL GEMINI
+#  (ĐÃ XÓA HÀM CALL_GEMINI)
 # ==========================
-def call_gemini(system_prompt, user_text):
-    model = genai.GenerativeModel(
-        model_name="gemini-pro", # <-- (ĐÃ SỬA) Dùng model này
-        system_instruction=system_prompt,
-        generation_config=GEMINI_GENERATION_CONFIG,
-        safety_settings=GEMINI_SAFETY_SETTINGS
-    )
-
-    resp = model.generate_content(user_text)
-    return resp.text.strip()
 
 # ==========================
-#  FAILOVER
+#  LOGIC TRẢ LỜI (ĐÃ SỬA)
 # ==========================
 def get_smart_reply(user_text):
     # 1. JSON trước
@@ -198,23 +167,14 @@ def get_smart_reply(user_text):
 
     system_prompt, text = get_persona_and_context(user_text)
 
-    # 2. OpenAI
+    # 2. Chỉ gọi OpenAI
     try:
-        print("🧠 Thử ưu tiên 1: OpenAI (gpt-4o-mini)")
+        print("🧠 Trả lời thông minh: OpenAI (gpt-4o-mini)")
         return call_openai(system_prompt, text)
     except Exception as e:
-        print(f"⚠️ OpenAI thất bại: {e}")
-
-    # 3. Gemini
-    try:
-        print("🧠 Thử ưu tiên 2: Gemini (pro)")
-        return call_gemini(system_prompt, text)
-    except Exception as e:
-        print(f"❌ Gemini cũng thất bại: {e}")
-
-    # 4. Fail toàn bộ
-    print("❌ CẢ HAI HỆ THỐNG AI ĐỀU BẬN. Trả về tin nhắn dự phòng.")
-    return "Hệ thống đang bận, thử lại sau 1 phút nha 😅"
+        # Nếu OpenAI lỗi (ví dụ 429 Rate Limit), thì báo bận
+        print(f"❌ OpenAI thất bại: {e}")
+        return "Hệ thống AI đang hơi bận. Bạn thử lại sau 1 phút nha 😅"
 
 # ==========================
 #  SEND FACEBOOK
@@ -254,7 +214,8 @@ def webhook():
 
             if psid and msg:
                 print(f"👤 {psid} hỏi: {msg}")
-                reply = get_smart_reply(msg)
+                # Hàm này giờ chỉ gọi OpenAI
+                reply = get_smart_reply(msg) 
                 print(f"🤖 Bot trả lời: {reply}")
                 send_text(psid, reply)
 
@@ -270,4 +231,3 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
-
