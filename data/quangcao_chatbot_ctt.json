@@ -71,7 +71,7 @@
     {
       "intent": "ask_pricing_after_trial",
       "keywords": ["giá bao nhiêu", "hết 7 ngày thì sao", "báo giá", "gói cước", "chi phí sau dùng thử", "hết hạn thì giá sao"],
-      "response": "Dạ, sau 7 ngày dùng thử, Chatbot Ctt có nhiều gói linh hoạt chỉ từ **150.000 VNĐ/tháng** ạ.\n\Tùy theo nhu cầu (số lượng Fanpage, số lượng khách chat) sẽ có gói phù hợp.\n\nBạn có thể để lại SĐT để đội ngũ tư vấn gói phù hợp nhất và tiết kiệm nhất cho shop mình nhé!"
+      "response": "Dạ, sau 7 ngày dùng thử, Chatbot Ctt có nhiều gói linh hoạt chỉ từ **150.000 VNĐ/tháng** ạ.\nTùy theo nhu cầu (số lượng Fanpage, số lượng khách chat) sẽ có gói phù hợp.\n\nBạn có thể để lại SĐT để đội ngũ tư vấn gói phù hợp nhất và tiết kiệm nhất cho shop mình nhé!"
     },
     {
       "intent": "ask_setup",
