@@ -1,92 +1,65 @@
 {
   "persona": {
     "role": "Trợ lý AI của Chatbot Ctt",
-    "tone": "Nhiệt tình, thông minh, thuyết phục và am hiểu về marketing.",
-    "goal": "Giới thiệu về Chatbot Ctt và thuyết phục khách hàng đăng ký dùng thử miễn phí 7 ngày."
+    "tone": "Nhiệt tình, thông minh, thuyết phục và am hiểu marketing.",
+    "goal": "Giới thiệu Chatbot Ctt, tư vấn lợi ích, chức năng và gợi ý dùng thử miễn phí 7 ngày."
   },
+
   "chatbot_triggers": [
     {
-      "intent": "greet_hello",
-      "keywords": ["chào", "hello", "xin chào", "bạn là ai", "bạn tên gì", "hi bot"],
-      "response": [
-        "Xin chào 👋! Mình là **Chatbot Ctt** — trợ lý ảo giúp shop của bạn trả lời khách hàng tự động 24/7.",
-        "Chào bạn 💬! Đây là **Chatbot Ctt**, công cụ giúp shop **bán hàng thông minh hơn, chăm khách nhanh hơn**.",
-        "Xin chào 🥰! Mình là **Chatbot Ctt** — giúp bạn tự động trả lời tin nhắn, tư vấn sản phẩm và chốt đơn dễ dàng."
-      ]
+      "intent": "greet",
+      "keywords": ["chào", "xin chào", "hello", "hi bot", "bạn là ai", "bot là gì"],
+      "response": "Xin chào 👋! Mình là **Chatbot Ctt**, trợ lý AI hỗ trợ trả lời khách 24/7. Bạn đang quan tâm đến chatbot cho mục đích gì ạ?"
     },
     {
-      "intent": "ask_benefits",
-      "keywords": ["lợi ích", "lợi ích gì", "được gì", "tại sao nên dùng", "hơn gì"],
-      "response": [
-        "💬 Chatbot Ctt trả lời khách **ngay lập tức**, không cần bạn online cả ngày.",
-        "🧠 Tự động hiểu và phản hồi tin nhắn của khách: hỏi giá, sản phẩm, địa chỉ, khuyến mãi,…",
-        "📈 Giúp shop **tăng doanh số và giữ khách hàng quay lại**, chăm khách 24/7.",
-        "📦 Kết nối trực tiếp với **Fanpage Facebook, Zalo hoặc Website** của bạn."
-      ]
+      "intent": "benefits",
+      "keywords": ["lợi ích", "được gì", "tại sao dùng", "hơn gì", "hiệu quả", "tác dụng"],
+      "response": "Chatbot Ctt giúp shop trả lời khách **tức thì**, tự động tư vấn, giảm bỏ sót tin nhắn và tăng tỉ lệ chốt đơn rõ rệt. Bạn đang kinh doanh ngành gì để mình tư vấn đúng hơn ạ?"
     },
     {
-      "intent": "ask_features",
-      "keywords": ["tính năng", "làm được gì", "có gì hay", "chức năng"],
-      "response": [
-        "✅ Trả lời tự động các câu hỏi phổ biến (giá, sản phẩm, địa chỉ, khuyến mãi).",
-        "✅ Tư vấn sản phẩm theo nhuCầu khách hàng.",
-        "✅ Ghi nhận thông tin đặt hàng hoặc liên hệ nhanh.",
-        "✅ Dễ dàng tùy chỉnh nội dung chatbot theo từng shop.",
-        "✅ Hỗ trợ nhiều nền tảng: Facebook, Zalo, Website."
-      ]
+      "intent": "features",
+      "keywords": ["tính năng", "có gì", "làm được gì", "chức năng chatbot", "chatbot làm gì"],
+      "response": "Chatbot Ctt có các tính năng: trả lời tự động, tư vấn sản phẩm, ghi nhận đơn hàng, kịch bản bán hàng, nhắc lịch, quản lý khách hàng và hỗ trợ Facebook/Zalo/Website. Bạn muốn dùng chatbot theo kiểu đơn giản hay nâng cao?"
     },
     {
-      "intent": "ask_offer",
-      "keywords": ["ưu đãi", "khuyến mãi", "dùng thử", "miễn phí", "gói miễn phí"],
-      "response": [
-        "🎁 **Miễn phí dùng thử 7 ngày** tất cả tính năng Chatbot Ctt.",
-        "🚀 Dùng thử ngay, không cần cài đặt phức tạp — chỉ 3 phút là hoạt động.",
-        "💡 Sau 7 ngày, bạn có thể chọn tiếp tục hoặc dừng — hoàn toàn không ràng buộc."
-      ]
+      "intent": "offer",
+      "keywords": ["miễn phí", "free", "dùng thử", "khuyến mãi", "ưu đãi"],
+      "response": "🎁 Hiện tại bạn được **dùng thử miễn phí 7 ngày** tất cả tính năng. Không ràng buộc. Bạn muốn mình kích hoạt cho bạn không ạ?"
     },
     {
-      "intent": "ask_demo",
-      "keywords": ["demo", "xem demo", "thử nghiệm", "cho shop quần áo", "cho quán ăn", "xem thử"],
-      "response": [
-        "🎯 Gõ thử: 'Tôi muốn chatbot cho shop quần áo' hoặc 'Chatbot cho quán ăn' để xem demo thực tế.",
-        "💬 Chat thử ngay để thấy Chatbot Ctt phản hồi tự động và giới thiệu sản phẩm trong vài giây."
-      ]
+      "intent": "demo",
+      "keywords": ["demo", "xem thử", "thử chatbot", "test bot", "bot phản hồi"],
+      "response": "Bạn có thể thử nhắn bất kỳ câu hỏi nào về sản phẩm hoặc dịch vụ để xem bot phản hồi. Nếu bạn muốn demo theo ngành (quần áo, đồ ăn, mỹ phẩm…), hãy nói mình biết nha!"
     },
     {
-      "intent": "ask_contact",
-      "keywords": ["liên hệ", "số điện thoại", "sđt", "fanpage", "tư vấn"],
-      "response": [
-        "📞 Liên hệ để dùng thử miễn phí 7 ngày: **0987 763 916**",
-        "🌐 Inbox trực tiếp Fanpage Chatbot Ctt để được hỗ trợ cài đặt nhanh nhất!"
-      ]
+      "intent": "contact",
+      "keywords": ["liên hệ", "số điện thoại", "tư vấn", "fanpage"],
+      "response": "📞 Bạn có thể gọi/zalo: **0987 763 916** để được hỗ trợ nhanh. Hoặc để lại số, đội ngũ sẽ chủ động gọi tư vấn cho bạn ạ!"
     },
     {
-      "intent": "cta_end_thanks",
-      "keywords": ["cảm ơn", "ok", "thank you", "kết thúc", "hay quá"],
-      "response": [
-        "Cảm ơn bạn đã quan tâm ❤️! **Chatbot Ctt** có thể cài cho bất kỳ shop nào chỉ trong 5 phút.",
-        "Hãy nhắn 'Dùng thử Chatbot' để mình kích hoạt gói **miễn phí 7 ngày** cho shop của bạn nhé!"
-      ]
+      "intent": "pricing",
+      "keywords": ["giá", "bao nhiêu", "phí", "gói cước", "hết 7 ngày"],
+      "response": "Sau 7 ngày dùng thử miễn phí, Chatbot Ctt có gói từ **150.000đ/tháng**. Bạn đang quản lý bao nhiêu fanpage để mình tư vấn gói phù hợp nhất?"
     },
     {
-      "intent": "ask_pricing_after_trial",
-      "keywords": ["giá bao nhiêu", "hết 7 ngày thì sao", "báo giá", "gói cước", "chi phí sau dùng thử", "hết hạn thì giá sao"],
-      "response": "Dạ, sau 7 ngày dùng thử, Chatbot Ctt có nhiều gói linh hoạt chỉ từ **150.000 VNĐ/tháng** ạ.\nTùy theo nhu cầu (số lượng Fanpage, số lượng khách chat) sẽ có gói phù hợp.\n\nBạn có thể để lại SĐT để đội ngũ tư vấn gói phù hợp nhất và tiết kiệm nhất cho shop mình nhé!"
+      "intent": "setup",
+      "keywords": ["cài đặt", "how to setup", "khó không", "kết nối page", "cài bot"],
+      "response": "Việc cài chatbot rất đơn giản: 1) Đăng nhập, 2) Kết nối fanpage, 3) Bật trả lời tự động. Bạn muốn mình hướng dẫn chi tiết theo từng bước không?"
+    }
+  ],
+
+  "products": [
+    {
+      "name": "Chatbot tự động trả lời",
+      "description": "Tự động trả lời bình luận + tin nhắn Facebook/Zalo/Website."
     },
     {
-      "intent": "ask_setup",
-      "keywords": ["cài đặt thế nào", "cài có khó không", "tôi không biết code", "làm sao cài", "kết nối fanpage", "có dễ dùng không"],
-      "response": "Bạn yên tâm nhé! Chatbot Ctt được thiết kế cho chủ shop, **không cần biết code**.\n\nViệc cài đặt chỉ cần 3 bước: \n1. Đăng nhập.\n2. Bấm nút Kết nối với Fanpage của bạn.\n3. Thêm nội dung trả lời (giống như bạn gõ text).\n\nĐội ngũ Ctt sẽ hỗ trợ bạn 1-1 trong suốt quá trình dùng thử ạ!"
+      "name": "Chatbot thu thập thông tin đơn hàng",
+      "description": "Lấy số điện thoại, địa chỉ, sản phẩm và tạo đơn."
     },
     {
-      "intent": "ask_social_proof",
-      "keywords": ["shop nào dùng rồi", "ai dùng chưa", "review", "có hiệu quả không", "khách hàng"],
-      "response": "Dạ, Chatbot Ctt đã được tin dùng bởi hơn 100+ shop lớn nhỏ trong các ngành F&B (quán ăn), Thời trang, Mỹ phẩm...\n\nCác shop đều phản hồi tốt về tốc độ trả lời khách và giảm tải công việc cho nhân viên.\n\nBạn bắt đầu dùng thử miễn phí 7 ngày để trải nghiệm hiệu quả ngay trên shop của mình nhé!"
-    },
-    {
-      "intent": "ask_comparison",
-      "keywords": ["so sánh", "khác biệt gì", "không dùng thì sao", "hơn gì so với thủ công", "tại sao phải dùng", "hiệu quả thế nào"],
-      "response": "Dạ, đây là so sánh hiệu quả rõ nhất ạ:\n\n**🌙 KHI KHÔNG CÓ CHATBOT (Shop bạn):**\n- 😩 Khách chat lúc nửa đêm -> Bạn lỡ tin nhắn.\n- ⏳ Khách hỏi giá -> 30 phút sau bạn mới thấy.\n- 🏃‍♂️ Khách bực vì chờ lâu -> Họ sang shop đối thủ.\n- 💸 **Kết quả:** Mất khách, tốn công sức, phải online 24/7.\n\n**☀️ KHI CÓ CHATBOT CTT:**\n- 🤩 Khách chat lúc 2 giờ sáng -> Bot trả lời ngay lập tức.\n- 💡 Khách hỏi giá -> Bot báo giá và tư vấn sản phẩm liên quan.\n- 🛍️ Khách chốt đơn -> Bot tự động xin thông tin (SĐT, địa chỉ).\n- 🚀 **Kết quả:** Tăng tỷ lệ chốt đơn, shop rảnh tay, khách hàng hài lòng.\n\nBạn có muốn trải nghiệm **miễn phí 7 ngày** để thấy hiệu quả ☀️ ngay không ạ?"
+      "name": "Chatbot tư vấn sản phẩm thông minh",
+      "description": "Hiểu câu hỏi và gợi ý sản phẩm phù hợp dựa theo từ khóa."
     }
   ]
 }
