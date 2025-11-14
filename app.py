@@ -470,8 +470,35 @@ def health():
         files=list(DATABASE.keys()),
         embed_count=len(EMBED_STORE["vectors"]) if EMBED_STORE else 0
     )
+# ======================================================
+#  ENDPOINT REBUILD EMBEDDINGS (tự động xóa + build lại)
+# ======================================================
+@app.route("/rebuild-embed", methods=["GET"])
+def rebuild_embed():
+    try:
+        # Xoá file embeddings_store.json nếu tồn tại
+        if os.path.exists("embeddings_store.json"):
+            os.remove("embeddings_store.json")
+            msg = "Đã xóa embeddings_store.json. Bắt đầu build lại..."
+            print("⚠️", msg)
+        else:
+            msg = "Không thấy embeddings_store.json. Sẽ build mới."
+
+        # Build lại (force = True)
+        ensure_embeddings(force=True)
+
+        return {
+            "ok": True,
+            "message": "Rebuild embeddings thành công.",
+            "detail": msg
+        }
+
+    except Exception as e:
+        print("❌ Lỗi rebuild embeddings:", e)
+        return {"ok": False, "error": str(e)}, 500
 
 if __name__ == "__main__":
     # force-build embeddings once before serving (optional)
     # ensure_embeddings(force=True)
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
