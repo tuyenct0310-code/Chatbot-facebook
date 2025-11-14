@@ -25,8 +25,8 @@ except Exception as e:
 # --- Khởi tạo Gemini ---
 try:
     genai.configure(api_key=GEMINI_KEY)
-    gemini_model = genai.GenerativeModel('gemini-pro')
-    print("✅ Đã khởi tạo Gemini Model (pro)")
+    gemini_model = genai.GenerativeModel('gemini-1.0-pro'')
+    print("✅ Đã khởi tạo Gemini Model (1.0-pro')")
 except Exception as e:
     print(f"❌ Lỗi khởi tạo Gemini: {e}")
     gemini_model = None
@@ -178,7 +178,7 @@ def call_gemini(system_prompt, user_text):
         
     # Khởi tạo model với system prompt (cách của Gemini)
     chat_model = genai.GenerativeModel(
-        model_name='gemini-pro',
+        model_name='gemini-1.0-pro'',
         generation_config=GEMINI_GENERATION_CONFIG,
         system_instruction=system_prompt,
         safety_settings=GEMINI_SAFETY_SETTINGS
@@ -218,7 +218,7 @@ def get_smart_reply(user_text):
         
         # 4. OpenAI hỏng -> Thử Ưu tiên 2: Gemini
         try:
-            print("🧠 Thử Ưu tiên 2: Gemini (1.5-flash)")
+            print("🧠 Thử Ưu tiên 2: Gemini (1.0-pro')")
             reply = call_gemini(system_prompt, user_text_for_ai)
             return reply
         except Exception as e_gemini:
@@ -299,4 +299,5 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
 
