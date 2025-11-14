@@ -25,8 +25,8 @@ except Exception as e:
 # --- Khởi tạo Gemini ---
 try:
     genai.configure(api_key=GEMINI_KEY)
-    gemini_model = genai.GenerativeModel('gemini-1.5-flash')
-    print("✅ Đã khởi tạo Gemini Model (1.5 Flash)")
+    gemini_model = genai.GenerativeModel('gemini-pro')
+    print("✅ Đã khởi tạo Gemini Model (pro)")
 except Exception as e:
     print(f"❌ Lỗi khởi tạo Gemini: {e}")
     gemini_model = None
@@ -178,7 +178,7 @@ def call_gemini(system_prompt, user_text):
         
     # Khởi tạo model với system prompt (cách của Gemini)
     chat_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash',
+        model_name='gemini-pro',
         generation_config=GEMINI_GENERATION_CONFIG,
         system_instruction=system_prompt,
         safety_settings=GEMINI_SAFETY_SETTINGS
@@ -299,3 +299,4 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
