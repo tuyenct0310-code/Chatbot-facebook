@@ -1,126 +1,66 @@
 {
-  "company_profile": {
-    "brandName": "KTS Sáng Tạo (XYZ Studio)",
-    "address": "Số 10, Đường Sáng Tạo, Quận Sáng Tạo, Hà Nội",
-    "website": "https://www.kts-sangtao-portfolio.com",
-    "established_year": 2011,
-    "founder_representative": "Nguyễn Văn A / Trần Tuấn B (Kiến trúc sư chủ trì)"
-  },
   "persona": {
     "role": "Trợ lý AI của XYZ Studio",
-    "tone": "Chuyên nghiệp, tinh tế, sáng tạo, nhiệt tình và chủ động.",
-    "goal": "Không chỉ trả lời, mà phải tư vấn và gợi mở, làm cho khách hàng cảm thấy được trân trọng và muốn trao đổi sâu hơn."
+    "tone": "Chuyên nghiệp, tinh tế, sáng tạo và thân thiện.",
+    "goal": "Gợi mở, tư vấn kiến trúc – nội thất và hỗ trợ khách hiểu rõ dịch vụ."
   },
-  "core_identity": {
-    "mission_statement": "XYZ Studio là một văn phòng thực hành kiến trúc, tập trung vào các dự án sáng tạo, nhiều thử nghiệm, mang lại niềm vui cho khách hàng và đội ngũ KTS.",
-    "design_philosophy": "Phong cách chủ đạo là 'sự tiếp biến của truyền thống' thông qua 'ngôn ngữ đương đại'. Chúng tôi dùng vật liệu hiện đại (bê tông, kính) để tái hiện tinh thần không gian truyền thống (hàng hiên, sân trong, mái dốc).",
-    "on_awards": "Giải thưởng là sự ghi nhận quan trọng, nhưng đích đến của chúng tôi là sự hài lòng của khách hàng và chất lượng của không gian sống."
-  },
-  "services": [
-    {
-      "service_name": "Thiết kế kiến trúc (Residential Focus)",
-      "description": "Dịch vụ cốt lõi, chuyên sâu về nhà ở tư nhân, nhà ống đô thị và biệt thự."
-    },
-    {
-      "service_name": "Thiết kế nội thất (Interior Design)",
-      "description": "Cung cấp giải pháp thiết kế nội thất đồng bộ với kiến trúc."
-    },
-    {
-      "service_name": "Cải tạo (Refurbishment)",
-      "description": "Chuyên cải tạo nhà cũ, nhà ống để tối ưu ánh sáng và thông gió."
-    }
-  ],
-  "key_awards": [
-    {
-      "award": "Giải Đồng - Giải thưởng Kiến trúc Quốc gia 2024",
-      "project": "Nhà Hàng Hiên (DHY)"
-    },
-    {
-      "award": "Giải Đồng - Giải thưởng Kiến trúc Quốc gia 2022",
-      "project": "Nhà Mái Dốc (LPHV)"
-    }
-  ],
-  "highlight_projects": [
-    {
-      "name": "Nhà Hàng Hiên (DHY)",
-      "location": "Tỉnh T.N",
-      "concept": "Một cấu trúc ở được hình thành bởi sự tổ hợp của không gian sử dụng và những 'hàng hiên', 'khoảng đệm' với tỉ lệ khác nhau.",
-      "award": "Giải Đồng GTKTQG 2024"
-    },
-    {
-      "name": "Nhà Mái Dốc (LPHV)",
-      "location": "TP. Vinh",
-      "concept": "Tái hiện tinh thần nhà truyền thống với 'hàng hiên sâu, dài' và 'sân trước', hệ mái dốc và vì kèo gỗ, kết hợp ngôn ngữ đương đại.",
-      "award": "Giải Đồng GTKTQG 2022"
-    },
-    {
-      "name": "Nhà Giếng Trời Phễu (TNV)",
-      "location": "Hà Nội",
-      "concept": "Thiết kế độc đáo với giếng trời hình 'phễu', là 'trái tim' cảm xúc của ngôi nhà, tối ưu ánh sáng và thông gió.",
-      "award": "Giải Bạc GTKTQG 2018"
-    }
-  ],
+
   "chatbot_triggers": [
     {
-      "intent": "greet_hello",
-      "keywords": [
-        "chào",
-        "hello",
-        "xin chào",
-        "bạn là ai",
-        "bạn tên gì",
-        "hi bot"
-      ],
-      "response": "Chào bạn, tôi là Trợ lý AI của XYZ Studio. Tôi có thể giúp bạn tìm hiểu về các dự án, triết lý thiết kế hoặc tư vấn sơ bộ về chi phí. Bạn đang quan tâm đến điều gì ạ?"
+      "intent": "greet",
+      "keywords": ["chào", "hello", "xin chào", "bạn là ai"],
+      "response": "Xin chào bạn 👋! Tôi là Trợ lý AI của XYZ Studio. Bạn muốn xem dự án, hỏi chi phí hay tư vấn thiết kế nhà ạ?"
     },
     {
-      "intent": "ask_project_pricing",
-      "keywords": [
-        "giá",
-        "chi phí",
-        "báo giá",
-        "hết bao nhiêu tiền",
-        "giá thiết kế",
-        "giá thi công",
-        "nội thất",
-        "xây dựng",
-        "xây nhà"
-      ],
-      "response": "Dạ đây là một câu hỏi rất quan trọng! Chi phí thường được chia thành 2 phần chính:\n\n1. **Phí Thiết kế (Kiến trúc & Nội thất):** Được tính theo m2, tùy thuộc vào mức độ chi tiết và phong cách.\n\n2. **Chi phí Xây dựng/Thi công:** Đây là phần lớn nhất, phụ thuộc vào quy mô (m2 xây dựng) và vật liệu hoàn thiện (từ cơ bản đến cao cấp).\n\nXYZ Studio không đưa ra báo giá 'rẻ', chúng tôi đưa ra báo giá 'đúng' để đảm bảo chất lượng. Bạn có thể cho tôi biết sơ bộ về diện tích và địa điểm không? Hoặc để lại SĐT/Email, KTS của chúng tôi sẽ liên hệ tư vấn 1-1 và lập dự toán sơ bộ cho bạn nhé!"
+      "intent": "ask_design",
+      "keywords": ["mẫu nhà", "thiết kế nhà", "nhà đẹp", "nhà phố", "nhà ống", "biệt thự"],
+      "response": "XYZ Studio chuyên thiết kế nhà phố, nhà ống, biệt thự và nội thất đồng bộ. Bạn quan tâm mẫu nhà 1 tầng, 2 tầng hay 3 tầng để tôi gợi ý dự án phù hợp?"
+    },
+    {
+      "intent": "ask_cost",
+      "keywords": ["chi phí", "báo giá", "giá thiết kế", "xây nhà", "thi công"],
+      "response": "Chi phí thiết kế phụ thuộc diện tích, độ chi tiết và phong cách. Bạn có thể cho mình biết diện tích và vị trí để xác định mức hợp lý ạ?"
     },
     {
       "intent": "ask_contact",
-      "keywords": [
-        "liên hệ",
-        "địa chỉ",
-        "văn phòng ở đâu",
-        "gặp ai",
-        "số điện thoại"
-      ],
-      "response": "Văn phòng của KTS Sáng Tạo (XYZ Studio) đặt tại [Số 10, Đường Sáng Tạo, Quận Sáng Tạo, Hà Nội]. Bạn có thể tham khảo các dự án tại website [https://www.kts-sangtao-portfolio.com]. Bạn muốn đặt lịch hẹn tư vấn chứ?"
+      "keywords": ["địa chỉ", "văn phòng", "liên hệ", "gặp ai"],
+      "response": "Văn phòng XYZ Studio tại **Số 10 – Đường Sáng Tạo – Hà Nội**. Bạn muốn đặt lịch hẹn tư vấn chứ?"
+    }
+  ],
+
+  "services": [
+    {
+      "name": "Thiết kế kiến trúc nhà ở",
+      "description": "Thiết kế nhà phố, nhà ống, biệt thự – phong cách hiện đại, tối giản, đương đại."
     },
     {
-      "intent": "ask_chatbot_pricing",
-      "keywords": [
-        "con bot này",
-        "chatbot này",
-        "ai làm bot",
-        "làm con bot này hết bao nhiêu",
-        "mua bot"
-      ],
-      "response": "Cảm ơn bạn đã quan tâm! Tôi là một chatbot AI demo được phát triển bởi [Tên Của Bạn/Công Ty Bạn]. Nếu bạn muốn một chatbot thông minh tương tự cho doanh nghiệp của mình, vui lòng liên hệ [Email/SĐT Của Bạn] để nhận báo giá nhé!"
+      "name": "Thiết kế nội thất",
+      "description": "Nội thất đồng bộ theo kiến trúc, tối ưu công năng – thẩm mỹ."
     },
     {
-      "intent": "acknowledge_thanks",
-      "keywords": [
-        "cảm ơn",
-        "ok cảm ơn",
-        "thank you",
-        "thanks",
-        "hay quá",
-        "tuyệt vời"
-      ],
-      "response": "Dạ không có gì ạ! Bạn còn cần tôi tư vấn thêm về dự án hay dịch vụ nào khác không?"
+      "name": "Cải tạo nhà ở",
+      "description": "Cải tạo nhà ống cũ, mở sáng – thông gió – thay đổi không gian sống."
+    }
+  ],
+
+  "highlight_projects": [
+    {
+      "name": "Nhà Hàng Hiên (DHY)",
+      "style": "Nhà phố – nhà ống",
+      "concept": "Thiết kế nhà ở hiện đại với hàng hiên nhiều lớp, tối ưu ánh sáng & gió.",
+      "award": "Giải Đồng Kiến trúc Quốc gia 2024"
+    },
+    {
+      "name": "Nhà Mái Dốc (LPHV)",
+      "style": "Nhà 2 tầng – truyền thống đương đại",
+      "concept": "Ngôn ngữ truyền thống (hiên sâu – sân trước) kết hợp vật liệu hiện đại.",
+      "award": "Giải Đồng Kiến trúc Quốc gia 2022"
+    },
+    {
+      "name": "Nhà Giếng Trời Phễu (TNV)",
+      "style": "Nhà ống đô thị",
+      "concept": "Tạo giếng trời hình phễu giúp dẫn sáng – thông gió cho nhà sâu.",
+      "award": "Giải Bạc Kiến trúc Quốc gia 2018"
     }
   ]
 }
