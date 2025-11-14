@@ -73,11 +73,67 @@ def find_in_json(user_text):
 
 
 # ===================================
+# (MỚI) RÚT GỌN CONTEXT GỬI CHO AI
+# ===================================
+def find_relevant_context(user_text):
+    """
+    (HÀM MỚI - RAG ĐƠN GIẢN)
+    Tìm và chỉ gửi những phần DỮ LIỆU LIÊN QUAN cho OpenAI.
+    Đây là mấu chốt để tiết kiệm token ĐẦU VÀO (input).
+    """
+    print("🧠 Đang tìm context liên quan...")
+    text_lower = user_text.lower()
+    relevant_data = {}
+    
+    # Quét qua từng file (từng "não")
+    for file_key, content in DATABASE.items():
+        # Lấy tất cả dự án/sản phẩm (giả sử chúng nằm trong key này)
+        projects = content.get("highlight_projects", [])
+        products = content.get("products", [])
+        
+        found_items = []
+        
+        # 1. Tìm trong dự án
+        for item in projects:
+            name = item.get("name", "").lower()
+            # Nếu tên dự án xuất hiện trong tin nhắn của khách
+            if name and name in text_lower:
+                found_items.append(item)
+                
+        # 2. Tìm trong sản phẩm
+        for item in products:
+            name = item.get("name", "").lower()
+            # Nếu tên sản phẩm xuất hiện trong tin nhắn của khách
+            if name and name in text_lower:
+                found_items.append(item)
+
+        # Nếu tìm thấy thứ gì đó liên quan trong file này
+        if found_items:
+            print(f"✅ Tìm thấy {len(found_items)} mục liên quan trong '{file_key}'")
+            # Chúng ta chỉ gửi những mục tìm thấy, không gửi toàn bộ file
+            if file_key not in relevant_data:
+                 relevant_data[file_key] = {}
+            
+            # (Quan trọng) Chỉ thêm các mục liên quan
+            relevant_data[file_key]["relevant_items_found"] = found_items
+            
+    if not relevant_data:
+        print("⚠️ Không tìm thấy context sản phẩm/dự án cụ thể.")
+        # Nếu không có gì liên quan, chỉ gửi thông báo
+        return json.dumps({"ghi_chu": "Không tìm thấy dữ liệu sản phẩm/dự án liên quan. Chỉ trả lời dựa trên persona."})
+
+    # Trả về chuỗi JSON của CHỈ NHỮNG DỮ LIỆU LIÊN QUAN
+    print(f"✅ Đã rút gọn context, chỉ gửi: {list(relevant_data.keys())}")
+    return json.dumps(relevant_data, ensure_ascii=False, indent=2)
+
+
+# ===================================
 #  KẾT HỢP GPT ĐỂ TRẢ LỜI TỰ NHIÊN
 # ===================================
 def call_openai(user_text):
     """
-    (NÂNG CẤP) Gọi OpenAI với System Prompt "xịn" hơn, có "vai trò" (persona).
+    (NÂNG CẤP) Gọi OpenAI với System Prompt "xịn" hơn, có "vai trò" (persona)
+    và CONTEXT ĐÃ ĐƯỢC RÚT GỌN.
     """
     # 1. Thử trả lời nhanh bằng JSON trước
     local_reply = find_in_json(user_text)
@@ -91,10 +147,13 @@ def call_openai(user_text):
     if not DATABASE:
         return "Xin lỗi, 'não' của tôi đang được nạp, bạn thử lại sau 1 phút nhé! 😅"
     
-    # Nạp toàn bộ "não" cho OpenAI đọc
-    context = json.dumps(DATABASE, ensure_ascii=False, indent=2)
+    # --- (THAY ĐỔI QUAN TRỌNG) ---
+    # KHÔNG gửi toàn bộ DATABASE
+    # CHỈ gửi những gì liên quan
+    relevant_context = find_relevant_context(user_text)
     
     # Lấy persona từ file kientruc_xyz (hoặc file config chính)
+    # (Giữ nguyên logic lấy persona của bạn)
     persona_data = DATABASE.get("kientruc_xyz", {}).get("persona", {})
     persona_role = persona_data.get("role", "Trợ lý AI")
     persona_tone = persona_data.get("tone", "Thân thiện, chuyên nghiệp")
@@ -103,21 +162,23 @@ def call_openai(user_text):
     # --- SYSTEM PROMPT (HAY HƠN) ---
     system_prompt = (
         f"--- BẠN LÀ AI ---\n"
-        f"Bạn là '{persona_role}', một trợ lý AI bán hàng. 'Não' của bạn chứa thông tin về TẤT CẢ các sản phẩm và dịch vụ của công ty, được lưu trong file JSON lớn dưới đây.\n"
+        f"Bạn là '{persona_role}', một trợ lý AI bán hàng.\n"
         f"Vai trò của bạn: {persona_role}\n"
         f"Tính cách (Tone): {persona_tone}\n"
         f"Mục tiêu (Goal): {persona_goal}\n\n"
-        f"--- DỮ LIỆU (NÃO) CỦA BẠN ---\n"
-        f"{context}\n\n"
+        f"--- DỮ LIỆU LIÊN QUAN (ĐÃ LỌC) ---\n"
+        f"Dưới đây là mẩu dữ liệu được trích xuất từ 'não' của bạn VÌ NÓ LIÊN QUAN đến câu hỏi của khách. Nếu không có gì, bạn chỉ cần trò chuyện bình thường.\n"
+        f"{relevant_context}\n\n"
         "--- QUY TRÌNH LÀM VIỆC CỦA BẠN ---\n"
-        "1. **Đọc câu hỏi của khách.** (Vd: 'Cho tôi hỏi giá Nhà Hàng Hiên').\n"
-        "2. **Quét JSON:** Tự động tìm xem 'Nhà Hàng Hiên' nằm ở đâu trong JSON (Nó nằm trong 'kientruc_xyz' -> 'highlight_projects').\n"
-        "3. **Trả lời:** Trả lời câu hỏi của khách một cách tự nhiên, ngắn gọn, thân thiện, và *đúng với tính cách* của bạn.\n\n"
-        "--- QUY TẮC VÀNG (ĐỂ TRẢ LỜI 'HAY') ---\n"
-        "- **NHẬP VAI:** Hành động như một chuyên gia tư vấn tinh tế, không phải cái máy. Đừng bao giờ nói 'Tôi sẽ tìm trong JSON'. Hãy hành động như bạn *đã biết* câu trả lời.\n"
-        "- **GỢI MỞ:** Sau khi trả lời, hãy *luôn* chủ động hỏi một câu hỏi gợi mở. (Vd: 'Bạn có muốn xem thêm hình ảnh chi tiết của dự án này không ạ?', 'Bạn dự định xây nhà trên diện tích bao nhiêu m2?').\n"
-        "- **SO SÁNH:** Nếu khách hỏi so sánh 2 sản phẩm, hãy tự tin tra cứu cả 2 và so sánh.\n"
-        "- **TUYỆT ĐỐI KHÔNG** bịa thông tin không có trong JSON."
+        "1. **Đọc câu hỏi của khách.**\n"
+        "2. **Đọc DỮ LIỆU LIÊN QUAN:** Xem trong JSON bên trên có thông tin để trả lời không.\n"
+        "3. **Trả lời:** Trả lời tự nhiên, ngắn gọn, *đúng với tính cách*.\n\n"
+        "--- QUY TẮC VÀNG (ĐỂ TRẢ LỜI 'HAY' VÀ 'GỌN') ---\n"
+        "- **(MỚI) NGẮN GỌN:** LUÔN trả lời ngắn gọn, súc tích, đi thẳng vào vấn đề. Tối đa 3-4 câu. Đừng viết văn dài dòng.\n"
+
+        "- **NHẬP VAI:** Hành động như một chuyên gia tư vấn, không phải cái máy. Đừng bao giờ nói 'Tôi sẽ tìm trong JSON'. Hãy hành động như bạn *đã biết* câu trả lời.\n"
+        "- **GỢI MỞ:** Sau khi trả lời, hãy hỏi một câu hỏi gợi mở *ngắn*. (Vd: 'Bạn muốn xem thêm ảnh dự án này không ạ?', 'Bạn cần tư vấn thêm gì ạ?').\n"
+        "- **TUYỆT ĐỐI KHÔNG** bịa thông tin không có trong DỮ LIỆU LIÊN QUAN."
     )
     
     messages = [
@@ -129,11 +190,16 @@ def call_openai(user_text):
         resp = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            temperature=0.7
+            temperature=0.7,
+            # --- (THAY ĐỔI MỚI) ---
+            # Giới hạn token ĐẦU RA để câu trả lời luôn ngắn gọn
+            max_tokens=200 
         )
         return resp.choices[0].message.content.strip()
     except Exception as e:
         print(f"❌ Lỗi OpenAI: {e}")
+        # (Lưu ý: Lỗi 429 vẫn có thể xảy ra nếu bạn có quá nhiều người hỏi CÙNG LÚC,
+        # nhưng lỗi do 1 request quá lớn sẽ được khắc phục)
         return "Xin lỗi, hệ thống AI đang hơi bận. Bạn thử lại sau 1 phút nha 😅"
 
 
