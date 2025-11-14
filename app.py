@@ -18,16 +18,14 @@ FB_SEND_URL = f"https://graph.facebook.com/v19.0/me/messages?access_token={PAGE_
 # ==========================
 try:
     client = OpenAI(api_key=OPENAI_KEY)
-    print("✅✅✅ PHIÊN BẢN CODE MỚI NHẤT ĐÃ CHẠY ✅✅✅")
+    print("✅ OpenAI đã khởi tạo")
 except Exception as e:
     print("❌ Lỗi OpenAI:", e)
     client = None
 
 # ==========================
-#  (MỚI) THỨ TỰ ƯU TIÊN FILE JSON
+#  ƯU TIÊN JSON
 # ==========================
-# Bot sẽ kiểm tra file "quangcao_chatbot_ctt" trước,
-# rồi mới tới "kientruc_xyz", và cuối cùng là "oc_ngon_18".
 FILE_PRIORITY_ORDER = [
     "quangcao_chatbot_ctt",
     "kientruc_xyz",
@@ -35,12 +33,12 @@ FILE_PRIORITY_ORDER = [
 ]
 
 # ==========================
-#  LOAD ALL JSON IN /data
+#  LOAD TẤT CẢ JSON
 # ==========================
 def load_all_data(folder="data"):
     db = {}
     if not os.path.exists(folder):
-        print("❌ Không tìm thấy thư mục 'data'")
+        print("❌ Không có thư mục data/")
         return db
 
     for file in os.listdir(folder):
@@ -50,15 +48,15 @@ def load_all_data(folder="data"):
                     key = file.replace(".json", "")
                     db[key] = json.load(f)
             except Exception as e:
-                print("❌ Lỗi đọc", file, e)
+                print("❌ Lỗi đọc file:", file, e)
 
-    print("✅ Đã nạp:", list(db.keys()))
+    print("📂 Đã load JSON:", list(db.keys()))
     return db
 
 DATABASE = load_all_data()
 
 # ==========================
-#  TÌM TRONG JSON (Fast path) - (ĐÃ SỬA)
+#  MATCH JSON CHÍNH XÁC
 # ==========================
 def find_in_json(text):
     if not DATABASE:
@@ -66,168 +64,149 @@ def find_in_json(text):
 
     t = text.lower()
 
-    # (MỚI) Lặp qua danh sách ƯU TIÊN
+    # Ưu tiên file trước
     for file_key in FILE_PRIORITY_ORDER:
-        data = DATABASE.get(file_key) # Lấy đúng file
+        data = DATABASE.get(file_key)
         if not data:
-            continue # Bỏ qua nếu file này không được nạp
+            continue
 
-        triggers = data.get("chatbot_triggers", [])
-        for tr in triggers:
-            keywords = tr.get("keywords", [])
+        for tr in data.get("chatbot_triggers", []):
+            keywords = [k.lower() for k in tr.get("keywords", [])]
+
+            # match từ khóa chính xác (không match sai kiểu chứa 1 phần)
             if any(k in t for k in keywords):
-                # TÌM THẤY -> Trả lời ngay
-                print(f"✅ Trả lời nhanh (JSON - Ưu tiên từ file: {file_key})")
+                print(f"🎯 JSON match → {file_key}")
                 resp = tr.get("response", "")
                 if isinstance(resp, list):
                     return random.choice(resp)
                 return random.choice(resp.splitlines())
 
-    # (MỚI) Lặp qua các file CÒN LẠI
-    # (Phòng trường hợp bạn thêm file mới mà quên cập nhật list)
-    for file_key, data in DATABASE.items():
-        if file_key in FILE_PRIORITY_ORDER:
-            continue # Bỏ qua vì đã kiểm tra ở trên
-
-        triggers = data.get("chatbot_triggers", [])
-        for tr in triggers:
-            keywords = tr.get("keywords", [])
-            if any(k in t for k in keywords):
-                print(f"✅ Trả lời nhanh (JSON - File: {file_key})")
-                resp = tr.get("response", "")
-                if isinstance(resp, list):
-                    return random.choice(resp)
-                return random.choice(resp.splitlines())
-                
-    return None # Không tìm thấy ở bất kỳ file nào
+    return None
 
 # ==========================
-#  CONTEXT FILTER (RAG mini)
+#  XÁC ĐỊNH DỊCH VỤ (INTENT)
+# ==========================
+def detect_intent(user_text):
+    t = user_text.lower()
+    matches = []
+
+    for file_key, data in DATABASE.items():
+        file_keywords = []
+        for tr in data.get("chatbot_triggers", []):
+            file_keywords.extend([k.lower() for k in tr.get("keywords", [])])
+
+        if any(k in t for k in file_keywords):
+            matches.append(file_key)
+
+    if matches:
+        print("🧭 Intent:", matches[0])
+        return matches[0]
+
+    print("⚠️ Không xác định được intent")
+    return None
+
+# ==========================
+#  RÚT GỌN CONTEXT CHẶT CHẼ
 # ==========================
 def find_relevant_context(user_text):
-    text = user_text.lower()
-    result = {}
+    intent = detect_intent(user_text)
+    if not intent:
+        return "{}"
 
-    # (Lưu ý: Hàm này vẫn quét TẤT CẢ các file để gửi cho AI)
-    for file_key, content in DATABASE.items():
-        projects = content.get("highlight_projects", [])
-        products = content.get("products", [])
-        found = []
+    content = DATABASE.get(intent, {})
 
-        for item in projects:
-            if item.get("name", "").lower() in text:
-                found.append(item)
+    ctx = {
+        "triggers": content.get("chatbot_triggers", []),
+        "products": content.get("products", []),
+        "projects": content.get("highlight_projects", [])
+    }
 
-        for item in products:
-            if item.get("name", "").lower() in text:
-                found.append(item)
-
-        if found:
-            result[file_key] = {"relevant_items_found": found}
-
-    if not result:
-        print("⚠️ Không tìm thấy context sản phẩm/dự án cụ thể.")
-        return json.dumps({"note": "Không tìm thấy sản phẩm/dự án phù hợp."})
-    
-    print(f"✅ Đã rút gọn context, chỉ gửi: {list(result.keys())}")
-    return json.dumps(result, ensure_ascii=False, indent=2)
+    print("📦 Gửi context từ:", intent)
+    return json.dumps(ctx, ensure_ascii=False)
 
 # ==========================
-#  PERSONA
+#  PERSONA + STRICT MODE
 # ==========================
 def get_persona_and_context(user_text):
     ctx = find_relevant_context(user_text)
-    
-    # (Quan trọng) Persona giờ sẽ lấy từ file ưu tiên
-    # Nó sẽ thử lấy persona từ 'quangcao_chatbot_ctt', 
-    # nếu không có, nó sẽ thử 'kientruc_xyz'
-    persona = {}
-    for file_key in FILE_PRIORITY_ORDER:
-        persona_data = DATABASE.get(file_key, {}).get("persona", {})
-        if persona_data:
-            persona = persona_data
-            print(f"ℹ️ Đã lấy Persona từ file: {file_key}")
-            break
-    
-    # Nếu không file ưu tiên nào có persona, lấy đại 1 cái
-    if not persona:
-         persona = DATABASE.get("kientruc_xyz", {}).get("persona", {})
 
-    role = persona.get("role", "Trợ lý AI")
-    tone = persona.get("tone", "Thân thiện, chuyên nghiệp")
-    goal = persona.get("goal", "Hỗ trợ khách hàng.")
+    persona = {}
+    for key in FILE_PRIORITY_ORDER:
+        p = DATABASE.get(key, {}).get("persona", {})
+        if p:
+            persona = p
+            print("👤 Persona từ:", key)
+            break
 
     system_prompt = f"""
-Bạn là {role}.
-Tính cách: {tone}.
-Mục tiêu: {goal}.
+Bạn là {persona.get("role", "Trợ lý AI")}.
+Tính cách: {persona.get("tone", "Rõ ràng, chuyên nghiệp")}.
+Mục tiêu: {persona.get("goal", "Hỗ trợ khách hàng.")}.
 
---- DATA LIÊN QUAN ---
+--- CÂU HỎI KHÁCH ---
+"{user_text}"
+
+--- CONTEXT DUY NHẤT ĐƯỢC DÙNG ---
 {ctx}
 
---- QUY TẮC ---
-- Trả lời NGẮN GỌN (3-4 câu).
-- Không bịa thông tin không có trong dữ liệu.
-- Hỏi lại khách 1 câu để gợi mở.
+--- QUY TẮC CHỐNG NHẦM CHỦ ĐỀ ---
+1. Chỉ trả lời theo đúng nội dung câu hỏi.
+2. Không trả lời sang dịch vụ khác.
+3. Không tạo thêm dữ liệu ngoài context.
+4. Nếu câu hỏi chưa rõ → phải hỏi lại.
+5. Trả lời ngắn gọn 2–3 câu.
 """
 
     return system_prompt, user_text
 
 # ==========================
-#  CALL OPENAI
+#  OPENAI GỌI CHÍNH XÁC
 # ==========================
 def call_openai(system_prompt, user_text):
-    if not client:
-        raise Exception("OpenAI chưa khởi tạo")
-
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_text}
         ],
-        temperature=0.7,
-        max_tokens=200
+        temperature=0.15,  # chống bịa
+        max_tokens=250
     )
-
     return resp.choices[0].message.content.strip()
 
 # ==========================
 #  LOGIC TRẢ LỜI
 # ==========================
 def get_smart_reply(user_text):
-    # 1. JSON trước (Đã ưu tiên theo file)
+    # 1. JSON trước
     fast = find_in_json(user_text)
     if fast:
-        return fast # Đã bao gồm log bên trong find_in_json
+        return fast
 
     if not DATABASE:
-        return "Dữ liệu đang nạp, thử lại sau 1 phút nha 😅"
+        return "Dữ liệu chưa sẵn sàng, thử lại sau 1 phút."
 
+    # 2. OpenAI
     system_prompt, text = get_persona_and_context(user_text)
-
-    # 2. Chỉ gọi OpenAI
     try:
-        print("🧠 Trả lời thông minh: OpenAI (gpt-4o-mini)")
+        print("🤖 AI trả lời...")
         return call_openai(system_prompt, text)
     except Exception as e:
-        print(f"❌ OpenAI thất bại: {e}")
-        return "Hệ thống AI đang hơi bận. Bạn thử lại sau 1 phút nha 😅"
+        print("❌ Lỗi AI:", e)
+        return "Hệ thống đang bị quá tải, bạn thử lại sau nhé."
 
 # ==========================
-#  SEND FACEBOOK
+#  GỬI TIN
 # ==========================
 def send_text(psid, text):
-    if not psid or not text:
-        return
     try:
         requests.post(FB_SEND_URL, json={
             "recipient": {"id": psid},
             "message": {"text": text}
         }, timeout=15)
-        print(f"✅ Đã gửi tin nhắn tới {psid}")
+        print("📨 Gửi:", psid)
     except Exception as e:
-        print("❌ FB lỗi:", e)
+        print("❌ FB Send Error:", e)
 
 # ==========================
 #  WEBHOOK
@@ -247,13 +226,12 @@ def webhook():
             if evt.get("message", {}).get("is_echo"):
                 continue
 
-            psid = evt.get("sender", {}).get("id")
-            msg = evt.get("message", {}).get("text")
+            psid  = evt.get("sender", {}).get("id")
+            text = evt.get("message", {}).get("text")
 
-            if psid and msg:
-                print(f"👤 {psid} hỏi: {msg}")
-                reply = get_smart_reply(msg) 
-                print(f"🤖 Bot trả lời: {reply}")
+            if psid and text:
+                print(f"👤 {psid}: {text}")
+                reply = get_smart_reply(text)
                 send_text(psid, reply)
 
     return "OK", 200
@@ -268,4 +246,3 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
-
