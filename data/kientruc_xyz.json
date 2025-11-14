@@ -4,7 +4,7 @@
     "address": "Số 10, Đường Sáng Tạo, Quận Sáng Tạo, Hà Nội",
     "website": "https://www.kts-sangtao-portfolio.com",
     "established_year": 2011,
-    "founder_representative": "Nguyễn Văn Hùng / Trần Tuấn Anh (Kiến trúc sư chủ trì)"
+    "founder_representative": "Nguyễn Văn A / Trần Tuấn B (Kiến trúc sư chủ trì)"
   },
   "persona": {
     "role": "Trợ lý AI của XYZ Studio",
@@ -63,27 +63,63 @@
   "chatbot_triggers": [
     {
       "intent": "greet_hello",
-      "keywords": ["chào", "hello", "xin chào", "bạn là ai", "bạn tên gì", "hi bot"],
+      "keywords": [
+        "chào",
+        "hello",
+        "xin chào",
+        "bạn là ai",
+        "bạn tên gì",
+        "hi bot"
+      ],
       "response": "Chào bạn, tôi là Trợ lý AI của XYZ Studio. Tôi có thể giúp bạn tìm hiểu về các dự án, triết lý thiết kế hoặc tư vấn sơ bộ về chi phí. Bạn đang quan tâm đến điều gì ạ?"
     },
     {
       "intent": "ask_project_pricing",
-      "keywords": ["giá", "chi phí", "báo giá", "hết bao nhiêu tiền", "giá thiết kế", "giá thi công"],
-      "response": "Đây là câu hỏi rất quan trọng ạ! Chi phí thiết kế & thi công phụ thuộc hoàn toàn vào quy mô (m2), độ phức tạp và vật liệu bạn chọn. XYZ Studio không đưa ra báo giá 'rẻ', chúng tôi đưa ra báo giá 'đúng' để đảm bảo chất lượng. Bạn vui lòng để lại SĐT/Email, KTS của chúng tôi sẽ liên hệ tư vấn 1-1 và lập dự toán sơ bộ cho bạn nhé!"
+      "keywords": [
+        "giá",
+        "chi phí",
+        "báo giá",
+        "hết bao nhiêu tiền",
+        "giá thiết kế",
+        "giá thi công",
+        "nội thất",
+        "xây dựng",
+        "xây nhà"
+      ],
+      "response": "Dạ đây là một câu hỏi rất quan trọng! Chi phí thường được chia thành 2 phần chính:\n\n1. **Phí Thiết kế (Kiến trúc & Nội thất):** Được tính theo m2, tùy thuộc vào mức độ chi tiết và phong cách.\n\n2. **Chi phí Xây dựng/Thi công:** Đây là phần lớn nhất, phụ thuộc vào quy mô (m2 xây dựng) và vật liệu hoàn thiện (từ cơ bản đến cao cấp).\n\nXYZ Studio không đưa ra báo giá 'rẻ', chúng tôi đưa ra báo giá 'đúng' để đảm bảo chất lượng. Bạn có thể cho tôi biết sơ bộ về diện tích và địa điểm không? Hoặc để lại SĐT/Email, KTS của chúng tôi sẽ liên hệ tư vấn 1-1 và lập dự toán sơ bộ cho bạn nhé!"
     },
     {
       "intent": "ask_contact",
-      "keywords": ["liên hệ", "địa chỉ", "văn phòng ở đâu", "gặp ai", "số điện thoại"],
+      "keywords": [
+        "liên hệ",
+        "địa chỉ",
+        "văn phòng ở đâu",
+        "gặp ai",
+        "số điện thoại"
+      ],
       "response": "Văn phòng của KTS Sáng Tạo (XYZ Studio) đặt tại [Số 10, Đường Sáng Tạo, Quận Sáng Tạo, Hà Nội]. Bạn có thể tham khảo các dự án tại website [https://www.kts-sangtao-portfolio.com]. Bạn muốn đặt lịch hẹn tư vấn chứ?"
     },
     {
       "intent": "ask_chatbot_pricing",
-      "keywords": ["con bot này", "chatbot này", "ai làm bot", "làm con bot này hết bao nhiêu", "mua bot"],
+      "keywords": [
+        "con bot này",
+        "chatbot này",
+        "ai làm bot",
+        "làm con bot này hết bao nhiêu",
+        "mua bot"
+      ],
       "response": "Cảm ơn bạn đã quan tâm! Tôi là một chatbot AI demo được phát triển bởi [Tên Của Bạn/Công Ty Bạn]. Nếu bạn muốn một chatbot thông minh tương tự cho doanh nghiệp của mình, vui lòng liên hệ [Email/SĐT Của Bạn] để nhận báo giá nhé!"
     },
     {
       "intent": "acknowledge_thanks",
-      "keywords": ["cảm ơn", "ok cảm ơn", "thank you", "thanks", "hay quá", "tuyệt vời"],
+      "keywords": [
+        "cảm ơn",
+        "ok cảm ơn",
+        "thank you",
+        "thanks",
+        "hay quá",
+        "tuyệt vời"
+      ],
       "response": "Dạ không có gì ạ! Bạn còn cần tôi tư vấn thêm về dự án hay dịch vụ nào khác không?"
     }
   ]
