@@ -18,7 +18,7 @@ FB_SEND_URL = f"https://graph.facebook.com/v19.0/me/messages?access_token={PAGE_
 # ==========================
 try:
     client = OpenAI(api_key=OPENAI_KEY)
-    print("✅ OpenAI đã sẵn sàng")
+    print("✅✅✅ PHIÊN BẢN CODE MỚI NHẤT ĐÃ CHẠY ✅✅✅")
 except Exception as e:
     print("❌ Lỗi OpenAI:", e)
     client = None
@@ -268,3 +268,4 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
