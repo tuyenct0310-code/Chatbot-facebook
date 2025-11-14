@@ -174,7 +174,7 @@ def call_openai(system_prompt, user_text):
 # ==========================
 def call_gemini(system_prompt, user_text):
     model = genai.GenerativeModel(
-        model_name="gemini-1.0-pro", # <-- (ĐÃ SỬA) Dùng model này
+        model_name="gemini-pro", # <-- (ĐÃ SỬA) Dùng model này
         system_instruction=system_prompt,
         generation_config=GEMINI_GENERATION_CONFIG,
         safety_settings=GEMINI_SAFETY_SETTINGS
@@ -207,7 +207,7 @@ def get_smart_reply(user_text):
 
     # 3. Gemini
     try:
-        print("🧠 Thử ưu tiên 2: Gemini (1.0-pro)")
+        print("🧠 Thử ưu tiên 2: Gemini (pro)")
         return call_gemini(system_prompt, text)
     except Exception as e:
         print(f"❌ Gemini cũng thất bại: {e}")
@@ -270,3 +270,4 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
