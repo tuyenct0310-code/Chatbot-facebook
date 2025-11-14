@@ -502,3 +502,4 @@ if __name__ == "__main__":
     # ensure_embeddings(force=True)
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
 
+
