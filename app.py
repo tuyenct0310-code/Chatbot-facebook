@@ -180,7 +180,7 @@ def call_gemini(system_prompt, user_text):
         
     # Khởi tạo model với system prompt (cách của Gemini)
     chat_model = genai.GenerativeModel(
-        model_name='gemini-1.0-pro'',
+        model_name='gemini-1.0-pro',
         generation_config=GEMINI_GENERATION_CONFIG,
         system_instruction=system_prompt,
         safety_settings=GEMINI_SAFETY_SETTINGS
@@ -301,6 +301,7 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
 
 
 
