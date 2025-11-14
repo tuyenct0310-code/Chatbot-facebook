@@ -25,11 +25,13 @@ except Exception as e:
 # --- Khởi tạo Gemini ---
 try:
     genai.configure(api_key=GEMINI_KEY)
-    gemini_model = genai.GenerativeModel('gemini-1.0-pro'')
-    print("✅ Đã khởi tạo Gemini Model (1.0-pro')")
+    gemini_model = genai.GenerativeModel('gemini-1.0-pro') # Dòng 28 (hoặc 29)
+    print("✅ Đã khởi tạo Gemini Model (1.0 Pro)") # Sửa luôn print
 except Exception as e:
     print(f"❌ Lỗi khởi tạo Gemini: {e}")
     gemini_model = None
+
+
     
 # Cấu hình an toàn (Safety Settings) cho Gemini
 GEMINI_SAFETY_SETTINGS = [
@@ -299,5 +301,6 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
 
 
