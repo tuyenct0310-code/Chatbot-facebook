@@ -484,12 +484,15 @@ def rebuild_embed():
         else:
             msg = "Không thấy embeddings_store.json. Sẽ build mới."
 
-        # Build lại (force = True)
-        ensure_embeddings(force=True)
+        # Build lại (force = True) nhưng chạy nền
+        threading.Thread(
+            target=lambda: ensure_embeddings(force=True),
+            daemon=True
+        ).start()
 
         return {
             "ok": True,
-            "message": "Rebuild embeddings thành công.",
+            "message": "Rebuild embeddings đã khởi động (đang chạy nền).",
             "detail": msg
         }
 
@@ -497,9 +500,18 @@ def rebuild_embed():
         print("❌ Lỗi rebuild embeddings:", e)
         return {"ok": False, "error": str(e)}, 500
 
+
+# ======================================================
+#   START APP — KHÔNG BUILD EMBEDDINGS TẠI ĐÂY
+# ======================================================
 if __name__ == "__main__":
-    # force-build embeddings once before serving (optional)
-    # ensure_embeddings(force=True)
+    # Chỉ build nền dạng nhanh (không force) để app chạy ngay
+    threading.Thread(
+        target=lambda: ensure_embeddings(force=False),
+        daemon=True
+    ).start()
+
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
 
 
