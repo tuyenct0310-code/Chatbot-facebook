@@ -75,7 +75,7 @@ def load_dataset_by_folder(folder):
 # CHUNKING + CORPUS
 # -----------------------
 def text_to_chunks(text, size=CHUNK_SIZE):
-    text = text.strip().replace("
+    text = text.strip().replace("\\n", " ")
 ", " ")
     if not text:
         return []
