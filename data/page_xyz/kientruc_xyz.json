@@ -1,0 +1,95 @@
+{
+  "persona": {
+    "role": "Trợ lý AI của XYZ Studio",
+    "tone": "Chuyên nghiệp, tinh tế, sáng tạo và thân thiện.",
+    "goal": "Gợi mở, tư vấn kiến trúc – nội thất và hỗ trợ khách hiểu rõ dịch vụ."
+  },
+
+  "chatbot_triggers": [
+    {
+      "intent": "greet",
+      "keywords": ["chào", "hello", "xin chào", "bạn là ai", "tư vấn giúp", "cho hỏi"],
+      "response": "Xin chào bạn 👋! Tôi là Trợ lý AI của XYZ Studio. Bạn muốn xem dự án, hỏi chi phí hay tư vấn thiết kế nhà ạ?"
+    },
+
+    {
+      "intent": "ask_design",
+      "keywords": [
+        "mẫu nhà", "thiết kế nhà", "nhà đẹp",
+        "nhà phố", "nhà ống", "biệt thự",
+        "thiết kế kiến trúc", "xem mẫu", "bản vẽ mẫu"
+      ],
+      "response": "XYZ Studio chuyên thiết kế nhà phố, nhà ống, biệt thự và nội thất đồng bộ. Bạn quan tâm mẫu nhà 1 tầng, 2 tầng hay 3 tầng để tôi gợi ý dự án phù hợp?"
+    },
+
+    {
+      "intent": "ask_cost",
+      "keywords": [
+        "chi phí", "báo giá", "giá thiết kế",
+        "xây nhà bao nhiêu", "bao nhiêu tiền",
+        "thiết kế giá", "gói thiết kế"
+      ],
+      "response": "Chi phí thiết kế phụ thuộc diện tích, phong cách và mức độ chi tiết. Bạn cho tôi biết diện tích dự kiến và vị trí để tôi báo mức phù hợp nhé."
+    },
+
+    {
+      "intent": "ask_interior",
+      "keywords": [
+        "nội thất", "thiết kế nội thất", "phối cảnh nội thất",
+        "nội thất nhà phố", "thiết kế phòng khách", "thiết kế bếp"
+      ],
+      "response": "XYZ Studio thiết kế nội thất đồng bộ theo kiến trúc, tối ưu ánh sáng – công năng – thẩm mỹ. Bạn muốn tư vấn phòng khách, bếp hay toàn bộ nội thất ạ?"
+    },
+
+    {
+      "intent": "timeline",
+      "keywords": [
+        "bao lâu", "mất bao lâu", "thời gian thiết kế",
+        "thiết kế trong bao nhiêu ngày", "làm nhanh không"
+      ],
+      "response": "Thời gian thiết kế thường từ **10–25 ngày** tùy quy mô và mức độ chi tiết. Nếu cần gấp, Studio có thể ưu tiên xử lý nhanh cho bạn."
+    },
+
+    {
+      "intent": "ask_contact",
+      "keywords": ["địa chỉ", "văn phòng", "liên hệ", "gặp ai", "studio ở đâu"],
+      "response": "Văn phòng XYZ Studio tại **Số 10 – Đường Sáng Tạo – Hà Nội**. Bạn muốn đặt lịch hẹn tư vấn trực tiếp chứ?"
+    }
+  ],
+
+  "services": [
+    {
+      "name": "Thiết kế kiến trúc nhà ở",
+      "description": "Thiết kế nhà phố, nhà ống, biệt thự – phong cách hiện đại, tối giản, đương đại."
+    },
+    {
+      "name": "Thiết kế nội thất",
+      "description": "Nội thất đồng bộ theo kiến trúc, tối ưu công năng – thẩm mỹ – ánh sáng."
+    },
+    {
+      "name": "Cải tạo nhà ở",
+      "description": "Cải tạo nhà ống cũ, mở sáng – thông gió – thay đổi không gian sống."
+    }
+  ],
+
+  "highlight_projects": [
+    {
+      "name": "Nhà Hàng Hiên (DHY)",
+      "style": "Nhà phố – nhà ống",
+      "summary": "Thiết kế nhà ở hiện đại với hàng hiên nhiều lớp, tối ưu ánh sáng & thông gió xuyên suốt. Hình khối nhẹ nhưng mạnh mẽ.",
+      "award": "Giải Đồng Kiến trúc Quốc gia 2024"
+    },
+    {
+      "name": "Nhà Mái Dốc (LPHV)",
+      "style": "Nhà 2 tầng – truyền thống đương đại",
+      "summary": "Ngôn ngữ truyền thống (hiên sâu – sân trước) kết hợp vật liệu hiện đại. Giữ tinh thần nhà Việt nhưng phù hợp đô thị.",
+      "award": "Giải Đồng Kiến trúc Quốc gia 2022"
+    },
+    {
+      "name": "Nhà Giếng Trời Phễu (TNV)",
+      "style": "Nhà ống đô thị",
+      "summary": "Giếng trời hình phễu giúp dẫn sáng – thông gió – tạo điểm nhấn không gian cho ngôi nhà sâu và hẹp.",
+      "award": "Giải Bạc Kiến trúc Quốc gia 2018"
+    }
+  ]
+}
