@@ -75,12 +75,13 @@ def load_dataset_by_folder(folder):
 # CHUNKING + CORPUS
 # -----------------------
 def text_to_chunks(text, size=CHUNK_SIZE):
-    text = text.strip().replace("\\n", " ")
+    text = text.strip().replace("
 ", " ")
     if not text:
         return []
     parts = text.split(". ")
-    chunks, cur = [], ""
+    chunks = []
+    cur = ""
     for p in parts:
         if len(cur) + len(p) + 2 <= size:
             cur = (cur + ". " + p).strip(" .")
@@ -100,7 +101,7 @@ def text_to_chunks(text, size=CHUNK_SIZE):
                 final.append(c[i:i+size])
     return final
 
-def build_corpus_from_database(db):
+def build_corpus_from_database(db):(db):
     corpus = []
     idx = 0
     for file_key, content in db.items():
