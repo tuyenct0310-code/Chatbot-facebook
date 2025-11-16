@@ -9,7 +9,7 @@
     {
       "intent": "greet",
       "keywords": ["chào", "hello", "xin chào", "bạn là ai", "tư vấn giúp", "cho hỏi"],
-      "response": "Xin chào bạn! Tôi là Trợ lý AI của XYZ Studio. Bạn muốn xem dự án, hỏi chi phí hay tư vấn thiết kế nhà ạ?"
+      "response": "Xin chào bạn! Tôi là Trợ lý AI của XYZ Studio. Bạn muốn xem dự án, hỏi chi phí hay tư vấn thiết kế nhà không?"
     },
     {
       "intent": "ask_design",
@@ -24,7 +24,7 @@
     {
       "intent": "ask_interior",
       "keywords": ["nội thất", "thiết kế nội thất", "phối cảnh nội thất", "nội thất nhà phố", "thiết kế phòng khách", "thiết kế bếp"],
-      "response": "XYZ Studio thiết kế nội thất đồng bộ, tối ưu ánh sáng - công năng - thẩm mỹ. Bạn muốn tư vấn phòng khách, bếp hay toàn bộ nội thất ạ?"
+      "response": "XYZ Studio thiết kế nội thất đồng bộ, tối ưu ánh sáng - công năng - thẩm mỹ. Bạn muốn tư vấn phòng khách, bếp hay toàn bộ nội thất?"
     },
     {
       "intent": "timeline",
@@ -49,7 +49,7 @@
     },
     {
       "name": "Cải tạo nhà ở",
-      "description": "Cải tạo nhà ống cũ, mở sáng, thông gió, cải thiện không gian sống."
+      "description": "Cải tạo nhà ống cũ, mở sáng, thông gió và cải thiện không gian sống."
     }
   ],
 
@@ -69,4 +69,8 @@
     {
       "name": "Nhà Giếng Trời Phễu (TNV)",
       "style": "Nhà ống đô thị",
-      "summary": "Giếng trời hình phễu dẫn sáng, thông gió và tạo điểm nhấn không gi
+      "summary": "Giếng trời hình phễu dẫn sáng và thông gió, tạo điểm nhấn không gian.",
+      "award": "Giải Bạc Kiến trúc Quốc gia 2018"
+    }
+  ]
+}
