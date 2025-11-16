@@ -1,4 +1,10 @@
 {
+  "persona": {
+    "role": "Trợ lý AI của Chatbot CTT",
+    "tone": "Thân thiện, nhanh nhạy, chuyên nghiệp và hiểu về marketing.",
+    "goal": "Giới thiệu Chatbot CTT, giải thích tính năng, lợi ích, chi phí và hướng dẫn khách dùng thử miễn phí."
+  },
+
   "chatbot_triggers": [
     {
       "intent": "greet",
@@ -7,7 +13,7 @@
         "alo", "ad ơi", "bạn ơi", "cho hỏi", "hỏi chút",
         "tư vấn giúp"
       ],
-      "response": "Xin chào 👋! Mình là Chatbot Ctt. Bạn đang quan tâm đến chatbot cho mục đích gì ạ?"
+      "response": "Xin chào 👋! Mình là Chatbot CTT. Bạn đang quan tâm đến chatbot cho mục đích gì ạ?"
     },
 
     {
@@ -18,7 +24,7 @@
         "chatbot ctt", "chatbot ctt là gì",
         "bot là gì", "bot hoạt động thế nào"
       ],
-      "response": "Chatbot Ctt là hệ thống tự động trả lời tin nhắn 24/7, hiểu nội dung khách hỏi và phản hồi ngay lập tức."
+      "response": "Chatbot CTT là hệ thống AI tự động trả lời tin nhắn 24/7, hiểu nội dung khách hỏi và phản hồi ngay lập tức. Phù hợp với bán hàng, dịch vụ và chăm sóc khách hàng."
     },
 
     {
@@ -30,7 +36,7 @@
         "tự động hóa", "automation", "tự động trả lời",
         "tăng đơn", "tăng doanh thu"
       ],
-      "response": "Chatbot Ctt giúp shop trả lời khách tức thì, tự động tư vấn, giảm bỏ sót tin nhắn và tăng tỉ lệ chốt đơn."
+      "response": "Chatbot CTT giúp shop trả lời khách tức thì, tự động tư vấn, giảm bỏ sót tin nhắn và tăng tỉ lệ chốt đơn. Bạn đang kinh doanh ngành gì để mình tư vấn đúng hơn ạ?"
     },
 
     {
@@ -42,7 +48,7 @@
         "chức năng bán hàng", "quản lý đơn", "tự tạo đơn",
         "auto inbox", "auto comment", "tự trả lời"
       ],
-      "response": "Chatbot Ctt có: trả lời tự động, tư vấn sản phẩm, tạo đơn hàng, kịch bản bán hàng, nhắc lịch, quản lý khách hàng và hỗ trợ Facebook/Zalo/Website."
+      "response": "Chatbot CTT có: trả lời tự động, tư vấn sản phẩm, tạo đơn hàng, kịch bản bán hàng, nhắc lịch, quản lý khách hàng và hỗ trợ Facebook/Zalo/Website."
     },
 
     {
@@ -52,7 +58,7 @@
         "khuyến mãi", "ưu đãi", "giảm giá",
         "cho test", "test chatbot", "thử chatbot"
       ],
-      "response": "🎁 Bạn được dùng thử miễn phí 7 ngày tất cả tính năng. Không cần thẻ, không ràng buộc. Bạn muốn mình kích hoạt cho bạn không?"
+      "response": "🎁 Bạn được dùng thử miễn phí 7 ngày tất cả tính năng. Không cần thẻ và không ràng buộc. Bạn muốn mình kích hoạt dùng thử không?"
     },
 
     {
@@ -62,7 +68,7 @@
         "giá chatbot", "tính phí", "bao tiền",
         "hết 7 ngày", "gia hạn", "mua chatbot"
       ],
-      "response": "Sau 7 ngày dùng thử miễn phí, Chatbot Ctt có gói từ 150.000đ/tháng. Bạn đang quản lý bao nhiêu fanpage để mình tư vấn gói phù hợp?"
+      "response": "Chatbot CTT có gói từ **150.000đ/tháng** sau 7 ngày dùng thử miễn phí. Bạn đang quản lý bao nhiêu fanpage để mình tư vấn gói phù hợp?"
     },
 
     {
@@ -72,7 +78,7 @@
         "bot phản hồi", "xem bot chạy",
         "xem ví dụ", "mẫu phản hồi"
       ],
-      "response": "Bạn có thể thử nhắn bất kỳ câu hỏi nào về sản phẩm hoặc dịch vụ để xem bot phản hồi."
+      "response": "Bạn có thể nhắn bất kỳ câu hỏi nào để xem chatbot phản hồi trực tiếp. Nếu muốn demo theo ngành (quần áo, ăn uống, mỹ phẩm...), bạn nói mình biết nhé!"
     },
 
     {
@@ -82,7 +88,7 @@
         "cài bot", "bật bot", "thiết lập chatbot",
         "gắn chatbot", "add chatbot"
       ],
-      "response": "Cài chatbot rất đơn giản: 1) Đăng nhập, 2) Kết nối fanpage, 3) Bật trả lời tự động."
+      "response": "Cài chatbot rất đơn giản: 1) Đăng nhập hệ thống, 2) Kết nối fanpage, 3) Bật trả lời tự động là chạy. Bạn muốn mình gửi hướng dẫn chi tiết không?"
     },
 
     {
@@ -92,7 +98,37 @@
         "fanpage", "inbox", "gọi điện",
         "gặp nhân viên", "muốn nói chuyện"
       ],
-      "response": "📞 Liên hệ/Zalo: 0987 763 916 để được hỗ trợ nhanh. Hoặc để lại số, đội ngũ sẽ chủ động gọi cho bạn."
+      "response": "📞 Liên hệ/Zalo: **0987 763 916** để được hỗ trợ nhanh. Hoặc để lại số để đội ngũ gọi cho bạn."
+    }
+  ],
+
+  "products": [
+    {
+      "name": "Chatbot trả lời tự động",
+      "description": "Tự động trả lời bình luận và tin nhắn trên Facebook, Zalo, Website. Hỗ trợ 24/7."
+    },
+    {
+      "name": "Chatbot tư vấn sản phẩm thông minh",
+      "description": "Hiểu câu hỏi của khách hàng, phân tích từ khóa và đề xuất sản phẩm phù hợp."
+    },
+    {
+      "name": "Chatbot tạo đơn hàng",
+      "description": "Thu thập thông tin khách hàng, tạo đơn nhanh, đẩy về CRM hoặc Google Sheet."
+    }
+  ],
+
+  "services": [
+    {
+      "name": "Triển khai Chatbot Facebook",
+      "description": "Thiết lập chatbot cho fanpage bán hàng, dịch vụ và doanh nghiệp."
+    },
+    {
+      "name": "Tối ưu phản hồi tin nhắn",
+      "description": "Giảm thời gian phản hồi, tăng tỉ lệ chuyển đổi."
+    },
+    {
+      "name": "Tư vấn chuyển đổi số",
+      "description": "Tích hợp chatbot, tự động hóa quy trình marketing – bán hàng."
     }
   ]
 }
