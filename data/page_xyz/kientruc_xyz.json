@@ -2,74 +2,97 @@
   "persona": {
     "role": "Trợ lý AI của XYZ Studio",
     "tone": "Chuyên nghiệp, tinh tế, sáng tạo và thân thiện.",
-    "goal": "Gợi mở, tư vấn kiến trúc - nội thất và hỗ trợ khách hiểu rõ dịch vụ."
+    "goal": "Gợi mở, tư vấn kiến trúc – nội thất, giúp khách chọn mẫu nhà, hiểu chi phí và chọn gói thiết kế phù hợp."
   },
 
   "chatbot_triggers": [
     {
       "intent": "greet",
-      "keywords": ["chào", "hello", "xin chào", "bạn là ai", "tư vấn giúp", "cho hỏi"],
-      "response": "Xin chào bạn! Tôi là Trợ lý AI của XYZ Studio. Bạn muốn xem dự án, hỏi chi phí hay tư vấn thiết kế nhà không?"
+      "keywords": ["chào", "hello", "xin chào", "bạn là ai", "tư vấn giúp", "cho hỏi", "ad ơi", "alo"],
+      "response": "Xin chào bạn! Tôi là Trợ lý AI của XYZ Studio. Bạn muốn xem mẫu nhà, hỏi chi phí hay tư vấn thiết kế ạ?"
     },
     {
       "intent": "ask_design",
-      "keywords": ["mẫu nhà", "thiết kế nhà", "nhà đẹp", "nhà phố", "nhà ống", "biệt thự", "thiết kế kiến trúc", "xem mẫu", "bản vẽ mẫu"],
-      "response": "XYZ Studio thiết kế nhà phố, nhà ống, biệt thự và nội thất đồng bộ. Bạn quan tâm mẫu nhà 1 tầng, 2 tầng hay 3 tầng để tôi gợi ý phù hợp?"
+      "keywords": [
+        "mẫu nhà", "nhà đẹp", "thiết kế nhà", "xem mẫu", "bản vẽ mẫu",
+        "nhà phố", "nhà ống", "biệt thự", "mẫu nhà 1 tầng", "mẫu nhà 2 tầng",
+        "2 tầng", "3 tầng", "nhà cấp 4", "thiết kế kiến trúc"
+      ],
+      "response": "XYZ Studio có nhiều mẫu nhà phố, nhà ống và biệt thự đẹp. Bạn đang quan tâm mẫu nhà 1 tầng, 2 tầng hay 3 tầng để tôi gợi ý phù hợp?"
     },
     {
       "intent": "ask_cost",
       "keywords": ["chi phí", "báo giá", "giá thiết kế", "xây nhà bao nhiêu", "bao nhiêu tiền", "thiết kế giá", "gói thiết kế"],
-      "response": "Chi phí thiết kế phụ thuộc diện tích, phong cách và mức độ chi tiết. Bạn cho tôi biết diện tích dự kiến và vị trí để tôi báo mức phù hợp nhé."
+      "response": "Chi phí thiết kế phụ thuộc diện tích, phong cách và yêu cầu chi tiết. Bạn cho tôi biết diện tích và số tầng dự kiến để tôi báo mức giá chính xác nhé."
     },
     {
       "intent": "ask_interior",
-      "keywords": ["nội thất", "thiết kế nội thất", "phối cảnh nội thất", "nội thất nhà phố", "thiết kế phòng khách", "thiết kế bếp"],
-      "response": "XYZ Studio thiết kế nội thất đồng bộ, tối ưu ánh sáng - công năng - thẩm mỹ. Bạn muốn tư vấn phòng khách, bếp hay toàn bộ nội thất?"
+      "keywords": ["nội thất", "thiết kế nội thất", "phối cảnh nội thất", "nội thất nhà phố", "thiết kế phòng khách", "thiết kế bếp", "nội thất biệt thự"],
+      "response": "XYZ Studio thiết kế nội thất đồng bộ theo kiến trúc, tối ưu ánh sáng – công năng – thẩm mỹ. Bạn quan tâm nội thất phòng khách, bếp hay toàn bộ nhà ạ?"
     },
     {
       "intent": "timeline",
-      "keywords": ["bao lâu", "mất bao lâu", "thời gian thiết kế", "thiết kế trong bao nhiêu ngày", "làm nhanh không"],
-      "response": "Thời gian thiết kế khoảng 10-25 ngày tùy mức độ chi tiết. Nếu cần gấp, Studio có thể ưu tiên xử lý nhanh."
+      "keywords": ["bao lâu", "mất bao lâu", "thời gian thiết kế", "thiết kế nhanh không", "thiết kế trong bao nhiêu ngày"],
+      "response": "Thời gian thiết kế thường 10–25 ngày tùy diện tích và mức độ chi tiết. Nếu bạn cần gấp, Studio có thể ưu tiên tiến độ."
     },
     {
       "intent": "ask_contact",
-      "keywords": ["địa chỉ", "văn phòng", "liên hệ", "gặp ai", "studio ở đâu"],
-      "response": "Văn phòng XYZ Studio tại Số 10 - Đường Sáng Tạo - Hà Nội. Bạn muốn đặt lịch hẹn tư vấn không?"
+      "keywords": ["địa chỉ", "văn phòng", "liên hệ", "gặp ai", "studio ở đâu", "gặp trực tiếp"],
+      "response": "Văn phòng XYZ Studio tại **Số 10 – Đường Sáng Tạo – Hà Nội**. Bạn muốn đặt lịch hẹn tư vấn trực tiếp không?"
+    }
+  ],
+
+  "products": [
+    {
+      "name": "Thiết kế nhà phố",
+      "description": "Thiết kế nhà phố 1–4 tầng theo phong cách hiện đại, tối giản và đương đại."
+    },
+    {
+      "name": "Thiết kế biệt thự",
+      "description": "Biệt thự vườn, biệt thự hiện đại, biệt thự tân cổ điển với bố cục tối ưu công năng."
+    },
+    {
+      "name": "Thiết kế nhà ống đô thị",
+      "description": "Nhà ống thông thoáng, giải pháp giếng trời – lấy sáng – thông gió cho nhà hẹp."
+    },
+    {
+      "name": "Thiết kế nội thất trọn gói",
+      "description": "Nội thất đồng bộ từ vật liệu – màu sắc – ánh sáng, phù hợp từng phong cách."
     }
   ],
 
   "services": [
     {
       "name": "Thiết kế kiến trúc nhà ở",
-      "description": "Thiết kế nhà phố, nhà ống, biệt thự theo phong cách hiện đại, tối giản, đương đại."
+      "description": "Nhà phố, nhà ống, biệt thự. Bố trí công năng khoa học, giải pháp thông gió – lấy sáng."
     },
     {
       "name": "Thiết kế nội thất",
-      "description": "Thiết kế nội thất đồng bộ, tối ưu công năng - thẩm mỹ - ánh sáng."
+      "description": "Thiết kế nội thất phòng khách, bếp, phòng ngủ, nội thất nhà phố – biệt thự."
     },
     {
-      "name": "Cải tạo nhà ở",
-      "description": "Cải tạo nhà ống cũ, mở sáng, thông gió và cải thiện không gian sống."
+      "name": "Cải tạo – nâng cấp nhà",
+      "description": "Cải tạo nhà cũ, mở sáng, tăng thông gió, nâng thẩm mỹ mà không thay đổi kết cấu chính."
     }
   ],
 
   "highlight_projects": [
     {
       "name": "Nhà Hàng Hiên (DHY)",
-      "style": "Nhà phố",
-      "summary": "Thiết kế hiện đại với hàng hiên nhiều lớp, tối ưu ánh sáng và thông gió.",
+      "style": "Nhà phố – nhà ống",
+      "summary": "Thiết kế nhà phố hiện đại với hàng hiên nhiều lớp giúp che nắng – giảm nhiệt và tạo chiều sâu cho mặt tiền.",
       "award": "Giải Đồng Kiến trúc Quốc gia 2024"
     },
     {
       "name": "Nhà Mái Dốc (LPHV)",
-      "style": "Nhà 2 tầng",
-      "summary": "Kết hợp truyền thống và hiện đại, giữ tinh thần nhà Việt nhưng phù hợp đô thị.",
+      "style": "Nhà 2 tầng – phong cách đương đại",
+      "summary": "Thiết kế 2 tầng kết hợp truyền thống và hiện đại. Mái dốc – hiên sâu – sân trước giúp giữ tinh thần nhà Việt.",
       "award": "Giải Đồng Kiến trúc Quốc gia 2022"
     },
     {
       "name": "Nhà Giếng Trời Phễu (TNV)",
       "style": "Nhà ống đô thị",
-      "summary": "Giếng trời hình phễu dẫn sáng và thông gió, tạo điểm nhấn không gian.",
+      "summary": "Giếng trời hình phễu độc đáo giúp lấy sáng, thông gió cho nhà ống sâu và hẹp, tạo điểm nhấn mạnh mẽ.",
       "award": "Giải Bạc Kiến trúc Quốc gia 2018"
     }
   ]
