@@ -1,130 +1,125 @@
 {
-  "persona": {
-    "role": "Trợ lý AI của Chatbot Ctt",
-    "tone": "Thân thiện, nhanh nhạy, chuyên nghiệp và hiểu về marketing.",
-    "goal": "Giới thiệu Chatbot Ctt, giải thích tính năng, lợi ích, chi phí và hướng dẫn khách dùng thử miễn phí."
+  "Tên quán": "Ốc Ngon 18",
+  "Địa chỉ": "Rạng Đông - Cách Vietcombank 100m",
+  "Số điện thoại": ["0345 986 183", "0338 570 075"],
+  "Giờ mở cửa": "16:00 - 23:00 hàng ngày",
+  "Mô tả": "Quán chuyên ốc, lẩu, đồ nhậu và món chiên nướng. Không gian rộng rãi, phục vụ nhanh, nguyên liệu tươi ngon và nước chấm đậm vị.",
+  "Danh mục món": {
+    "Món chiên - nướng": {
+      "Hàu nướng mỡ hành": "10k/con",
+      "Hàu nướng phô mai": "15k/con",
+      "Hàu sống": "10k/con",
+      "Bánh mì nướng phô mai": "12k/miếng",
+      "Nem chua rán": "55k",
+      "Khoai tây chiên": "25k",
+      "Khoai tây lắc phô mai": "30k",
+      "Khoai lang kén": "25k",
+      "Ngô chiên bơ": "30k",
+      "Xúc xích": "10k - 15k",
+      "Lạp xưởng": "15k"
+    },
+    "Món nhậu": {
+      "Chân gà chiên mắm": "12k/c",
+      "Chân gà ngâm sả tắc": "60k",
+      "Chân gà sốt Thái": "65k",
+      "Trứng cút luộc": "40k",
+      "Trứng cút xào me": "55k",
+      "Dưa chuột": "10k",
+      "Hoa quả": "15k"
+    },
+    "Lẩu - Mỳ": {
+      "Lẩu Thái Tomyum": "250k",
+      "Mỳ Thái xúc xích": "35k",
+      "Mỳ Thái bò": "40k",
+      "Mỳ Thái bò xúc xích": "45k",
+      "Mỳ Thái thập cẩm": "55k"
+    },
+    "Topping gọi thêm": {
+      "Ba chỉ bò 250g": "80k",
+      "Xúc xích": "30k",
+      "Đậu hũ phô mai": "40k",
+      "Viên thả lẩu mix": "40k",
+      "Tôm / Mực 200g": "70k",
+      "Nấm": "15k",
+      "Rau": "15k",
+      "Mì": "5k/g",
+      "Bánh mì": "5k/c"
+    },
+    "Ốc biển": {
+      "Ốc hương trứng muối": "135k",
+      "Ốc hương sữa dừa": "130k",
+      "Ốc hương bơ tỏi": "130k",
+      "Ốc hương bơ cay": "130k",
+      "Ốc hương cháy tỏi": "130k",
+      "Ốc hương hấp sả": "125k",
+      "Ốc mỡ trứng muối": "135k",
+      "Ốc mỡ sữa dừa": "130k",
+      "Ốc mỡ bơ tỏi": "130k",
+      "Ốc mỡ bơ cay": "130k",
+      "Ốc mỡ cháy tỏi": "130k",
+      "Ốc mỡ hấp sả": "125k"
+    },
+    "Ốc đồng": {
+      "Ốc vặn hấp sả": "35k",
+      "Ốc vặn luộc mắm": "35k",
+      "Ốc vặn hấp Thái": "35k",
+      "Ốc mít hấp sả": "70k",
+      "Ốc mít luộc mắm": "70k",
+      "Ốc mít hấp Thái": "70k",
+      "Ốc mít sốt me": "75k",
+      "Ốc lẫn hấp sả": "60k",
+      "Ốc lẫn luộc mắm": "60k",
+      "Ốc lẫn hấp Thái": "60k"
+    },
+    "Ngao": {
+      "Ngao hấp sả": "40k",
+      "Ngao hấp Thái": "50k",
+      "Ngao sốt trứng muối": "70k",
+      "Ngao sữa dừa": "60k",
+      "Ngao bơ tỏi": "60k",
+      "Ngao bơ cay": "60k",
+      "Ngao sốt me": "60k"
+    },
+    "Đồ uống": {
+      "Pepsi": "15k",
+      "Trà đá": "5k",
+      "Trà đá ca": "20k",
+      "Trà chanh": "12k",
+      "Trà quất": "12k",
+      "Nước khoáng": "8k",
+      "Bia Hà Nội": "18k",
+      "Bia Sài Gòn": "18k"
+    },
+    "Combo tiết kiệm": {
+      "Combo 2-3 người": "219k - Gồm: Ốc vặn hấp sả, Ngao sốt sữa dừa, Trứng cút xào me, Nem chua rán, 1 Mỳ xúc xích",
+      "Combo 3-4 người": "349k - Gồm: Ốc lẫn hấp sả, Ốc hương trứng muối, Trứng cút xào me, Chân gà ngâm sả tắc, 4 Hàu nướng mỡ hành, 1 Mỳ xúc xích",
+      "Combo 4-5 người": "455k - Gồm: Ốc lẫn hấp sả, Ốc hương trứng muối, Khoai tây chiên, 3 chân gà chiên mắm, Lẩu Thái Tomyum",
+      "Combo 5-6 người": "550k - Gồm: Ốc mít hấp sả, Ốc hương trứng muối, Trứng cút luộc, Nem chua rán, 5 chân gà chiên mắm, Lẩu Thái Tomyum"
+    }
   },
-
-  "company_info": {
-    "name": "Chatbot Ctt",
-    "short": "Nền tảng chatbot AI đa kênh cho bán hàng và chăm sóc khách hàng.",
-    "hotline": "0987 763 916",
-    "email": "support@ctt.ai",
-    "website": "https://ctt.ai",
-    "slogan": "Chatbot AI thông minh – tăng tốc bán hàng",
-    "channels_supported": ["Facebook", "Zalo", "Website", "API riêng"],
-    "free_trial": "7 ngày full tính năng – không cần thẻ – không ràng buộc",
-    "pricing_from": "150.000đ/tháng"
-  },
-
-  "strengths": [
-    "AI hiểu ngữ nghĩa, trả lời tự nhiên như con người",
-    "Tự động trả lời comment + inbox 24/7",
-    "Tạo đơn hàng nhanh – đẩy CRM/Google Sheet",
-    "Theo dõi khách, lưu lịch sử chat",
-    "Kịch bản bán hàng thông minh",
-    "Gắn nhiều fanpage – đa kênh bán hàng",
-    "Cài 1 phút – không cần kỹ thuật"
-  ],
-
-  "chatbot_triggers": [
-    {
-      "intent": "greet",
-      "keywords": ["chào", "hello", "hi", "xin chào", "tư vấn", "ad ơi", "alo", "hỏi chút"],
-      "response": "Chào bạn 👋! Mình là Trợ lý AI của Chatbot Ctt. Bạn đang muốn tìm chatbot cho mục đích gì ạ?"
-    },
-
-    {
-      "intent": "what_is_chatbot",
-      "keywords": ["chatbot là gì", "bot là gì", "chatbot ctt", "ctt là gì", "chatbot hoạt động thế nào"],
-      "response": "Chatbot Ctt là hệ thống AI trả lời tự động 24/7, hỗ trợ bán hàng – chăm sóc khách hàng – tư vấn sản phẩm. Phù hợp cho shop online và doanh nghiệp."
-    },
-
-    {
-      "intent": "benefits",
-      "keywords": ["lợi ích", "hiệu quả", "tác dụng", "tăng đơn", "tự động hóa", "hỗ trợ bán hàng"],
-      "response": "Chatbot Ctt giúp trả lời khách tức thì, không bỏ sót tin nhắn, tăng tốc chốt đơn và giảm tải cho nhân viên. Bạn đang kinh doanh ngành gì để mình tư vấn đúng hơn ạ?"
-    },
-
-    {
-      "intent": "features",
-      "keywords": ["tính năng", "làm được gì", "có gì", "bot làm gì", "auto comment", "auto inbox"],
-      "response": "Chatbot Ctt có: Auto inbox/comment, tư vấn AI thông minh, tạo đơn hàng, gợi ý sản phẩm, kịch bản bán hàng, nhắc lịch, thu lead và quản lý khách."
-    },
-
-    {
-      "intent": "offer",
-      "keywords": ["miễn phí", "free", "dùng thử", "test thử", "thử chatbot"],
-      "response": "Bạn được dùng thử miễn phí 7 ngày toàn bộ tính năng. Không cần thẻ – không ràng buộc. Bạn muốn mình kích hoạt cho bạn không?"
-    },
-
-    {
-      "intent": "pricing",
-      "keywords": ["giá", "bao nhiêu", "gói cước", "tính phí", "gia hạn", "mua gói"],
-      "response": "Chatbot Ctt có gói từ 150.000đ/tháng sau 7 ngày dùng thử. Bạn có bao nhiêu fanpage để mình tư vấn gói phù hợp?"
-    },
-
-    {
-      "intent": "demo",
-      "keywords": ["demo", "xem thử", "test bot", "bot chạy thử", "xem bot"],
-      "response": "Bạn có thể nhắn bất kỳ câu hỏi để xem bot trả lời trực tiếp. Nếu bạn muốn demo theo ngành (mỹ phẩm, ăn uống, thời trang…), mình gửi luôn."
-    },
-
-    {
-      "intent": "setup",
-      "keywords": ["cài đặt", "kết nối page", "gắn chatbot", "bật bot", "add chatbot"],
-      "response": "Cài đặt rất đơn giản: 1) Đăng nhập, 2) Kết nối Fanpage, 3) Bật chatbot. Bạn muốn mình gửi link hướng dẫn chi tiết không?"
-    },
-
-    {
-      "intent": "contact",
-      "keywords": ["liên hệ", "gọi", "zalo", "tư vấn trực tiếp", "support"],
-      "response": "📞 Liên hệ/Zalo: 0987 763 916 để được hỗ trợ nhanh. Bạn cũng có thể để lại số điện thoại để đội ngũ gọi lại."
-    }
-  ],
-
-  "products": [
-    {
-      "name": "Chatbot trả lời tự động",
-      "description": "Trả lời comment + inbox 24/7, phản hồi tức thì, tiết kiệm thời gian."
-    },
-    {
-      "name": "Chatbot tư vấn sản phẩm AI",
-      "description": "Bot hiểu câu hỏi khách, phân tích nội dung và gợi ý sản phẩm phù hợp."
-    },
-    {
-      "name": "Tạo đơn hàng tự động",
-      "description": "Thu thập thông tin, ghi đơn, đồng bộ CRM/Google Sheet."
-    }
-  ],
-
-  "services": [
-    {
-      "name": "Triển khai Chatbot Facebook",
-      "description": "Kết nối page, bật bot trả lời tự động, tối ưu chăm sóc khách."
-    },
-    {
-      "name": "Tối ưu chuyển đổi",
-      "description": "Viết kịch bản bán hàng – chăm sóc khách phù hợp từng ngành."
-    },
-    {
-      "name": "Tư vấn chuyển đổi số",
-      "description": "Tự động hóa quy trình bán hàng – CSKH bằng chatbot AI."
-    }
-  ],
-
-  "faq": [
-    {
-      "q": "Chatbot có tự trả lời comment Facebook không?",
-      "a": "Có. Chatbot Ctt tự động trả lời comment, ẩn comment và inbox khách để tránh mất khách."
-    },
-    {
-      "q": "Bot có hiểu câu hỏi tự nhiên không?",
-      "a": "Có. Bot dùng AI để hiểu nội dung khách hỏi, không cần trùng keyword."
-    },
-    {
-      "q": "Có cần kỹ thuật để cài đặt không?",
-      "a": "Không. Chỉ cần 1 phút kết nối fanpage là bot hoạt động."
-    }
-  ]
+  "Quảng cáo quán": {
+    "chào": [
+      "🦪 Xin chào bạn! Chào mừng đến với **Ốc Ngon 18** — quán ốc ngon nhất khu Rạng Đông!",
+      "Xin chào 👋! Hôm nay quán **Ốc Ngon 18** có nhiều món ngon và combo hấp dẫn lắm nha!"
+    ],
+    "giới_thiệu": [
+      "🍽️ **Ốc Ngon 18** nổi tiếng với ốc tươi, nước chấm thần thánh và món lẩu Tomyum cay đậm đà.",
+      "🔥 Món nổi bật: Ốc hương trứng muối, Hàu nướng phô mai và Lẩu Thái Tomyum.",
+      "🎉 Không gian rộng rãi, phục vụ nhanh, đồ ăn tươi mỗi ngày."
+    ],
+    "khuyến_mãi": [
+      "🎁 Giảm 10% cho khách gọi combo từ 3 người trở lên.",
+      "🍺 Tặng ngay Pepsi khi gọi món ốc bất kỳ trong khung giờ 17h–19h.",
+      "❤️ Check-in tại quán để nhận ưu đãi thêm topping hoặc đồ uống miễn phí."
+    ],
+    "liên_hệ": [
+      "📍 Địa chỉ: Rạng Đông - Cách Vietcombank 100m.",
+      "📞 Gọi đặt bàn hoặc hỏi món: 0345 986 183 / 0338 570 075.",
+      "🕓 Mở cửa từ 16:00 - 23:00 hàng ngày, phục vụ cả tối muộn."
+    ],
+    "kết_thúc": [
+      "Cảm ơn bạn đã ghé **Ốc Ngon 18** ❤️ Hẹn gặp lại bạn vào tối nay nhé!",
+      "🦪 Quán luôn sẵn sàng phục vụ bạn — đặt bàn ngay để có chỗ đẹp!"
+    ]
+  }
 }
