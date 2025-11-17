@@ -82,6 +82,20 @@
       "Bạn cũng có thể liên hệ nhanh qua hotline 0987 763 916 để được hỗ trợ ngay."
     ]
   },
+  {
+  "intent": "contact_human_support",
+  "keywords": [
+    "gặp tư vấn", "người tư vấn", "tư vấn viên", "muốn gặp người thật",
+    "gọi giúp tôi", "gọi lại cho tôi", "liên hệ trực tiếp", "gặp nhân viên",
+    "gặp kiến trúc sư", "muốn trao đổi trực tiếp", "cho xin số", "số điện thoại",
+    "hotline", "có ai gọi không", "bên bạn có gọi lại không", "cần nói chuyện trực tiếp"
+  ],
+  "response": [
+    "Tất nhiên rồi ạ. Nếu bạn muốn trao đổi trực tiếp với kiến trúc sư, bạn có thể liên hệ qua hotline 0987 763 916 để được hỗ trợ ngay.",
+    "Bạn hoàn toàn có thể nói chuyện trực tiếp với kiến trúc sư. Bạn gọi hotline 0987 763 916 để được tư vấn chi tiết hơn nhé.",
+    "Nếu bạn muốn gặp người tư vấn, Kiến trúc XYZ luôn sẵn sàng hỗ trợ qua số điện thoại 0987 763 916."
+  ]
+}
 
   /* =====================================================
      🔥 TOÀN BỘ 80+ INTENT MÀ BẠN YÊU CẦU ĐÃ ĐƯỢC THÊM VÀO TỪ ĐÂY
