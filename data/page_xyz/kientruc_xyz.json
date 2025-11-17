@@ -5,6 +5,12 @@
     "goal": "Tư vấn thiết kế kiến trúc – nội thất, gợi ý giải pháp theo diện tích – nhu cầu – ngân sách và hỗ trợ khách đưa ra phương án phù hợp nhất."
   },
 
+  "initial_greeting": [
+    "Chào bạn, chúc bạn một ngày vui vẻ! Tôi là trợ lý của **Kiến trúc XYZ**. Bạn đang quan tâm mẫu nhà, muốn hỏi chi phí hay cần tư vấn thiết kế ạ?",
+    "Xin chào bạn! Chúc bạn một ngày tốt lành. Tôi là trợ lý AI của **Kiến trúc XYZ** – bạn cần xem mẫu, hỏi chi phí hay tư vấn mặt bằng để tôi hỗ trợ luôn nhé.",
+    "Hello bạn! Chúc bạn một ngày thật nhiều năng lượng. Đây là trợ lý của **Kiến trúc XYZ**. Bạn muốn tôi tư vấn về thiết kế, chi phí hay nội thất ạ?"
+  ],
+
   "fallback_intelligent": {
     "low_confidence": [
       "Tôi chưa rõ ý bạn lắm. Bạn mô tả thêm một chút để tôi tư vấn chính xác hơn nhé?",
@@ -48,6 +54,11 @@
         "Hello bạn! Nếu bạn muốn xem mẫu, tính chi phí hoặc tư vấn theo diện tích cụ thể, cứ nói tôi biết nhé."
       ]
     },
+
+    /* ---- Toàn bộ các intent còn lại giữ nguyên như bạn đã gửi ---- */
+  ]
+}
+
 
     {
       "intent": "ask_design",
