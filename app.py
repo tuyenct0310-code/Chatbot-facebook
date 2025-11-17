@@ -70,12 +70,7 @@ def load_dataset_by_folder(folder):
     return db
 
 def build_system_prompt_for_folder(folder):
-    """
-    Build a stable system prompt from persona in dataset (if any).
-    Falls back to a default professional persona.
-    """
     db = DATABASE.get(folder, {})
-    # find first persona
     persona = {}
     for fk, content in db.items():
         persona = content.get("persona", {}) or persona
@@ -85,15 +80,15 @@ def build_system_prompt_for_folder(folder):
     role = persona.get("role", "Trợ lý AI")
     tone = persona.get("tone", "Thân thiện, nhanh nhạy, chuyên nghiệp.")
     goal = persona.get("goal", "Hỗ trợ khách hàng, giới thiệu sản phẩm/dịch vụ.")
-    # Strict but useful: instruct to prefer triggers and short answers
+
     prompt = (
         f"Bạn là {role}. Tone: {tone}\n"
         f"Goal: {goal}\n\n"
         "QUY TẮC:\n"
         "1) Ưu tiên trả lời theo trigger (keywords) nếu khớp.\n"
-        "2) Trả lời ngắn gọn, rõ ràng, 1-3 câu. Không khen xã giao dài.\n"
-        "3) Nếu không chắc, hỏi thêm để làm rõ (gợi ý: 'Bạn đang quan tâm điều gì cụ thể?').\n"
-        "4) Không bịa chuyện, không đưa thông tin không có trong dataset nếu user hỏi chi tiết kỹ thuật hoặc giá chính xác.\n"
+        "2) Trả lời ngắn gọn, rõ ràng, 1-3 câu.\n"
+        "3) Nếu không chắc, hỏi thêm để làm rõ.\n"
+        "4) Không bịa thông tin kỹ thuật/giá.\n"
     )
     return prompt
 
@@ -105,33 +100,41 @@ def normalize_text(t):
 
 def find_trigger_response(folder, text):
     """
-    Exact/keyword matching across loaded JSONs.
-    Returns response string or None.
+    Return (response, no_trim_flag)
     """
     t = normalize_text(text)
     db = DATABASE.get(folder, {})
-    # First try exact intent keyword phrase match (longer keywords first)
+
+    # exact match first
     for fk, data in db.items():
         for tr in data.get("chatbot_triggers", []):
-            # sort keywords by length desc to prefer longer phrases
             kws = sorted(tr.get("keywords", []), key=lambda x: -len(x))
             for k in kws:
                 k_l = k.strip().lower()
                 if not k_l:
                     continue
-                # exact phrase boundaries or full equality
-                if k_l == t or f" {k_l} " in f" {t} " or t.startswith(k_l + " ") or t.endswith(" " + k_l):
+
+                if (
+                    k_l == t
+                    or f" {k_l} " in f" {t} "
+                    or t.startswith(k_l + " ")
+                    or t.endswith(" " + k_l)
+                ):
                     resp = tr.get("response", "")
-                    return choose_response_variant(resp)
-    # fallback: token intersection heuristic (any keyword token present)
+                    no_trim = (tr.get("intent") == "greet")
+                    return choose_response_variant(resp), no_trim
+
+    # fallback token match
     for fk, data in db.items():
         for tr in data.get("chatbot_triggers", []):
             for k in tr.get("keywords", []):
                 k_tokens = [tok for tok in normalize_text(k).split() if tok]
                 if all(tok in t for tok in k_tokens) and k_tokens:
                     resp = tr.get("response", "")
-                    return choose_response_variant(resp)
-    return None
+                    no_trim = (tr.get("intent") == "greet")
+                    return choose_response_variant(resp), no_trim
+
+    return None, False
 
 def choose_response_variant(resp):
     if isinstance(resp, list):
@@ -158,7 +161,7 @@ def ask_llm(system_prompt, user_text):
         return "Hệ thống đang tạm bận, vui lòng thử lại sau."
 
 # -----------------------
-# SMART REPLY (NON-RAG)
+# SMART REPLY
 # -----------------------
 def ensure_folder_loaded(folder):
     if folder not in DATABASE:
@@ -168,23 +171,22 @@ def ensure_folder_loaded(folder):
 def get_smart_reply(folder, text):
     ensure_folder_loaded(folder)
 
-    # 1) Trigger match
-    fast = find_trigger_response(folder, text)
-    if fast:
-        # keep short: if fast long, trim to first sentence
-        return short_first_sentence(fast)
+    # 1) TRIGGER
+    resp, no_trim = find_trigger_response(folder, text)
+    if resp:
+        if no_trim:
+            return resp  # greeting giữ nguyên
+        return short_first_sentence(resp)
 
-    # 2) Not matched: use LLM with system prompt derived from persona
+    # 2) LLM fallback
     sys_prompt = SYSTEM_PROMPTS.get(folder) or build_system_prompt_for_folder(folder)
-    # add a short instruction to be concise
-    sys_prompt = sys_prompt + "\nNOTE: Trả lời ngắn gọn, rõ ràng, 1-3 câu."
+    sys_prompt += "\nNOTE: Trả lời ngắn gọn, rõ ràng, 1-3 câu."
     return ask_llm(sys_prompt, text)
 
 def short_first_sentence(text):
     if not text:
         return text
     s = text.strip().split('\n')[0].strip()
-    # split on sentence punctuation
     for sep in ['. ', '! ', '? ']:
         if sep in s:
             s = s.split(sep)[0]
@@ -192,13 +194,12 @@ def short_first_sentence(text):
     s = s.strip()
     if len(s) > 300:
         s = s[:297].rstrip() + '...'
-    # ensure punctuation
     if not s.endswith(('.', '?', '!')):
-        s = s + '.'
+        s += '.'
     return s
 
 # -----------------------
-# FACEBOOK SEND (MULTI TOKEN)
+# FACEBOOK SEND
 # -----------------------
 def send_text(page_id, psid, text):
     token = PAGE_TOKEN_MAP.get(page_id)
@@ -208,6 +209,7 @@ def send_text(page_id, psid, text):
 
     url = f"https://graph.facebook.com/v19.0/me/messages?access_token={token}"
     payload = {"recipient": {"id": psid}, "message": {"text": text}}
+
     try:
         r = requests.post(url, json=payload, timeout=10)
         print("📨 FB Send:", r.status_code, r.text)
