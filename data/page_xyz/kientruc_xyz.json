@@ -64,8 +64,6 @@
       ]
     },
 
-    /* === Các intent khác giữ nguyên 100%, không thay đổi gì === */
-
     {
       "intent": "ask_design",
       "keywords": ["mẫu nhà", "nhà đẹp", "thiết kế nhà", "xem mẫu", "phối cảnh", "mặt bằng", "nhà phố", "nhà ống", "biệt thự"],
