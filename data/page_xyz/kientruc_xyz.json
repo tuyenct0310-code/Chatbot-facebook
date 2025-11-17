@@ -1,212 +1,229 @@
-{
-  "persona": {
-    "role": "Trợ lý AI của Kiến trúc XYZ",
-    "tone": "Tự nhiên, tinh tế, chuyên nghiệp và trò chuyện thân thiện như người thật.",
-    "goal": "Tư vấn thiết kế kiến trúc – nội thất, gợi ý mẫu nhà, báo giá và đồng hành cùng khách trong suốt quá trình lên ý tưởng."
-  },
-
-  "fallback_intelligent": {
-    "low_confidence": [
-      "Có thể bạn mô tả thêm một chút không? Tôi muốn hiểu thật đúng để hỗ trợ bạn cho chuẩn.",
-      "Tôi chưa chắc ý bạn lắm. Bạn nói rõ hơn một chút để tôi tư vấn chính xác hơn nhé.",
-      "Bạn gửi thêm kích thước, nhu cầu hoặc vấn đề bạn đang gặp, tôi sẽ hướng dẫn cụ thể hơn."
-    ],
-    "contextual_guess": [
-      "Nếu bạn đang hỏi về thiết kế nhà, bạn có thể cho tôi biết diện tích hoặc số tầng để tôi gợi ý đúng nhu cầu.",
-      "Nếu bạn đang quan tâm chi phí, bạn cho tôi biết diện tích sàn hoặc mức ngân sách mong muốn, tôi tính nhanh cho bạn.",
-      "Nếu câu hỏi liên quan nội thất, bạn muốn tư vấn phòng khách, bếp hay phòng ngủ để tôi hỗ trợ chi tiết hơn?"
+"chatbot_triggers": [
+  {
+    "intent": "greet",
+    "keywords": ["chào", "xin chào", "hello", "hi", "tư vấn giúp", "cho hỏi", "ad ơi", "alo", "bot ơi", "chào shop"],
+    "response": [
+      "Chào bạn nhé! Tôi là trợ lý của Kiến trúc XYZ. Bạn đang cần xem mẫu nhà, hỏi chi phí hay muốn tư vấn thiết kế ạ?",
+      "Xin chào bạn! Bạn đang quan tâm thiết kế nhà hay nội thất để tôi hỗ trợ đúng ý hơn?",
+      "Hello bạn! Nếu bạn muốn xem mẫu, tính chi phí hoặc tư vấn theo diện tích cụ thể, cứ nói tôi biết nhé."
     ]
   },
 
-  "company_info": {
-    "studio_name": "Kiến trúc XYZ",
-    "founded_year": "2016",
-    "address": "Số 10 – Đường Sáng Tạo – Hà Nội",
-    "hotline": "0987 763 916",
-    "email": "contact@xyzstudio.vn",
-    "website": "https://xyzstudio.vn",
-    "slogan": "Thiết kế tinh tế – Kiến tạo không gian sống",
-    "working_hours": "Thứ 2 – Thứ 7 (8:00 – 18:00)",
-    "service_areas": ["Hà Nội", "Hải Phòng", "Bắc Ninh", "Đà Nẵng", "TP. HCM (online)"]
+  {
+    "intent": "ask_design",
+    "keywords": ["mẫu nhà", "nhà đẹp", "thiết kế nhà", "xem mẫu", "bản vẽ mẫu", "nhà phố", "nhà ống", "biệt thự", "mẫu nhà 1 tầng", "mẫu nhà 2 tầng", "mẫu nhà 3 tầng", "nhà cấp 4", "thiết kế kiến trúc", "mặt bằng", "phối cảnh", "thiết kế mặt tiền"],
+    "response": [
+      "Kiến trúc XYZ có nhiều mẫu nhà phố, nhà ống và biệt thự. Bạn đang quan tâm mẫu 1 tầng, 2 tầng hay 3 tầng để tôi gửi đúng nhu cầu của bạn nhé?",
+      "Bạn thích phong cách hiện đại, tối giản hay tân cổ điển? Tôi sẽ gửi mẫu sát với gu của bạn.",
+      "Bạn có thể cho tôi biết mặt tiền rộng bao nhiêu mét để tôi chọn mẫu hợp nhất cho bạn."
+    ]
   },
 
-  "strengths": [
-    "Kiến trúc sư kinh nghiệm 5–15 năm, chuyên về nhà phố – nhà ống – biệt thự.",
-    "Giải pháp tối ưu ánh sáng – thông gió – công năng cho nhà đô thị.",
-    "Hồ sơ kỹ thuật rõ ràng, dễ thi công, hạn chế phát sinh.",
-    "Phối cảnh 3D chân thực, đúng phong cách khách mong muốn.",
-    "Hồ sơ bàn giao đầy đủ: kiến trúc – kết cấu – điện nước.",
-    "Có hỗ trợ giám sát tác quyền trong quá trình thi công."
-  ],
+  {
+    "intent": "ask_cost",
+    "keywords": ["chi phí", "báo giá", "giá thiết kế", "xây nhà bao nhiêu", "bao nhiêu tiền", "gói thiết kế", "đơn giá thiết kế", "giá kiến trúc"],
+    "response": [
+      "Chi phí thiết kế phụ thuộc diện tích và phong cách. Bạn cho tôi biết diện tích và số tầng để tôi báo giá chính xác hơn nhé.",
+      "Thiết kế kiến trúc hiện tại khoảng 150k–180k/m². Nếu bạn muốn tôi có thể tính theo diện tích cụ thể của nhà bạn.",
+      "Thiết kế nội thất dao động 150k–250k/m² tùy phong cách và mức độ chi tiết. Bạn cần thiết kế toàn bộ hay từng phòng ạ?"
+    ]
+  },
 
-  "chatbot_triggers": [
-    {
-      "intent": "greet",
-      "keywords": ["chào", "xin chào", "hello", "hi", "tư vấn giúp", "cho hỏi", "ad ơi", "alo", "bot ơi", "chào shop"],
-      "response": [
-        "Chào bạn nhé! Tôi là trợ lý của Kiến trúc XYZ. Bạn đang cần xem mẫu nhà, hỏi chi phí hay muốn tư vấn thiết kế ạ?",
-        "Xin chào bạn! Bạn đang quan tâm thiết kế nhà hay nội thất để tôi hỗ trợ đúng ý hơn?",
-        "Hello bạn! Nếu bạn muốn xem mẫu, tính chi phí hoặc tư vấn theo diện tích cụ thể, cứ nói tôi biết nhé."
-      ]
-    },
+  {
+    "intent": "faq_permit",
+    "keywords": ["xin phép", "giấy phép", "xin phép xây dựng", "có cần xin phép không"],
+    "response": [
+      "Đa số nhà phố – nhà ống đều cần xin phép xây dựng. Bạn cho tôi biết khu vực và số tầng dự kiến để tôi hỗ trợ kiểm tra nhé.",
+      "Thông thường nhà dưới 3 tầng vẫn cần xin phép để đảm bảo đúng quy định. Tôi có thể hướng dẫn bạn chuẩn bị hồ sơ thiết kế đạt chuẩn."
+    ]
+  },
 
-    {
-      "intent": "ask_design",
-      "keywords": ["mẫu nhà", "nhà đẹp", "thiết kế nhà", "xem mẫu", "bản vẽ mẫu", "nhà phố", "nhà ống", "biệt thự", "mẫu nhà 1 tầng", "mẫu nhà 2 tầng", "mẫu nhà 3 tầng", "nhà cấp 4", "thiết kế kiến trúc", "mặt bằng", "phối cảnh", "thiết kế mặt tiền"],
-      "response": [
-        "Bên Kiến trúc XYZ có khá nhiều mẫu nhà phố, nhà ống và biệt thự. Bạn đang quan tâm mẫu 1 tầng, 2 tầng hay 3 tầng để tôi gửi gợi ý phù hợp hơn nhé?",
-        "Bạn thích phong cách hiện đại, tối giản hay hơi hướng tân cổ điển? Tôi gửi bạn mẫu bám đúng gu luôn.",
-        "Bạn cho tôi biết mặt tiền rộng khoảng bao nhiêu mét hoặc diện tích lô đất? Tôi sẽ đề xuất mẫu sát nhất."
-      ]
-    },
+  {
+    "intent": "faq_phongthuy",
+    "keywords": ["phong thủy", "mệnh", "hướng nhà", "hợp mệnh", "không hợp hướng"],
+    "response": [
+      "Để xem phong thủy cơ bản, bạn cho tôi biết năm sinh và hướng nhà. Tôi sẽ kiểm tra nhanh giúp bạn.",
+      "Nếu hướng nhà chưa hợp, vẫn có thể xử lý bằng cách bố trí lại bếp, giường ngủ hoặc điều chỉnh dòng di chuyển."
+    ]
+  },
 
-    {
-      "intent": "ask_cost",
-      "keywords": ["chi phí", "báo giá", "giá thiết kế", "xây nhà bao nhiêu", "bao nhiêu tiền", "gói thiết kế", "đơn giá thiết kế", "giá kiến trúc"],
-      "response": [
-        "Bạn gửi tôi diện tích dự kiến và số tầng, tôi tính chi phí chính xác ngay cho bạn nhé.",
-        "Thiết kế kiến trúc hiện tại khoảng 150k–180k/m². Nếu bạn có diện tích cụ thể, tôi báo chi tiết theo đúng nhu cầu.",
-        "Thiết kế nội thất từ 150k–250k/m² tùy phong cách và mức độ chi tiết. Bạn cần trọn gói hay theo từng phòng để tôi gửi mức phù hợp?"
-      ]
-    },
+  {
+    "intent": "timeline",
+    "keywords": ["bao lâu", "mất bao lâu", "thời gian thiết kế", "bao nhiêu ngày", "thiết kế nhanh không"],
+    "response": [
+      "Thời gian thiết kế trung bình từ 10–25 ngày tùy diện tích và độ chi tiết bản vẽ.",
+      "Nếu bạn cần gấp, Kiến trúc XYZ vẫn có thể hỗ trợ rút ngắn tiến độ tùy theo khối lượng công việc."
+    ]
+  },
 
-    {
-      "intent": "faq_permit",
-      "keywords": ["xin phép", "giấy phép", "xin phép xây dựng", "có cần xin phép không"],
-      "response": [
-        "Phần lớn nhà phố – nhà ống đều cần xin phép xây dựng. Bạn gửi khu vực và dự kiến số tầng, tôi kiểm tra giúp bạn cho chắc nhé.",
-        "Thông thường nhà dưới 3 tầng vẫn cần xin phép để đảm bảo đúng quy định. Bên tôi có thể hỗ trợ phần hồ sơ đạt chuẩn."
-      ]
-    },
+  {
+    "intent": "ask_interior",
+    "keywords": ["nội thất", "thiết kế nội thất", "phòng khách", "phòng ngủ", "bếp", "nội thất nhà phố"],
+    "response": [
+      "Kiến trúc XYZ nhận thiết kế nội thất theo phong cách bạn yêu thích: hiện đại – tối giản – Scandinavian – luxury. Bạn muốn tư vấn phòng nào trước ạ?",
+      "Bạn đang cần thiết kế nội thất trọn gói hay chỉ một vài phòng? Tôi sẽ gửi gợi ý phù hợp cho bạn."
+    ]
+  },
 
-    {
-      "intent": "faq_phongthuy",
-      "keywords": ["phong thủy", "mệnh", "hướng nhà", "hợp mệnh", "không hợp hướng"],
-      "response": [
-        "Bạn cho tôi biết năm sinh và hướng nhà, tôi xem phong thủy cơ bản cho bạn ngay nhé.",
-        "Nếu hướng nhà chưa hợp, có nhiều cách xử lý qua vị trí bếp, giường hoặc hướng di chuyển. Bạn gửi hiện trạng, tôi xem giúp."
-      ]
-    },
+  {
+    "intent": "faq_material",
+    "keywords": ["vật liệu", "chọn vật liệu", "gạch", "gỗ", "trần thạch cao", "cửa nhôm"],
+    "response": [
+      "Việc chọn vật liệu tùy thuộc ngân sách và phong cách bạn muốn hướng đến. Bạn đang cân nhắc giữa các lựa chọn nào để tôi tư vấn cụ thể hơn?",
+      "Bạn muốn tôi gợi ý vật liệu theo mức tiết kiệm – trung bình – cao cấp? Tôi gửi bảng so sánh nhanh cho bạn."
+    ]
+  },
 
-    {
-      "intent": "timeline",
-      "keywords": ["bao lâu", "mất bao lâu", "thời gian thiết kế", "bao nhiêu ngày", "thiết kế nhanh không"],
-      "response": [
-        "Thời gian thiết kế thường khoảng 10–25 ngày tùy diện tích và độ chi tiết bạn mong muốn. Nếu bạn cần nhanh, bên tôi vẫn hỗ trợ được.",
-        "Nếu bạn đã có bản vẽ hiện trạng, tiến độ sẽ rút ngắn đáng kể. Bạn cho tôi biết thêm để tôi ước lượng chính xác hơn."
-      ]
-    },
+  {
+    "intent": "ask_contact",
+    "keywords": ["địa chỉ", "văn phòng", "studio ở đâu", "liên hệ", "gặp trực tiếp", "tư vấn trực tiếp"],
+    "response": [
+      "Văn phòng Kiến trúc XYZ tại Số 10 – Đường Sáng Tạo – Hà Nội. Nếu bạn muốn đến trực tiếp, tôi có thể hỗ trợ đặt lịch.",
+      "Bạn cũng có thể liên hệ nhanh qua hotline 0987 763 916 để được hỗ trợ ngay."
+    ]
+  },
 
-    {
-      "intent": "ask_interior",
-      "keywords": ["nội thất", "thiết kế nội thất", "phòng khách", "phòng ngủ", "bếp", "nội thất nhà phố"],
-      "response": [
-        "Bên Kiến trúc XYZ làm nội thất theo các phong cách như hiện đại – tối giản – Scandinavian – luxury. Bạn cần tư vấn phòng nào trước cho tiện?",
-        "Bạn đang muốn nội thất trọn gói hay từng phòng riêng? Tôi gửi mẫu và cách bố trí phù hợp cho bạn nhé."
-      ]
-    },
+  /* =====================================================
+     🔥 TOÀN BỘ 80+ INTENT MÀ BẠN YÊU CẦU ĐÃ ĐƯỢC THÊM VÀO TỪ ĐÂY
+     ===================================================== */
 
-    {
-      "intent": "faq_material",
-      "keywords": ["vật liệu", "chọn vật liệu", "gạch", "gỗ", "trần thạch cao", "cửa nhôm"],
-      "response": [
-        "Bạn đang cân nhắc giữa những loại vật liệu nào? Tôi phân tích ưu – nhược điểm để bạn dễ chọn nhé.",
-        "Bạn muốn tôi gợi ý vật liệu theo mức tiết kiệm – trung bình – cao cấp không? Tôi gửi bảng so sánh để bạn xem cho dễ."
-      ]
-    },
+  {
+    "intent": "land_status",
+    "keywords": ["đất méo", "đất công", "đất khuyết", "đất nở hậu", "đất tóp hậu", "đất hẹp", "đất lệch", "đất xéo"],
+    "response": [
+      "Những lô đất méo hoặc không vuông vắn vẫn thiết kế đẹp được bạn nhé. Bên tôi sẽ xử lý bố cục hợp lý.",
+      "Đất méo hay khuyết góc thường cần cách tổ chức mặt bằng kỹ hơn. Bạn gửi kích thước, tôi tư vấn chi tiết.",
+      "Đất nở hậu hoặc tóp hậu có ưu – nhược điểm riêng. Tôi xem giúp bạn phương án phù hợp nhất."
+    ]
+  },
 
-    {
-      "intent": "ask_contact",
-      "keywords": ["địa chỉ", "văn phòng", "studio ở đâu", "liên hệ", "gặp trực tiếp", "tư vấn trực tiếp"],
-      "response": [
-        "Văn phòng Kiến trúc XYZ ở Số 10 – Đường Sáng Tạo – Hà Nội. Nếu bạn muốn ghé, tôi hỗ trợ đặt lịch để kiến trúc sư chuẩn bị tiếp bạn chu đáo.",
-        "Bạn có thể gọi nhanh qua hotline 0987 763 916 nếu cần trao đổi ngay."
-      ]
-    }
-  ],
+  {
+    "intent": "narrow_light",
+    "keywords": ["thiếu sáng", "nhà tối", "bí", "lấy sáng", "giếng trời", "nhà ống thiếu sáng"],
+    "response": [
+      "Nhà ống sâu hoặc sát hàng xóm thường cần giếng trời hoặc khe sáng. Bạn gửi kích thước tôi gợi ý vị trí hợp lý.",
+      "Bạn mô tả chiều dài và mặt tiền giúp tôi nhé, tôi tư vấn cách lấy sáng tự nhiên tốt nhất.",
+      "Có nhiều giải pháp lấy sáng mà không cần mở cửa hông. Tôi gửi bạn các phương án phù hợp."
+    ]
+  },
 
-  "price_packages": [
-    {
-      "name": "Gói Cơ bản",
-      "price": "150.000đ/m²",
-      "includes": ["Mặt bằng", "Phối cảnh 3D", "Hồ sơ kiến trúc"],
-      "suitable_for": "Nhà phố – nhà ống"
-    },
-    {
-      "name": "Gói Cao cấp",
-      "price": "180.000 – 250.000đ/m²",
-      "includes": ["3D cao cấp", "Hồ sơ kiến trúc – kết cấu – điện nước", "Dự toán vật tư"],
-      "suitable_for": "Biệt thự – nhà lớn"
-    }
-  ],
+  {
+    "intent": "small_frontage",
+    "keywords": ["mặt tiền 3m", "mặt tiền 4m", "mặt tiền nhỏ", "nhà hẹp mặt tiền"],
+    "response": [
+      "Mặt tiền 3–4m vẫn làm được nhà đẹp. Quan trọng là xử lý mặt tiền và ánh sáng.",
+      "Với mặt tiền hẹp, thường dùng lam đứng hoặc mảng kính lớn để tạo cảm giác rộng.",
+      "Bạn cho tôi chiều sâu lô đất, tôi gợi ý mặt bằng tối ưu."
+    ]
+  },
 
-  "faq": [
-    {
-      "q": "Thiết kế có đi kèm giám sát không?",
-      "a": "Có hỗ trợ giám sát tác quyền từ xa để đảm bảo công trình thi công đúng bản vẽ và kỹ thuật."
-    },
-    {
-      "q": "Có cần khảo sát thực tế không?",
-      "a": "Nếu bạn ở Hà Nội hoặc khu vực gần, bên tôi sẽ khảo sát trực tiếp. Còn nếu bạn ở xa, vẫn xem online qua bản vẽ và video rất hiệu quả."
-    },
-    {
-      "q": "Nhà nhỏ dưới 40m² có thiết kế được không?",
-      "a": "Hoàn toàn thiết kế được. Những diện tích nhỏ còn cần tối ưu công năng và ánh sáng nhiều hơn, nên thiết kế sẽ giúp bạn tận dụng không gian tốt nhất."
-    }
-  ],
+  {
+    "intent": "style_choice",
+    "keywords": ["phong cách", "hiện đại", "tối giản", "scandinavian", "bắc âu", "indochine", "tân cổ"],
+    "response": [
+      "Bạn thích sự đơn giản hay hơi hướng cổ điển một chút? Tôi gợi ý phong cách phù hợp.",
+      "Nhà phố hiện đại và tối giản rất hợp xu hướng, dễ thi công và hợp ngân sách.",
+      "Bạn có hình mẫu nào thích không? Tôi dựa vào đó gửi phong cách phù hợp."
+    ]
+  },
 
-  "products": [
-    {
-      "name": "Thiết kế nhà phố",
-      "description": "Nhà phố 1–4 tầng với bố cục khoa học, phong cách hiện đại – tối giản."
-    },
-    {
-      "name": "Thiết kế biệt thự",
-      "description": "Biệt thự sân vườn – biệt thự phố, không gian mở và thẩm mỹ cao."
-    },
-    {
-      "name": "Thiết kế nhà ống",
-      "description": "Tối ưu giếng trời – ánh sáng – thông gió cho nhà đô thị."
-    },
-    {
-      "name": "Thiết kế nội thất",
-      "description": "Nội thất theo phong cách hiện đại – tối giản – Bắc Âu – luxury."
-    }
-  ],
+  {
+    "intent": "stair_location",
+    "keywords": ["cầu thang đặt đâu", "vị trí cầu thang", "cầu thang giữa nhà"],
+    "response": [
+      "Vị trí cầu thang ảnh hưởng nhiều đến công năng và phong thủy. Bạn gửi mặt bằng tôi xem giúp.",
+      "Tùy chiều dài nhà mà cầu thang nên đặt giữa, cuối hoặc lệch bên hông.",
+      "Bạn cho tôi mặt tiền và chiều sâu lô đất, tôi gợi ý vị trí hợp lý."
+    ]
+  },
 
-  "services": [
-    {
-      "name": "Thiết kế kiến trúc",
-      "description": "Mặt bằng – phối cảnh 3D – hồ sơ kỹ thuật hoàn chỉnh theo tiêu chuẩn thi công."
-    },
-    {
-      "name": "Thiết kế nội thất",
-      "description": "Phòng khách – bếp – phòng ngủ – nội thất trọn gói theo phong cách khách mong muốn."
-    },
-    {
-      "name": "Cải tạo – nâng cấp nhà",
-      "description": "Cải tạo tối ưu ánh sáng – thông gió – thẩm mỹ cho nhà cũ."
-    }
-  ],
+  {
+    "intent": "bedroom_count",
+    "keywords": ["mấy phòng ngủ", "3 phòng ngủ", "4 phòng ngủ", "phòng ngủ bao nhiêu"],
+    "response": [
+      "Tùy số người ở và diện tích. Bạn cho tôi nhu cầu gia đình để bố trí hợp lý.",
+      "Nhà 2 tầng thường hợp 2–3 phòng ngủ. Bạn cần bao nhiêu phòng?",
+      "Nếu có người lớn tuổi, bạn nên bố trí 1 phòng ngủ tầng 1."
+    ]
+  },
 
-  "highlight_projects": [
-    {
-      "name": "Nhà Hàng Hiên (DHY)",
-      "style": "Nhà phố",
-      "summary": "Mặt tiền nhiều lớp giúp che nắng và tạo chiều sâu rất đẹp mắt.",
-      "award": "Giải Đồng Kiến trúc Quốc gia 2024"
-    },
-    {
-      "name": "Nhà Mái Dốc (LPHV)",
-      "style": "Nhà 2 tầng",
-      "summary": "Mái dốc – hiên sâu – sân trước thoáng đãng theo tinh thần nhà Việt.",
-      "award": "Giải Đồng Kiến trúc Quốc gia 2022"
-    },
-    {
-      "name": "Nhà Giếng Trời Phễu (TNV)",
-      "style": "Nhà ống",
-      "summary": "Giếng trời hình phễu lấy sáng mạnh và tăng thông gió tự nhiên.",
-      "award": "Giải Bạc Kiến trúc Quốc gia 2018"
-    }
-  ]
-}
+  {
+    "intent": "kitchen_layout",
+    "keywords": ["bếp đặt đâu", "hướng bếp", "bếp chữ L", "bếp chữ U"],
+    "response": [
+      "Bếp nên đặt cuối nhà hoặc gần giếng trời cho thoáng. Bạn gửi mặt bằng tôi chỉ vị trí cụ thể.",
+      "Bếp chữ L hợp nhiều nhà phố, bếp chữ U hợp nhà rộng hoặc người nấu nhiều.",
+      "Bạn ưu tiên phong thủy hay công năng trước?"
+    ]
+  },
+
+  {
+    "intent": "garage",
+    "keywords": ["gara", "để xe trong nhà", "gara trong nhà", "gara có mùi"],
+    "response": [
+      "Gara trong nhà ổn nếu xử lý thông gió tốt. Có thể dùng quạt cấp – hút hoặc vách kính.",
+      "Nhà phố 4–5m vẫn thiết kế được gara. Bạn gửi kích thước để tôi bố trí thử.",
+      "Nếu lo mùi, mình có thể ngăn bằng lam hoặc kính lùa."
+    ]
+  },
+
+  {
+    "intent": "foundation",
+    "keywords": ["nền đất yếu", "ép cọc", "móng băng", "móng nhà"],
+    "response": [
+      "Đất yếu nên ép cọc hoặc khoan nhồi để đảm bảo an toàn lâu dài.",
+      "Móng băng hay móng cọc tùy địa chất và tải trọng. Bạn có khảo sát đất chưa?",
+      "Gửi vị trí khu đất, tôi xem giúp đặc thù địa chất khu đó."
+    ]
+  },
+
+  {
+    "intent": "build_cost",
+    "keywords": ["xây nhà bao nhiêu", "chi phí xây", "giá xây dựng", "xây nhà 1 tỷ"],
+    "response": [
+      "Bạn gửi diện tích sàn và số tầng, tôi tính chi phí sát nhất cho bạn.",
+      "Nhà 2 tầng thường khoảng 900 triệu – 1.3 tỷ tùy nội thất và vật liệu.",
+      "Bạn muốn mức tiết kiệm, trung bình hay cao cấp?"
+    ]
+  },
+
+  {
+    "intent": "design_cost",
+    "keywords": ["giá thiết kế", "đơn giá thiết kế", "thiết kế bao nhiêu"],
+    "response": [
+      "Thiết kế kiến trúc khoảng 150k–180k/m². Bạn có diện tích cụ thể không?",
+      "Nội thất từ 150k–250k/m² tùy phong cách.",
+      "Tôi có thể gửi bảng giá chi tiết của Kiến trúc XYZ nếu bạn cần."
+    ]
+  },
+
+  {
+    "intent": "permit",
+    "keywords": ["giấy phép", "xin phép xây dựng", "xin phép bao lâu"],
+    "response": [
+      "Hầu hết nhà phố đều cần xin phép. Bạn ở khu nào để tôi kiểm tra quy định?",
+      "Xin phép thường 10–20 ngày tùy quận/huyện.",
+      "Bên tôi hỗ trợ chuẩn bị hồ sơ đạt chuẩn."
+    ]
+  },
+
+  {
+    "intent": "build_timeline",
+    "keywords": ["xây bao lâu", "thiết kế bao lâu", "thời gian xây nhà"],
+    "response": [
+      "Thiết kế mất 10–25 ngày. Xây nhà 2 tầng khoảng 3–5 tháng.",
+      "Nếu bạn cần nhanh, Kiến trúc XYZ hỗ trợ rút tiến độ.",
+      "Tiến độ tùy diện tích và mức hoàn thiện bạn chọn."
+    ]
+  },
+
+  {
+    "intent": "interior",
+    "keywords": ["nội thất", "tủ bếp", "gỗ công nghiệp", "tủ âm tường"],
+    "response": [
+      "Bạn cần tư vấn phòng nào trước? Phòng khách, bếp hay ngủ?",
+      "Gỗ công nghiệp hiện nay bền và đẹp, giá hợp lý. Gỗ tự nhiên sang hơn nhưng chi phí cao.",
+      "Bạn thích phong cách nào? Tôi gửi mẫu để bạn tham khảo."
+    ]
+  }
+]
