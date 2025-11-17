@@ -18,13 +18,13 @@ MAX_TOKENS_REPLY = 200
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "")
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
 
-# MULTI TOKEN FOR MULTI PAGES (set env vars PAGE_TOKEN_<NAME>)
+# MULTI TOKEN FOR MULTI PAGES
 PAGE_TOKEN_MAP = {
     "895305580330861": os.environ.get("PAGE_TOKEN_XYZ", ""),
     "847842948414951": os.environ.get("PAGE_TOKEN_CTT", "")
 }
 
-# PAGE → FOLDER DATASET
+# PAGE → FOLDER
 PAGE_DATASET_MAP = {
     "895305580330861": "page_xyz",
     "847842948414951": "page_ctt"
@@ -47,11 +47,11 @@ except Exception as e:
 # -----------------------
 # GLOBAL STORAGE
 # -----------------------
-DATABASE = {}  # folder -> {filename: json}
-SYSTEM_PROMPTS = {}  # folder -> system prompt built from persona
+DATABASE = {}
+SYSTEM_PROMPTS = {}
 
 # -----------------------
-# LOAD DATA (JSON files per page)
+# LOAD DATA
 # -----------------------
 def load_dataset_by_folder(folder):
     folder_path = DATA_FOLDER_ROOT / folder
@@ -66,6 +66,7 @@ def load_dataset_by_folder(folder):
                 db[f.stem] = json.load(fh)
         except Exception as e:
             print(f"❌ Error loading file {f}: {e}")
+
     print(f"📂 Loaded data for {folder}: {list(db.keys())}")
     return db
 
@@ -79,16 +80,16 @@ def build_system_prompt_for_folder(folder):
 
     role = persona.get("role", "Trợ lý AI")
     tone = persona.get("tone", "Thân thiện, nhanh nhạy, chuyên nghiệp.")
-    goal = persona.get("goal", "Hỗ trợ khách hàng, giới thiệu sản phẩm/dịch vụ.")
+    goal = persona.get("goal", "Hỗ trợ khách hàng.")
 
     prompt = (
         f"Bạn là {role}. Tone: {tone}\n"
         f"Goal: {goal}\n\n"
         "QUY TẮC:\n"
-        "1) Ưu tiên trả lời theo trigger (keywords) nếu khớp.\n"
-        "2) Trả lời ngắn gọn, rõ ràng, 1-3 câu.\n"
-        "3) Nếu không chắc, hỏi thêm để làm rõ.\n"
-        "4) Không bịa thông tin kỹ thuật/giá.\n"
+        "1) Ưu tiên trả lời theo trigger (keywords).\n"
+        "2) Trả lời rõ ràng, tự nhiên.\n"
+        "3) Nếu không chắc, hỏi lại để làm rõ.\n"
+        "4) Không bịa thông tin chi tiết.\n"
     )
     return prompt
 
@@ -101,11 +102,12 @@ def normalize_text(t):
 def find_trigger_response(folder, text):
     """
     Return (response, no_trim_flag)
+    Greeting và tất cả trigger → KHÔNG TRIM
     """
     t = normalize_text(text)
     db = DATABASE.get(folder, {})
 
-    # exact match first
+    # Exact match
     for fk, data in db.items():
         for tr in data.get("chatbot_triggers", []):
             kws = sorted(tr.get("keywords", []), key=lambda x: -len(x))
@@ -121,17 +123,17 @@ def find_trigger_response(folder, text):
                     or t.endswith(" " + k_l)
                 ):
                     resp = tr.get("response", "")
-                    no_trim = (tr.get("intent") == "greet")
+                    no_trim = True  # **CÁCH 3: Không trim tất cả trigger**
                     return choose_response_variant(resp), no_trim
 
-    # fallback token match
+    # Token fallback
     for fk, data in db.items():
         for tr in data.get("chatbot_triggers", []):
             for k in tr.get("keywords", []):
                 k_tokens = [tok for tok in normalize_text(k).split() if tok]
                 if all(tok in t for tok in k_tokens) and k_tokens:
                     resp = tr.get("response", "")
-                    no_trim = (tr.get("intent") == "greet")
+                    no_trim = True
                     return choose_response_variant(resp), no_trim
 
     return None, False
@@ -142,8 +144,14 @@ def choose_response_variant(resp):
     return resp
 
 # -----------------------
-# CALL LLM
+# LLM + TRIM MỀM
 # -----------------------
+def soft_trim(text, max_len=350):
+    text = text.strip()
+    if len(text) <= max_len:
+        return text
+    return text[:max_len].rstrip() + "..."
+
 def ask_llm(system_prompt, user_text):
     try:
         resp = client.chat.completions.create(
@@ -171,32 +179,16 @@ def ensure_folder_loaded(folder):
 def get_smart_reply(folder, text):
     ensure_folder_loaded(folder)
 
-    # 1) TRIGGER
+    # 1) TRIGGER → KHÔNG TRIM
     resp, no_trim = find_trigger_response(folder, text)
     if resp:
-        if no_trim:
-            return resp  # greeting giữ nguyên
-        return short_first_sentence(resp)
+        return resp  # **CÁCH 3: Không trim trigger**
 
-    # 2) LLM fallback
+    # 2) LLM FALLBACK → Trim nhẹ để không nói quá dài
     sys_prompt = SYSTEM_PROMPTS.get(folder) or build_system_prompt_for_folder(folder)
-    sys_prompt += "\nNOTE: Trả lời ngắn gọn, rõ ràng, 1-3 câu."
-    return ask_llm(sys_prompt, text)
-
-def short_first_sentence(text):
-    if not text:
-        return text
-    s = text.strip().split('\n')[0].strip()
-    for sep in ['. ', '! ', '? ']:
-        if sep in s:
-            s = s.split(sep)[0]
-            break
-    s = s.strip()
-    if len(s) > 300:
-        s = s[:297].rstrip() + '...'
-    if not s.endswith(('.', '?', '!')):
-        s += '.'
-    return s
+    sys_prompt += "\nNOTE: Trả lời tự nhiên, rõ ràng, tối đa 3 câu."
+    llm_ans = ask_llm(sys_prompt, text)
+    return soft_trim(llm_ans)
 
 # -----------------------
 # FACEBOOK SEND
@@ -261,7 +253,7 @@ def health():
     return jsonify(ok=True, pages=result)
 
 # -----------------------
-# STARTUP LOAD
+# STARTUP
 # -----------------------
 def initial_load():
     for folder in set(PAGE_DATASET_MAP.values()):
