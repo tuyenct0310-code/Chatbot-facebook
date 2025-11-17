@@ -5,16 +5,11 @@
     "goal": "Tư vấn thiết kế kiến trúc – nội thất, gợi ý giải pháp theo diện tích – nhu cầu – ngân sách và hỗ trợ khách đưa ra phương án phù hợp nhất."
   },
 
-{
-  "intent": "greet",
-  "keywords": ["chào", "xin chào", "hello", "hi", "alo", "ad ơi", "bot ơi", "cho hỏi", "tư vấn giúp"],
-  "response": [
-    "Chào bạn nhé! Chúc bạn một ngày vui vẻ. Tôi là trợ lý của **Kiến trúc XYZ** – studio chuyên thiết kế kiến trúc & nội thất. Bạn đang quan tâm mẫu nhà, chi phí hay muốn tư vấn mặt bằng để tôi hỗ trợ ngay ạ?",
-    "Xin chào bạn! Chúc bạn một ngày thật nhiều năng lượng. Tôi là trợ lý AI của **Kiến trúc XYZ**. Bạn cần xem mẫu, hỏi chi phí hay muốn tôi tư vấn bố trí mặt bằng theo diện tích của bạn?",
-    "Hello bạn! Rất vui được hỗ trợ. Đây là trợ lý của **Kiến trúc XYZ**. Bạn muốn tôi tư vấn về thiết kế, phối cảnh, chi phí xây dựng hay nội thất ạ?"
-  ]
-}
-
+  "initial_greeting": [
+    "Chào bạn, chúc bạn một ngày vui vẻ! Tôi là trợ lý của Kiến trúc XYZ. Bạn đang quan tâm mẫu nhà, muốn hỏi chi phí hay cần tư vấn thiết kế ạ?",
+    "Xin chào bạn! Chúc bạn một ngày tốt lành. Tôi là trợ lý AI của Kiến trúc XYZ – bạn cần xem mẫu, hỏi chi phí hay tư vấn mặt bằng để tôi hỗ trợ luôn nhé?",
+    "Hello bạn! Chúc bạn một ngày thật nhiều năng lượng. Đây là trợ lý của Kiến trúc XYZ. Bạn muốn tôi tư vấn về thiết kế, chi phí hay nội thất ạ?"
+  ],
 
   "fallback_intelligent": {
     "low_confidence": [
@@ -23,7 +18,7 @@
       "Bạn gửi thêm diện tích, số tầng hoặc vấn đề bạn đang quan tâm, tôi sẽ xem giúp ngay."
     ],
     "contextual_guess": [
-      "Có phải bạn đang muốn hỏi về thiết kế nhà? Nếu đúng, bạn cho tôi biết diện tích hoặc mặt tiền để tôi tư vấn chuẩn nhất.",
+      "Có phải bạn đang muốn hỏi về thiết kế nhà? Nếu đúng, bạn cho tôi biết diện tích hoặc mặt tiền để tôi tư vấn chuẩn nhất?",
       "Nếu bạn muốn tính chi phí, bạn gửi giúp tôi diện tích sàn và số tầng nhé.",
       "Nếu câu hỏi liên quan nội thất, bạn muốn tư vấn phòng nào trước: phòng khách, bếp hay phòng ngủ ạ?"
     ]
@@ -54,11 +49,22 @@
       "intent": "greet",
       "keywords": ["chào", "xin chào", "hello", "hi", "alo", "ad ơi", "bot ơi", "cho hỏi", "tư vấn giúp"],
       "response": [
-        "Chào bạn nhé! Tôi là trợ lý của Kiến trúc XYZ. Bạn đang muốn xem mẫu nhà, hỏi chi phí hay cần tư vấn thiết kế ạ?",
-        "Xin chào bạn! Bạn quan tâm thiết kế nhà hay nội thất để tôi hỗ trợ đúng ý hơn?",
-        "Hello bạn! Nếu bạn muốn xem mẫu, tính chi phí hoặc tư vấn theo diện tích cụ thể, cứ nói tôi biết nhé."
+        "Chào bạn nhé! Chúc bạn một ngày vui vẻ. Tôi là trợ lý của Kiến trúc XYZ – studio chuyên thiết kế kiến trúc & nội thất. Bạn đang quan tâm mẫu nhà, chi phí hay muốn tư vấn mặt bằng để tôi hỗ trợ ngay ạ?",
+        "Xin chào bạn! Chúc bạn một ngày thật nhiều năng lượng. Tôi là trợ lý AI của Kiến trúc XYZ. Bạn cần xem mẫu, hỏi chi phí hay muốn tôi tư vấn bố trí mặt bằng theo diện tích của bạn?",
+        "Hello bạn! Rất vui được hỗ trợ. Đây là trợ lý của Kiến trúc XYZ. Bạn muốn tôi tư vấn về thiết kế, phối cảnh, chi phí xây dựng hay nội thất ạ?",
+        "Chào bạn, tôi là trợ lý của Kiến trúc XYZ. Bạn đang muốn xem mẫu, hỏi chi phí hay cần tư vấn bố trí mặt bằng?",
+        "Xin chào bạn. Tôi thuộc Kiến trúc XYZ – studio chuyên thiết kế nhà phố & nội thất. Bạn muốn hỏi về thiết kế, chi phí hay bố trí không gian?",
+        "Hello bạn. Tôi là trợ lý kiến trúc từ Kiến trúc XYZ. Bạn cần xem mẫu, tính chi phí hay muốn tôi gợi ý mặt bằng theo diện tích?",
+        "Chào bạn. Tôi từ Kiến trúc XYZ – studio thiết kế nhà phố. Bạn đang cần mẫu tham khảo hay muốn tính chi phí trước?",
+        "Xin chào bạn. Tôi là trợ lý kiến trúc của XYZ. Bạn cần tư vấn về thiết kế, chi phí hay nội thất?",
+        "Chào bạn. Tôi hỗ trợ từ Kiến trúc XYZ. Bạn muốn trao đổi về mẫu, ngân sách hay bố trí không gian?",
+        "Hello bạn. Tôi thuộc nhóm thiết kế của Kiến trúc XYZ. Bạn đang muốn xem mẫu, hỏi giá hay tư vấn mặt bằng?",
+        "Chào bạn. Tôi đang online từ Kiến trúc XYZ. Bạn cần hỗ trợ phần nào: mẫu, chi phí hay giải pháp bố trí?",
+        "Xin chào bạn. Tôi là trợ lý thiết kế của XYZ Studio. Bạn muốn trao đổi về phương án mặt bằng, mẫu nhà hay chi phí xây dựng?"
       ]
     },
+
+    /* === Các intent khác giữ nguyên 100%, không thay đổi gì === */
 
     {
       "intent": "ask_design",
@@ -338,7 +344,7 @@
         "012", "016", "018"
       ],
       "response": [
-        "Cảm ơn bạn đã để lại số điện thoại. Bạn cho tôi biết thêm bạn muốn tư vấn phần nào: thiết kế, chi phí hay bố trí mặt bằng để KTS chuẩn bị trước khi liên hệ nhé.",
+        "Cảm ơn bạn đã để lại số điện thoại. Bạn cho tôi biết thêm bạn muốn tư vấn phần nào: thiết kế, chi phí hay bố trí mặt bằng để KTS chuẩn bị trước khi liên hệ nhé?",
         "Tôi đã ghi nhận số của bạn rồi. Bạn muốn Kiến trúc XYZ gọi để tư vấn về thiết kế, chi phí hay phong thủy ạ?",
         "Cảm ơn bạn. Bạn giúp tôi gửi thêm diện tích dự kiến hoặc số tầng để KTS hỗ trợ bạn chính xác hơn khi gọi lại nhé."
       ]
@@ -349,7 +355,7 @@
       "keywords": ["xem mẫu", "gửi mẫu", "mẫu thiết kế", "mẫu nội thất", "mẫu nhà", "mẫu biệt thự", "mẫu nhà phố", "mẫu nhà ống"],
       "response": [
         "Tôi gửi mẫu cho bạn ngay nhé. Bạn cho tôi biết diện tích hoặc mặt tiền lô đất để chọn mẫu chuẩn hơn?",
-        "Bạn thích phong cách hiện đại, tối giản hay tân cổ? Tôi gửi đúng mẫu theo gu của bạn.",
+        "Bạn thích phong cách hiện đại, tối giản hay tân cổ? Tôi gửi đúng mẫu theo gu của bạn?",
         "Bạn dự định làm 1 tầng, 2 tầng hay 3 tầng để tôi gửi mẫu phù hợp?"
       ]
     },
@@ -378,7 +384,7 @@
       "intent": "flow_design_followup",
       "keywords": ["muốn thiết kế", "cần thiết kế", "tư vấn thiết kế"],
       "response": [
-        "Tôi hỗ trợ bạn ngay. Bạn cho tôi diện tích lô đất (ngang × dài) hoặc gửi kích thước sơ bộ, tôi đề xuất mặt bằng phù hợp trước nhé.",
+        "Tôi hỗ trợ bạn ngay. Bạn cho tôi diện tích lô đất (ngang × dài) hoặc gửi kích thước sơ bộ, tôi đề xuất mặt bằng phù hợp trước nhé?",
         "Bạn muốn thiết kế theo phong cách nào: hiện đại, tối giản, Bắc Âu hay tân cổ? Tôi gửi mẫu phù hợp ngay.",
         "Bạn đang dự định xây mấy tầng? 1–2–3 tầng sẽ có cách bố trí khác nhau."
       ]
