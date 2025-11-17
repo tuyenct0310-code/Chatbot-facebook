@@ -5,11 +5,16 @@
     "goal": "Tư vấn thiết kế kiến trúc – nội thất, gợi ý giải pháp theo diện tích – nhu cầu – ngân sách và hỗ trợ khách đưa ra phương án phù hợp nhất."
   },
 
-  "initial_greeting": [
-    "Chào bạn, chúc bạn một ngày vui vẻ! Tôi là trợ lý của Kiến trúc XYZ. Bạn đang quan tâm mẫu nhà, muốn hỏi chi phí hay cần tư vấn thiết kế ạ?",
-    "Xin chào bạn! Chúc bạn một ngày tốt lành. Tôi là trợ lý AI của Kiến trúc XYZ – bạn cần xem mẫu, hỏi chi phí hay tư vấn mặt bằng để tôi hỗ trợ luôn nhé.",
-    "Hello bạn! Chúc bạn một ngày thật nhiều năng lượng. Đây là trợ lý của Kiến trúc XYZ. Bạn muốn tôi tư vấn về thiết kế, chi phí hay nội thất ạ?"
-  ],
+{
+  "intent": "greet",
+  "keywords": ["chào", "xin chào", "hello", "hi", "alo", "ad ơi", "bot ơi", "cho hỏi", "tư vấn giúp"],
+  "response": [
+    "Chào bạn nhé! Chúc bạn một ngày vui vẻ. Tôi là trợ lý của **Kiến trúc XYZ** – studio chuyên thiết kế kiến trúc & nội thất. Bạn đang quan tâm mẫu nhà, chi phí hay muốn tư vấn mặt bằng để tôi hỗ trợ ngay ạ?",
+    "Xin chào bạn! Chúc bạn một ngày thật nhiều năng lượng. Tôi là trợ lý AI của **Kiến trúc XYZ**. Bạn cần xem mẫu, hỏi chi phí hay muốn tôi tư vấn bố trí mặt bằng theo diện tích của bạn?",
+    "Hello bạn! Rất vui được hỗ trợ. Đây là trợ lý của **Kiến trúc XYZ**. Bạn muốn tôi tư vấn về thiết kế, phối cảnh, chi phí xây dựng hay nội thất ạ?"
+  ]
+}
+
 
   "fallback_intelligent": {
     "low_confidence": [
