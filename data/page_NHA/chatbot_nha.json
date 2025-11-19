@@ -1,0 +1,279 @@
+# app.py - MULTI-PAGE CHATBOT (NO RAG) - Trigger + JSON + GoogleSheets + Dynamic Notes
+import os
+import json
+import random
+import threading
+import requests
+from pathlib import Path
+from flask import Flask, request, jsonify
+from openai import OpenAI
+
+# -----------------------
+# CONFIG
+# -----------------------
+CHAT_MODEL = "gpt-4o-mini"
+TEMPERATURE = 0.25
+MAX_TOKENS_REPLY = 200
+VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "")
+OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+# FB PAGE TOKEN MAPPING (multiple Pages → multiple Tokens)
+PAGE_TOKEN_MAP = {
+    "895305580330861": os.environ.get("PAGE_TOKEN_XYZ", ""),  # Page Xây nhà
+    "847842948414951": os.environ.get("PAGE_TOKEN_CTT", "")   # Page Nội thất/CTT
+}
+
+# Mapping page → dataset folder name
+PAGE_DATASET_MAP = {
+    "895305580330861": "page_xyz",
+    "847842948414951": "page_ctt"
+}
+
+# Page nào dùng JSON, page nào dùng JSON + Sheet
+PAGE_DATA_SOURCE = {
+    "895305580330861": "json",
+    "847842948414951": "json+sheet"
+}
+
+# Nếu dùng sheet phải có sheet_id
+PAGE_SHEET_ID = {
+    "847842948414951": os.environ.get("SHEET_ID_CTT", "")
+}
+
+DATA_FOLDER_ROOT = Path("data")
+app = Flask(__name__)
+
+# -----------------------
+# OpenAI Client
+# -----------------------
+try:
+    client = OpenAI(api_key=OPENAI_KEY)
+    print("✅ OpenAI client ready")
+except Exception as e:
+    print("❌ OpenAI init error:", e)
+    client = None
+
+# -----------------------
+# GLOBAL STORAGE
+# -----------------------
+DATABASE = {}
+SYSTEM_PROMPTS = {}
+
+# -----------------------
+# LOAD DATA
+# -----------------------
+def load_dataset_by_folder(folder):
+    folder_path = DATA_FOLDER_ROOT / folder
+    db = {}
+    if not folder_path.exists():
+        print(f"❌ Missing dataset folder: data/{folder}")
+        return db
+    
+    for f in folder_path.glob("*.json"):
+        try:
+            with open(f, "r", encoding="utf8") as fh:
+                db[f.stem] = json.load(fh)
+        except Exception as e:
+            print(f"❌ Error loading file {f}: {e}")
+
+    print(f"📂 Loaded data for {folder}: {list(db.keys())}")
+    return db
+
+def load_sheet_data(sheet_id):
+    try:
+        import gspread
+        gc = gspread.service_account(filename='credentials.json')
+        sh = gc.open_by_key(sheet_id)
+        ws = sh.sheet1
+        rows = ws.get_all_records()
+        data_list = []
+        for row in rows:
+            data_list.append({
+                "id": row.get("id") or "",
+                "category": row.get("category") or "",
+                "text": row.get("detail") or row.get("answer") or "",
+                "keywords": [k.strip().lower() for k in row.get("keywords", "").split(",") if k.strip()]
+            })
+        return data_list
+    except Exception as e:
+        print("❌ Google Sheet load error:", e)
+        return []
+
+def merge_data(json_data, sheet_data):
+    merged = list(json_data)
+    merged.extend(sheet_data)
+    return merged
+
+# -----------------------
+# Detect Note
+# -----------------------
+def detect_note(user_text):
+    t = user_text.lower().strip()
+    triggers = ["note:", "ghi nhớ:", "thêm:", "lưu ý:", "cập nhật:"]
+    for tr in triggers:
+        if t.startswith(tr):
+            return user_text[len(tr):].strip()
+    return None
+
+def save_note_to_json(folder, note_text):
+    folder_path = DATA_FOLDER_ROOT / folder
+    notes_file = folder_path / "user_notes.json"
+
+    if not notes_file.exists():
+        with open(notes_file, "w", encoding="utf-8") as f:
+            json.dump({"knowledge": []}, f, ensure_ascii=False, indent=2)
+
+    with open(notes_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    new_entry = {
+        "id": f"user_{len(data['knowledge'])+1}",
+        "category": "user_added",
+        "text": note_text,
+        "keywords": [],
+        "date_added": time.strftime("%Y-%m-%d")
+    }
+    data["knowledge"].append(new_entry)
+
+    with open(notes_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print("📝 Note saved:", new_entry)
+
+# -----------------------
+# Trigger Matching (original)
+# -----------------------
+def normalize_text(t):
+    return (t or "").strip().lower()
+
+def find_trigger_response(folder, text):
+    t = normalize_text(text)
+    db = DATABASE.get(folder, {})
+    for fk, data in db.items():
+        for tr in data.get("chatbot_triggers", []):
+            for k in tr.get("keywords", []):
+                if k.lower() in t:
+                    return tr.get("response", ""), True
+    return None, False
+
+# -----------------------
+# LLM
+# -----------------------
+def ask_llm(system_prompt, user_text):
+    try:
+        resp = client.chat.completions.create(
+            model=CHAT_MODEL,
+            messages=[{"role": "system", "content": system_prompt},
+                      {"role": "user", "content": user_text}],
+            temperature=TEMPERATURE,
+            max_tokens=MAX_TOKENS_REPLY
+        )
+        return resp.choices[0].message.content.strip()
+    except:
+        return "Xin lỗi, hệ thống đang bận."
+
+# -----------------------
+# SMART REPLY
+# -----------------------
+def ensure_folder_loaded(folder):
+    if folder not in DATABASE:
+        DATABASE[folder] = load_dataset_by_folder(folder)
+        SYSTEM_PROMPTS[folder] = build_system_prompt_for_folder(folder)
+
+def build_system_prompt_for_folder(folder):
+    prompt = "Bạn là trợ lý xây dựng, trả lời ngắn gọn, thực tế, ưu tiên checklist."
+    return prompt
+
+def get_smart_reply(folder, text, page_id):
+    ensure_folder_loaded(folder)
+
+    # 1) Note
+    note_text = detect_note(text)
+    if note_text:
+        save_note_to_json(folder, note_text)
+        return "Đã ghi chú, sau này bạn hỏi tôi sẽ nhớ."
+
+    # 2) Load static JSON
+    json_data = []
+    for fk, content in DATABASE.get(folder, {}).items():
+        if "chatbot_triggers" in content:
+            for tr in content["chatbot_triggers"]:
+                json_data.append({
+                    "id": fk,
+                    "category": "trigger",
+                    "keywords": [k.lower() for k in tr.get("keywords", [])],
+                    "text": tr.get("response", "")
+                })
+
+    # 3) Load user notes
+    notes_file = DATA_FOLDER_ROOT / folder / "user_notes.json"
+    if notes_file.exists():
+        with open(notes_file, "r", encoding="utf-8") as f:
+            note_data = json.load(f).get("knowledge", [])
+            json_data.extend(note_data)
+
+    # 4) Load Sheet (nếu có)
+    sheet_data = []
+    if PAGE_DATA_SOURCE.get(page_id) == "json+sheet":
+        sheet_id = PAGE_SHEET_ID.get(page_id)
+        if sheet_id:
+            sheet_data = load_sheet_data(sheet_id)
+
+    data_total = merge_data(json_data, sheet_data)
+
+    # 5) Keyword matching
+    t = text.lower()
+    for item in data_total:
+        for kw in item.get("keywords", []):
+            if kw in t:
+                return item["text"]
+
+    # 6) LLM fallback
+    return ask_llm(SYSTEM_PROMPTS.get(folder), text)
+
+# -----------------------
+# SEND FB MESSAGE
+# -----------------------
+def send_text(page_id, psid, text):
+    token = PAGE_TOKEN_MAP.get(page_id)
+    if not token:
+        return
+    url = f"https://graph.facebook.com/v19.0/me/messages?access_token={token}"
+    payload = {"recipient": {"id": psid}, "message": {"text": text}}
+    requests.post(url, json=payload)
+
+# -----------------------
+# WEBHOOK
+# -----------------------
+@app.route("/webhook", methods=["GET"])
+def verify():
+    if request.args.get("hub.verify_token") == VERIFY_TOKEN:
+        return request.args.get("hub.challenge")
+    return "Sai verify token", 403
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    data = request.get_json() or {}
+    for entry in data.get("entry", []):
+        page_id = str(entry.get("id"))
+        folder = PAGE_DATASET_MAP.get(page_id)
+        for evt in entry.get("messaging", []):
+            psid = evt.get("sender", {}).get("id")
+            text = evt.get("message", {}).get("text")
+            if psid and text:
+                reply = get_smart_reply(folder, text, page_id)
+                threading.Thread(target=send_text, args=(page_id, psid, reply)).start()
+    return "OK", 200
+
+# -----------------------
+# HEALTH CHECK
+# -----------------------
+@app.route("/health")
+def health():
+    return jsonify(ok=True)
+
+# -----------------------
+# STARTUP
+# -----------------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
