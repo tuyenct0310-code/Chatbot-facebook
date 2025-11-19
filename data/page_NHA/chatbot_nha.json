@@ -1,279 +1,119 @@
-# app.py - MULTI-PAGE CHATBOT (NO RAG) - Trigger + JSON + GoogleSheets + Dynamic Notes
-import os
-import json
-import random
-import threading
-import requests
-from pathlib import Path
-from flask import Flask, request, jsonify
-from openai import OpenAI
+{
+  "persona": {
+    "role": "Trợ lý AI tư vấn xây nhà 2 tầng",
+    "tone": "Ngắn gọn, thẳng, ưu tiên checklist, không dài dòng",
+    "goal": "Giúp chủ nhà hiểu quy trình xây nhà 2 tầng 100m2 theo đúng thực tế Việt Nam."
+  },
 
-# -----------------------
-# CONFIG
-# -----------------------
-CHAT_MODEL = "gpt-4o-mini"
-TEMPERATURE = 0.25
-MAX_TOKENS_REPLY = 200
-VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "")
-OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
+  "project_info": {
+    "land_area_m2": 200,
+    "build_area_m2": 100,
+    "floors": 2,
+    "bedrooms": 4,
+    "location": "Chưa cập nhật",
+    "note": "Có thể Note thêm vị trí như Bình Dương, Đồng Nai để chatbot tự dùng."
+  },
 
-# FB PAGE TOKEN MAPPING (multiple Pages → multiple Tokens)
-PAGE_TOKEN_MAP = {
-    "895305580330861": os.environ.get("PAGE_TOKEN_XYZ", ""),  # Page Xây nhà
-    "847842948414951": os.environ.get("PAGE_TOKEN_CTT", "")   # Page Nội thất/CTT
-}
-
-# Mapping page → dataset folder name
-PAGE_DATASET_MAP = {
-    "895305580330861": "page_xyz",
-    "847842948414951": "page_ctt"
-}
-
-# Page nào dùng JSON, page nào dùng JSON + Sheet
-PAGE_DATA_SOURCE = {
-    "895305580330861": "json",
-    "847842948414951": "json+sheet"
-}
-
-# Nếu dùng sheet phải có sheet_id
-PAGE_SHEET_ID = {
-    "847842948414951": os.environ.get("SHEET_ID_CTT", "")
-}
-
-DATA_FOLDER_ROOT = Path("data")
-app = Flask(__name__)
-
-# -----------------------
-# OpenAI Client
-# -----------------------
-try:
-    client = OpenAI(api_key=OPENAI_KEY)
-    print("✅ OpenAI client ready")
-except Exception as e:
-    print("❌ OpenAI init error:", e)
-    client = None
-
-# -----------------------
-# GLOBAL STORAGE
-# -----------------------
-DATABASE = {}
-SYSTEM_PROMPTS = {}
-
-# -----------------------
-# LOAD DATA
-# -----------------------
-def load_dataset_by_folder(folder):
-    folder_path = DATA_FOLDER_ROOT / folder
-    db = {}
-    if not folder_path.exists():
-        print(f"❌ Missing dataset folder: data/{folder}")
-        return db
-    
-    for f in folder_path.glob("*.json"):
-        try:
-            with open(f, "r", encoding="utf8") as fh:
-                db[f.stem] = json.load(fh)
-        except Exception as e:
-            print(f"❌ Error loading file {f}: {e}")
-
-    print(f"📂 Loaded data for {folder}: {list(db.keys())}")
-    return db
-
-def load_sheet_data(sheet_id):
-    try:
-        import gspread
-        gc = gspread.service_account(filename='credentials.json')
-        sh = gc.open_by_key(sheet_id)
-        ws = sh.sheet1
-        rows = ws.get_all_records()
-        data_list = []
-        for row in rows:
-            data_list.append({
-                "id": row.get("id") or "",
-                "category": row.get("category") or "",
-                "text": row.get("detail") or row.get("answer") or "",
-                "keywords": [k.strip().lower() for k in row.get("keywords", "").split(",") if k.strip()]
-            })
-        return data_list
-    except Exception as e:
-        print("❌ Google Sheet load error:", e)
-        return []
-
-def merge_data(json_data, sheet_data):
-    merged = list(json_data)
-    merged.extend(sheet_data)
-    return merged
-
-# -----------------------
-# Detect Note
-# -----------------------
-def detect_note(user_text):
-    t = user_text.lower().strip()
-    triggers = ["note:", "ghi nhớ:", "thêm:", "lưu ý:", "cập nhật:"]
-    for tr in triggers:
-        if t.startswith(tr):
-            return user_text[len(tr):].strip()
-    return None
-
-def save_note_to_json(folder, note_text):
-    folder_path = DATA_FOLDER_ROOT / folder
-    notes_file = folder_path / "user_notes.json"
-
-    if not notes_file.exists():
-        with open(notes_file, "w", encoding="utf-8") as f:
-            json.dump({"knowledge": []}, f, ensure_ascii=False, indent=2)
-
-    with open(notes_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    new_entry = {
-        "id": f"user_{len(data['knowledge'])+1}",
-        "category": "user_added",
-        "text": note_text,
-        "keywords": [],
-        "date_added": time.strftime("%Y-%m-%d")
+  "phases": [
+    {
+      "id": "P1",
+      "phase_name": "Xác định nhu cầu",
+      "steps": [
+        "Xác định số tầng, diện tích xây, số phòng.",
+        "Chọn phong cách: hiện đại, mái bằng hoặc mái thái.",
+        "Xác định ngân sách mục tiêu (tài chính cá nhân).",
+        "Dự phòng 10-15% chi phí phát sinh."
+      ]
+    },
+    {
+      "id": "P2",
+      "phase_name": "Giấy phép xây dựng",
+      "steps": [
+        "Chuẩn bị hồ sơ: sổ đỏ, bản vẽ xin phép, CMND, đơn xin phép.",
+        "Nộp tại UBND huyện / thành phố (phòng Quản lý đô thị).",
+        "Thời gian xử lý 10-15 ngày.",
+        "Lưu ý: nếu đất trong khu đô thị mới → cần thêm bản cam kết an toàn."
+      ]
+    },
+    {
+      "id": "P3",
+      "phase_name": "Thiết kế chi tiết",
+      "steps": [
+        "Thiết kế mặt bằng (AutoCAD hoặc Sketch).",
+        "Thiết kế kiến trúc (phối cảnh 3D).",
+        "Thiết kế kết cấu (móng, cột, dầm, sàn).",
+        "Thiết kế ME (điện, nước, internet).",
+        "Thống nhất thiết kế trước khi thi công."
+      ]
+    },
+    {
+      "id": "P4",
+      "phase_name": "Chọn nhà thầu",
+      "steps": [
+        "So sánh báo giá giữa 2-3 đơn vị.",
+        "Kiểm tra hồ sơ năng lực, công trình đã làm.",
+        "Thống nhất hợp đồng: tiến độ, vật tư, bảo hành.",
+        "Chọn gói thi công: phần thô hoặc trọn gói."
+      ]
+    },
+    {
+      "id": "P5",
+      "phase_name": "Thi công phần thô",
+      "steps": [
+        "Đào móng, xử lý nền, đổ bê tông móng.",
+        "Dựng cột, dầm, sàn tầng 1 và tầng 2.",
+        "Lắp đặt hệ thống điện nước âm.",
+        "Xây tường, chống thấm, đổ mái."
+      ],
+      "common_issues": [
+        "Thép không đủ đường kính.",
+        "Không chống thấm móng, mái.",
+        "Đặt sai vị trí dầm chịu lực."
+      ]
+    },
+    {
+      "id": "P6",
+      "phase_name": "Hoàn thiện",
+      "steps": [
+        "Trát tường, sơn nước, lát gạch.",
+        "Lắp cửa, lan can, thiết bị vệ sinh.",
+        "Đi lại hệ thống điện nước nếu cần.",
+        "Lắp tủ bếp, tủ quần áo, nội thất cơ bản."
+      ]
+    },
+    {
+      "id": "P7",
+      "phase_name": "Bàn giao & hoàn công",
+      "steps": [
+        "Kiểm tra chất lượng hoàn thiện.",
+        "Hoàn công (xin chứng nhận hoàn thành xây dựng).",
+        "Ký biên bản nghiệm thu với nhà thầu.",
+        "Nhận hồ sơ hoàn công + bản vẽ hoàn công."
+      ]
     }
-    data["knowledge"].append(new_entry)
+  ],
 
-    with open(notes_file, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+  "cost_estimate": {
+    "unit_price_tho_m2": "3.500.000 - 4.200.000 VND/m2",
+    "unit_price_hoanthien_m2": "5.500.000 - 7.000.000 VND/m2",
+    "example": "Diện tích thi công 200m2 (100m2 x 2 tầng) => Tổng khoảng 1.9 - 2.3 tỷ.",
+    "notes": [
+      "Giá thay đổi theo vật tư.",
+      "Nếu dùng vật tư cao cấp cộng thêm 25%.",
+      "Nên dự trữ 10-15% phát sinh."
+    ]
+  },
 
-    print("📝 Note saved:", new_entry)
+  "layouts": [
+    {
+      "floor": "Tầng 1",
+      "rooms": ["Phòng khách", "Bếp + ăn", "1 phòng ngủ", "WC", "Sân trước", "Sân sau"]
+    },
+    {
+      "floor": "Tầng 2",
+      "rooms": ["3 phòng ngủ", "Ban công", "Phòng thờ", "WC chung", "Giặt phơi"]
+    }
+  ],
 
-# -----------------------
-# Trigger Matching (original)
-# -----------------------
-def normalize_text(t):
-    return (t or "").strip().lower()
-
-def find_trigger_response(folder, text):
-    t = normalize_text(text)
-    db = DATABASE.get(folder, {})
-    for fk, data in db.items():
-        for tr in data.get("chatbot_triggers", []):
-            for k in tr.get("keywords", []):
-                if k.lower() in t:
-                    return tr.get("response", ""), True
-    return None, False
-
-# -----------------------
-# LLM
-# -----------------------
-def ask_llm(system_prompt, user_text):
-    try:
-        resp = client.chat.completions.create(
-            model=CHAT_MODEL,
-            messages=[{"role": "system", "content": system_prompt},
-                      {"role": "user", "content": user_text}],
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS_REPLY
-        )
-        return resp.choices[0].message.content.strip()
-    except:
-        return "Xin lỗi, hệ thống đang bận."
-
-# -----------------------
-# SMART REPLY
-# -----------------------
-def ensure_folder_loaded(folder):
-    if folder not in DATABASE:
-        DATABASE[folder] = load_dataset_by_folder(folder)
-        SYSTEM_PROMPTS[folder] = build_system_prompt_for_folder(folder)
-
-def build_system_prompt_for_folder(folder):
-    prompt = "Bạn là trợ lý xây dựng, trả lời ngắn gọn, thực tế, ưu tiên checklist."
-    return prompt
-
-def get_smart_reply(folder, text, page_id):
-    ensure_folder_loaded(folder)
-
-    # 1) Note
-    note_text = detect_note(text)
-    if note_text:
-        save_note_to_json(folder, note_text)
-        return "Đã ghi chú, sau này bạn hỏi tôi sẽ nhớ."
-
-    # 2) Load static JSON
-    json_data = []
-    for fk, content in DATABASE.get(folder, {}).items():
-        if "chatbot_triggers" in content:
-            for tr in content["chatbot_triggers"]:
-                json_data.append({
-                    "id": fk,
-                    "category": "trigger",
-                    "keywords": [k.lower() for k in tr.get("keywords", [])],
-                    "text": tr.get("response", "")
-                })
-
-    # 3) Load user notes
-    notes_file = DATA_FOLDER_ROOT / folder / "user_notes.json"
-    if notes_file.exists():
-        with open(notes_file, "r", encoding="utf-8") as f:
-            note_data = json.load(f).get("knowledge", [])
-            json_data.extend(note_data)
-
-    # 4) Load Sheet (nếu có)
-    sheet_data = []
-    if PAGE_DATA_SOURCE.get(page_id) == "json+sheet":
-        sheet_id = PAGE_SHEET_ID.get(page_id)
-        if sheet_id:
-            sheet_data = load_sheet_data(sheet_id)
-
-    data_total = merge_data(json_data, sheet_data)
-
-    # 5) Keyword matching
-    t = text.lower()
-    for item in data_total:
-        for kw in item.get("keywords", []):
-            if kw in t:
-                return item["text"]
-
-    # 6) LLM fallback
-    return ask_llm(SYSTEM_PROMPTS.get(folder), text)
-
-# -----------------------
-# SEND FB MESSAGE
-# -----------------------
-def send_text(page_id, psid, text):
-    token = PAGE_TOKEN_MAP.get(page_id)
-    if not token:
-        return
-    url = f"https://graph.facebook.com/v19.0/me/messages?access_token={token}"
-    payload = {"recipient": {"id": psid}, "message": {"text": text}}
-    requests.post(url, json=payload)
-
-# -----------------------
-# WEBHOOK
-# -----------------------
-@app.route("/webhook", methods=["GET"])
-def verify():
-    if request.args.get("hub.verify_token") == VERIFY_TOKEN:
-        return request.args.get("hub.challenge")
-    return "Sai verify token", 403
-
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    data = request.get_json() or {}
-    for entry in data.get("entry", []):
-        page_id = str(entry.get("id"))
-        folder = PAGE_DATASET_MAP.get(page_id)
-        for evt in entry.get("messaging", []):
-            psid = evt.get("sender", {}).get("id")
-            text = evt.get("message", {}).get("text")
-            if psid and text:
-                reply = get_smart_reply(folder, text, page_id)
-                threading.Thread(target=send_text, args=(page_id, psid, reply)).start()
-    return "OK", 200
-
-# -----------------------
-# HEALTH CHECK
-# -----------------------
-@app.route("/health")
-def health():
-    return jsonify(ok=True)
-
-# -----------------------
-# STARTUP
-# -----------------------
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+  "user_notes": []
+}
