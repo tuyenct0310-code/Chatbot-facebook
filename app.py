@@ -20,16 +20,16 @@ OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 # FB PAGE TOKEN MAPPING
 PAGE_TOKEN_MAP = {
-    "895305580330861": os.environ.get("PAGE_TOKEN_NHA", ""),  # Page xây nhà
+    "895305580330861": os.environ.get("PAGE_TOKEN_A", ""),  
     "847842948414951": os.environ.get("PAGE_TOKEN_CTT", ""),  
-    "813440285194304": os.environ.get("PAGE_TOKEN_B", "")     
+    "813440285194304": os.environ.get("PAGE_TOKEN_NHA", "")     
 }
 
 # PAGE → DATASET FOLDER
 PAGE_DATASET_MAP = {
-    "895305580330861": "page_NHA",
+    "895305580330861": "page_A",
     "847842948414951": "page_ctt",
-    "813440285194304": "page_b"  
+    "813440285194304": "page_NHA"  
 }
 
 # PAGE → SOURCE TYPE (json / json+sheet)
@@ -264,3 +264,4 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
