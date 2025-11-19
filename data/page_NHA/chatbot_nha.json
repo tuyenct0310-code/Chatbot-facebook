@@ -11,7 +11,7 @@
     "floors": 2,
     "bedrooms": 4,
     "location": "Chưa cập nhật",
-    "note": "Có thể Note thêm vị trí như Bình Dương, Đồng Nai để chatbot tự dùng."
+    "notes": []
   },
 
   "phases": [
@@ -21,40 +21,44 @@
       "steps": [
         "Xác định số tầng, diện tích xây, số phòng.",
         "Chọn phong cách: hiện đại, mái bằng hoặc mái thái.",
-        "Xác định ngân sách mục tiêu (tài chính cá nhân).",
+        "Xác định ngân sách mục tiêu.",
         "Dự phòng 10-15% chi phí phát sinh."
-      ]
+      ],
+      "notes": []
     },
     {
       "id": "P2",
       "phase_name": "Giấy phép xây dựng",
       "steps": [
         "Chuẩn bị hồ sơ: sổ đỏ, bản vẽ xin phép, CMND, đơn xin phép.",
-        "Nộp tại UBND huyện / thành phố (phòng Quản lý đô thị).",
+        "Nộp tại UBND huyện/thành phố.",
         "Thời gian xử lý 10-15 ngày.",
-        "Lưu ý: nếu đất trong khu đô thị mới → cần thêm bản cam kết an toàn."
-      ]
+        "Nếu đất trong khu đô thị cần bản cam kết an toàn."
+      ],
+      "notes": []
     },
     {
       "id": "P3",
       "phase_name": "Thiết kế chi tiết",
       "steps": [
         "Thiết kế mặt bằng (AutoCAD hoặc Sketch).",
-        "Thiết kế kiến trúc (phối cảnh 3D).",
-        "Thiết kế kết cấu (móng, cột, dầm, sàn).",
-        "Thiết kế ME (điện, nước, internet).",
-        "Thống nhất thiết kế trước khi thi công."
-      ]
+        "Thiết kế kiến trúc 3D.",
+        "Thiết kế kết cấu (móng, dầm, cột).",
+        "Thiết kế điện nước, internet.",
+        "Thống nhất bản vẽ trước thi công."
+      ],
+      "notes": []
     },
     {
       "id": "P4",
       "phase_name": "Chọn nhà thầu",
       "steps": [
-        "So sánh báo giá giữa 2-3 đơn vị.",
-        "Kiểm tra hồ sơ năng lực, công trình đã làm.",
-        "Thống nhất hợp đồng: tiến độ, vật tư, bảo hành.",
-        "Chọn gói thi công: phần thô hoặc trọn gói."
-      ]
+        "So sánh báo giá 2-3 nhà thầu.",
+        "Kiểm tra hồ sơ năng lực.",
+        "Thống nhất hợp đồng: tiến độ, bảo hành.",
+        "Chọn gói thô, hoàn thiện hoặc chìa khóa trao tay."
+      ],
+      "notes": []
     },
     {
       "id": "P5",
@@ -62,58 +66,59 @@
       "steps": [
         "Đào móng, xử lý nền, đổ bê tông móng.",
         "Dựng cột, dầm, sàn tầng 1 và tầng 2.",
-        "Lắp đặt hệ thống điện nước âm.",
-        "Xây tường, chống thấm, đổ mái."
+        "Đi âm hệ thống điện nước.",
+        "Chống thấm, xây tường, đổ mái."
       ],
       "common_issues": [
         "Thép không đủ đường kính.",
-        "Không chống thấm móng, mái.",
-        "Đặt sai vị trí dầm chịu lực."
-      ]
+        "Không chống thấm móng và mái.",
+        "Sai vị trí dầm chịu lực."
+      ],
+      "notes": []
     },
     {
       "id": "P6",
       "phase_name": "Hoàn thiện",
       "steps": [
-        "Trát tường, sơn nước, lát gạch.",
-        "Lắp cửa, lan can, thiết bị vệ sinh.",
-        "Đi lại hệ thống điện nước nếu cần.",
-        "Lắp tủ bếp, tủ quần áo, nội thất cơ bản."
-      ]
+        "Trát tường, lắp cửa, sơn nước, lát gạch.",
+        "Lắp thiết bị vệ sinh, lan can, cầu thang.",
+        "Đi lại điện nước nếu phát sinh.",
+        "Lắp tủ bếp, tủ áo, nội thất cơ bản."
+      ],
+      "notes": []
     },
     {
       "id": "P7",
       "phase_name": "Bàn giao & hoàn công",
       "steps": [
         "Kiểm tra chất lượng hoàn thiện.",
-        "Hoàn công (xin chứng nhận hoàn thành xây dựng).",
-        "Ký biên bản nghiệm thu với nhà thầu.",
-        "Nhận hồ sơ hoàn công + bản vẽ hoàn công."
-      ]
+        "Xin chứng nhận hoàn công.",
+        "Ký nghiệm thu với nhà thầu.",
+        "Nhận hồ sơ hoàn công."
+      ],
+      "notes": []
     }
   ],
 
   "cost_estimate": {
     "unit_price_tho_m2": "3.500.000 - 4.200.000 VND/m2",
     "unit_price_hoanthien_m2": "5.500.000 - 7.000.000 VND/m2",
-    "example": "Diện tích thi công 200m2 (100m2 x 2 tầng) => Tổng khoảng 1.9 - 2.3 tỷ.",
-    "notes": [
-      "Giá thay đổi theo vật tư.",
-      "Nếu dùng vật tư cao cấp cộng thêm 25%.",
-      "Nên dự trữ 10-15% phát sinh."
-    ]
+    "example": "200m2 thi công (2 tầng), tổng khoảng 1.9 - 2.3 tỷ.",
+    "notes": []
   },
 
   "layouts": [
     {
       "floor": "Tầng 1",
-      "rooms": ["Phòng khách", "Bếp + ăn", "1 phòng ngủ", "WC", "Sân trước", "Sân sau"]
+      "rooms": ["Phòng khách", "Bếp + ăn", "1 phòng ngủ", "WC", "Sân trước", "Sân sau"],
+      "notes": []
     },
     {
       "floor": "Tầng 2",
-      "rooms": ["3 phòng ngủ", "Ban công", "Phòng thờ", "WC chung", "Giặt phơi"]
+      "rooms": ["3 phòng ngủ", "Ban công", "Phòng thờ", "WC chung", "Giặt phơi"],
+      "notes": []
     }
   ],
 
-  "user_notes": []
+  "general_notes": []
 }
