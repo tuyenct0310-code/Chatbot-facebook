@@ -11,11 +11,11 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "")
 TEMPERATURE = 0.25
 MAX_TOKENS = 200
 
-# 🔹 2 API tách riêng
+# 🔹 API của User Notes và Notes_Nha
 API_USER_NOTES = "https://script.google.com/macros/s/AKfycbxcEh41MUz1t9_Cwr3Q7mgk66iWn-brIN9jOtubPXFDbybidTKX7eVkun4M-Ps_Xrg/exec"
-API_NOTES_NHA  = "https://script.google.com/macros/s/AKfycbxciPTLa_JOylaSm2ghvmJGC_JNONnaL2IzZdFLcwbAzEc9qS23QIrwcR4v3q46mbkw/exec"
+API_NOTES_NHA  = "https://script.google.com/macros/s/AKfycbwM_i1WJbKigoFOY3gpWC0a_glGMwt95wtg9wg0pAjPTrZ1--6UCRQ38n8zu0I5-oes/exec"
 
-# 🔹 2 page token (mỗi page 1 token)
+# 🔹 3 Page của bạn
 PAGE_TOKEN_MAP = {
     "813440285194304": os.getenv("PAGE_TOKEN_NHA", ""),  
     "847842948414951": os.getenv("PAGE_TOKEN_CTT", ""),  
@@ -54,6 +54,8 @@ def get_notes_from_nha():
         return []
 
 
+# ================= SAVE / EDIT / DELETE USER NOTES =================
+
 def save_note_to_sheet(text, image_url=None):
     payload = {
         "action": "add",
@@ -64,7 +66,7 @@ def save_note_to_sheet(text, image_url=None):
         "image_url": image_url or ""
     }
     try:
-        requests.get(API_USER_NOTES, params=payload)  # 🔹 dùng GET + params
+        requests.get(API_USER_NOTES, params=payload)
         return "Đã lưu ghi chú."
     except Exception as e:
         print("Lỗi save_note_to_sheet:", e)
@@ -147,11 +149,13 @@ def ask_llm(text):
 def get_smart_reply(text, image_url=None):
     t = text.lower().strip()
 
+    # Lưu ghi chú
     if t.startswith(("note:", "ghi nhớ:", "ghi nho:", "thêm:", "them:", "lưu:", "luu:")):
         pure = text.split(":", 1)[1].strip()
         return save_note_to_sheet(pure, image_url)
 
-    if t.startswith("sửa note") or t.startswith("sua note"):
+    # Sửa ghi chú
+    if t.startswith(("sửa note", "sua note")):
         try:
             parts = text.split()
             idx = int(parts[2])
@@ -160,6 +164,7 @@ def get_smart_reply(text, image_url=None):
         except Exception:
             return "Cú pháp đúng: sửa note 2: nội dung mới"
 
+    # Xoá ghi chú
     if t.startswith(("xóa note", "xoá note", "xoa note")):
         try:
             idx = int([w for w in t.split() if w.isdigit()][0])
@@ -167,7 +172,8 @@ def get_smart_reply(text, image_url=None):
         except Exception:
             return "Cú pháp đúng: xóa note 3"
 
-    if t in ["xem note", "xem ghi chú", "ghi chú", "ghi chu", "notes", "xem tất cả note", "xem tat ca note"]:
+    # Xem toàn bộ note
+    if t in ["xem note", "xem ghi chú", "ghi chú", "notes", "xem tất cả note"]:
         notes = get_notes_from_user()
         if not notes:
             return "Chưa có ghi chú nào."
@@ -176,22 +182,27 @@ def get_smart_reply(text, image_url=None):
             reply += f"{i}. ({n.get('category', 'Chung')}) {n.get('text', '')}\n"
         return reply
 
-    notes_user = get_notes_from_user()
-    for item in notes_user:
-        text_item = item.get("text", "")
-        kw_str = item.get("keywords", "")
-        kws = [k.strip().lower() for k in kw_str.split(",") if k.strip()]
-        if text_item and any(k in t for k in kws):
-            return f"📌 Ghi chú đã lưu:\n{text_item}"
-
+    # 1️⃣ ƯU TIÊN TRA GOOGLE SHEET Notes_Nha (danh mục vật tư thi công)
     notes_nha = get_notes_from_nha()
     for item in notes_nha:
-        text_item = item.get("text", "")
-        kw_str = item.get("keywords", "")
-        kws = [k.strip().lower() for k in kw_str.split(",") if k.strip()]
-        if text_item and any(k in t for k in kws):
-            return text_item
+        kws = item.get("keywords", "").lower().split()
+        if any(k in t for k in kws):
+            return (
+                f"📌 *{item.get('hang_muc','')}*\n"
+                f"🔹 Chi tiết: {item.get('chi_tiet','')}\n"
+                f"🏷 Thương hiệu: {item.get('thuong_hieu','')}\n"
+                f"📏 Đơn vị: {item.get('don_vi','')}\n"
+                f"📝 Ghi chú: {item.get('ghi_chu','')}"
+            )
 
+    # 2️⃣ Tra ghi chú cá nhân
+    notes_user = get_notes_from_user()
+    for item in notes_user:
+        kws = item.get("keywords", "").lower().split(",")
+        if any(k.strip() in t for k in kws):
+            return f"📌 Ghi chú đã lưu:\n{item.get('text', '')}"
+
+    # 3️⃣ Cuối cùng hỏi AI
     return ask_llm(text)
 
 
@@ -257,4 +268,3 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     print(f"Server chạy trên port {port}")
     app.run(host="0.0.0.0", port=port)
-
