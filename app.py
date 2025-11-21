@@ -17,7 +17,7 @@ API_NOTES_NHA  = "https://script.google.com/macros/s/AKfycbwZvzjkGbbgY8OT3jtaSF5
 
 # 🔹 2 page token (mỗi page 1 token)
 PAGE_TOKEN_MAP = {
-    "813440285194304": os.getenv("PAGE_TOKEN_NHA", ""),  # Page xây nhà
+    "813440285194304": os.getenv("PAGE_TOKEN_NHA", ""),  
     "847842948414951": os.getenv("PAGE_TOKEN_CTT", ""),  
     "895305580330861": os.getenv("PAGE_TOKEN_A", ""),
 }
@@ -29,7 +29,6 @@ client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
 # ================= GOOGLE SHEET HANDLERS =================
 
 def get_notes_from_user():
-    """Lấy ghi chú từ sheet User_Notes."""
     try:
         r = requests.get(API_USER_NOTES, params={
             "action": "get",
@@ -43,7 +42,6 @@ def get_notes_from_user():
 
 
 def get_notes_from_nha():
-    """Lấy ghi chú chuẩn từ sheet Notes_Nha."""
     try:
         r = requests.get(API_NOTES_NHA, params={
             "action": "get",
@@ -57,7 +55,6 @@ def get_notes_from_nha():
 
 
 def save_note_to_sheet(text, image_url=None):
-    """Thêm ghi chú mới vào User_Notes."""
     payload = {
         "action": "add",
         "sheet": "User_Notes",
@@ -67,7 +64,7 @@ def save_note_to_sheet(text, image_url=None):
         "image_url": image_url or ""
     }
     try:
-        requests.post(API_USER_NOTES, data=payload)
+        requests.get(API_USER_NOTES, params=payload)  # 🔹 dùng GET + params
         return "Đã lưu ghi chú."
     except Exception as e:
         print("Lỗi save_note_to_sheet:", e)
@@ -75,7 +72,6 @@ def save_note_to_sheet(text, image_url=None):
 
 
 def edit_note_in_sheet(index, new_text):
-    """Sửa nội dung ghi chú tại index."""
     payload = {
         "action": "edit",
         "sheet": "User_Notes",
@@ -85,7 +81,7 @@ def edit_note_in_sheet(index, new_text):
         "keywords": ", ".join([w.lower() for w in new_text.split() if len(w) >= 4]),
     }
     try:
-        requests.post(API_USER_NOTES, data=payload)
+        requests.get(API_USER_NOTES, params=payload)
         return f"Đã sửa note {index}."
     except Exception as e:
         print("Lỗi edit_note_in_sheet:", e)
@@ -93,14 +89,13 @@ def edit_note_in_sheet(index, new_text):
 
 
 def delete_note_in_sheet(index):
-    """Xóa ghi chú tại index."""
     payload = {
         "action": "delete",
         "sheet": "User_Notes",
         "index": str(index)
     }
     try:
-        requests.post(API_USER_NOTES, data=payload)
+        requests.get(API_USER_NOTES, params=payload)
         return f"Đã xóa note {index}."
     except Exception as e:
         print("Lỗi delete_note_in_sheet:", e)
@@ -135,10 +130,7 @@ def ask_llm(text):
         resp = client.chat.completions.create(
             model=CHAT_MODEL,
             messages=[
-                {
-                    "role": "system",
-                    "content": "Bạn là trợ lý xây nhà, trả lời rõ ràng, thực tế, ngắn gọn."
-                },
+                {"role": "system", "content": "Bạn là trợ lý xây nhà, trả lời rõ ràng, thực tế, ngắn gọn."},
                 {"role": "user", "content": text}
             ],
             temperature=TEMPERATURE,
@@ -155,15 +147,12 @@ def ask_llm(text):
 def get_smart_reply(text, image_url=None):
     t = text.lower().strip()
 
-    # 🟢 Lưu ghi chú: note: / ghi nhớ: / thêm: / lưu:
     if t.startswith(("note:", "ghi nhớ:", "ghi nho:", "thêm:", "them:", "lưu:", "luu:")):
         pure = text.split(":", 1)[1].strip()
         return save_note_to_sheet(pure, image_url)
 
-    # ✏️ Sửa ghi chú: "sửa note 2: nội dung mới"
     if t.startswith("sửa note") or t.startswith("sua note"):
         try:
-            # vd: "sửa note 2: đặt lại cửa 2x3m"
             parts = text.split()
             idx = int(parts[2])
             new_text = text.split(":", 1)[1].strip()
@@ -171,7 +160,6 @@ def get_smart_reply(text, image_url=None):
         except Exception:
             return "Cú pháp đúng: sửa note 2: nội dung mới"
 
-    # ❌ Xóa ghi chú: "xóa note 3"
     if t.startswith(("xóa note", "xoá note", "xoa note")):
         try:
             idx = int([w for w in t.split() if w.isdigit()][0])
@@ -179,7 +167,6 @@ def get_smart_reply(text, image_url=None):
         except Exception:
             return "Cú pháp đúng: xóa note 3"
 
-    # 📘 Hiển thị toàn bộ ghi chú
     if t in ["xem note", "xem ghi chú", "ghi chú", "ghi chu", "notes", "xem tất cả note", "xem tat ca note"]:
         notes = get_notes_from_user()
         if not notes:
@@ -189,9 +176,7 @@ def get_smart_reply(text, image_url=None):
             reply += f"{i}. ({n.get('category', 'Chung')}) {n.get('text', '')}\n"
         return reply
 
-    # 🔍 Tra ghi chú cá nhân (ưu tiên)
     notes_user = get_notes_from_user()
-    t_words = [w.strip(".,;:!?").lower() for w in t.split()]
     for item in notes_user:
         text_item = item.get("text", "")
         kw_str = item.get("keywords", "")
@@ -199,7 +184,6 @@ def get_smart_reply(text, image_url=None):
         if text_item and any(k in t for k in kws):
             return f"📌 Ghi chú đã lưu:\n{text_item}"
 
-    # 📚 Tra kiến thức chuẩn từ Notes_Nha
     notes_nha = get_notes_from_nha()
     for item in notes_nha:
         text_item = item.get("text", "")
@@ -208,7 +192,6 @@ def get_smart_reply(text, image_url=None):
         if text_item and any(k in t for k in kws):
             return text_item
 
-    # 🤖 Cuối cùng: hỏi AI
     return ask_llm(text)
 
 
@@ -253,7 +236,6 @@ def webhook():
             text = msg.get("text")
             image_url = None
 
-            # 📎 Nếu có ảnh kèm theo
             for att in msg.get("attachments") or []:
                 if att.get("type") == "image":
                     image_url = att.get("payload", {}).get("url")
@@ -261,7 +243,6 @@ def webhook():
 
             if psid and text:
                 reply = get_smart_reply(text, image_url)
-                # Gửi reply ở thread riêng để trả 200 OK cho FB nhanh
                 threading.Thread(target=send_text, args=(page_id, psid, reply)).start()
 
     return "OK", 200
@@ -276,7 +257,3 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     print(f"Server chạy trên port {port}")
     app.run(host="0.0.0.0", port=port)
-
-
-
-
