@@ -12,8 +12,8 @@ TEMPERATURE = 0.25
 MAX_TOKENS = 200
 
 # 🔹 2 API tách riêng
-API_USER_NOTES = "https://script.google.com/macros/s/AKfycbzQ8iI4FPilXsfiO-KVVk3kifaYwJkwqUGccAZZBRcm64WGkI4NIsjYyGWVao1_J-s/exec"
-API_NOTES_NHA  = "https://script.google.com/macros/s/AKfycbwZvzjkGbbgY8OT3jtaSF5QUIBUd2Yjkpn6O9irz2Bf6uuBiZ1IJUU1F7YXnIlSdVyo4w/exec"
+API_USER_NOTES = "https://script.google.com/macros/s/AKfycbxcEh41MUz1t9_Cwr3Q7mgk66iWn-brIN9jOtubPXFDbybidTKX7eVkun4M-Ps_Xrg/exec"
+API_NOTES_NHA  = "https://script.google.com/macros/s/AKfycbxciPTLa_JOylaSm2ghvmJGC_JNONnaL2IzZdFLcwbAzEc9qS23QIrwcR4v3q46mbkw/exec"
 
 # 🔹 2 page token (mỗi page 1 token)
 PAGE_TOKEN_MAP = {
@@ -257,3 +257,4 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     print(f"Server chạy trên port {port}")
     app.run(host="0.0.0.0", port=port)
+
