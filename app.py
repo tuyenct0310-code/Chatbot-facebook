@@ -12,26 +12,25 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "")
 TEMPERATURE = 0.25
 MAX_TOKENS = 200
 
-# 🔹 API của User Notes, Notes_Nha, và Quần Áo
+# 🔹 API Google Sheet (Nhà, Ghi chú, Quần Áo)
 API_USER_NOTES = "https://script.google.com/macros/s/API_USER_NOTES_EXEC/exec"
 API_NOTES_NHA  = "https://script.google.com/macros/s/API_NOTES_NHA_EXEC/exec"
 API_FASHION    = "https://script.google.com/macros/s/API_FASHION_EXEC/exec"
 
-# 🔹 3 Page của bạn
+# 🔹 PAGE TOKEN MAP
 PAGE_TOKEN_MAP = {
-    "813440285194304": os.getenv("PAGE_TOKEN_NHA", ""),  
-    "847842948414951": os.getenv("PAGE_TOKEN_CTT", ""),  
-    "895305580330861": os.getenv("PAGE_TOKEN_A", ""),  # Quần áo
+    "813440285194304": os.getenv("PAGE_TOKEN_NHA", ""),  # Page xây nhà
+    "847842948414951": os.getenv("PAGE_TOKEN_CTT", ""),  # Page khác (AI)
+    "895305580330861": os.getenv("PAGE_TOKEN_A", ""),    # Page quần áo
 }
 
 app = Flask(__name__)
 client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
 
-# Giỏ hàng trong RAM
+# Giỏ hàng lưu trong RAM (theo psid)
 CARTS = {}
 
 # ================= GOOGLE SHEET HANDLERS =================
-
 def get_notes_from_user():
     try:
         r = requests.get(API_USER_NOTES, params={"action": "get", "sheet": "User_Notes"})
@@ -71,12 +70,14 @@ def save_order_to_sheet(psid, customer_info, cart_items, total_amount):
 # ================= AI FALLBACK =================
 def ask_llm(text):
     if not client:
-        return "AI chưa sẵn sàng."
+        return "AI chưa sẵn sàng (chưa có API key)."
     try:
         resp = client.chat.completions.create(
             model=CHAT_MODEL,
-            messages=[{"role": "system", "content": "Trả lời ngắn, rõ ràng."},
-                      {"role": "user", "content": text}],
+            messages=[
+                {"role": "system", "content": "Bạn là trợ lý thông minh, trả lời rõ ràng, thực tế."},
+                {"role": "user", "content": text}
+            ],
             temperature=TEMPERATURE,
             max_tokens=MAX_TOKENS
         )
@@ -90,69 +91,86 @@ def handle_fashion_page(text, t, psid):
     items = get_fashion_items()
     cart = CARTS.get(psid, [])
 
-    # Xem sản phẩm
-    if t in ["xem sp", "xem sản phẩm", "catalog"]:
+    if t in ["xem sp", "xem sản phẩm", "catalog", "danh sách sp"]:
+        if not items:
+            return "Chưa có sản phẩm."
         reply = "🛍 DANH SÁCH SẢN PHẨM:\n\n"
         for i, it in enumerate(items, 1):
-            reply += f"{i}. {it['ten_sp']} - {it['gia']} - Size {it['size']}\n"
-        return reply + "\nGõ: 'mua sp 1', 'mua sp 2 x2' để mua."
+            reply += f"{i}. {it['ten_sp']} - {it['gia']} - Size: {it['size']}\n"
+        return reply + "\nGõ 'mua sp 2 x3' để mua 3 sản phẩm số 2."
 
-    # Thêm vào giỏ
     if "mua sp" in t or "thêm vào giỏ" in t:
         nums = [int(x) for x in t.split() if x.isdigit()]
         if not nums:
-            return "Gõ: mua sp 2 hoặc mua sp 2 x3."
+            return "Cú pháp: mua sp 2 hoặc mua sp 2 x3"
         idx = nums[0]
         qty = nums[1] if len(nums) > 1 else 1
+        if idx < 1 or idx > len(items):
+            return "Không tìm thấy sản phẩm."
         it = items[idx - 1]
         cart.append({"ten": it["ten_sp"], "gia": it["gia"], "size": it["size"], "qty": qty})
         CARTS[psid] = cart
         return f"Đã thêm vào giỏ: {it['ten_sp']} x{qty}"
 
-    # Xem giỏ hàng
     if t in ["giỏ hàng", "xem giỏ"]:
         if not cart:
-            return "Giỏ hàng đang trống."
+            return "Giỏ hàng trống."
         reply = "🧺 GIỎ HÀNG:\n\n"
         total = 0
         for c in cart:
-            price = int(re.sub(r'\D','',c["gia"]))
+            price = int(re.sub(r'\D','', c["gia"]))
             total += price * c["qty"]
             reply += f"{c['ten']} - {c['gia']} x{c['qty']}\n"
-        return reply + f"\nTổng: {total:,}đ\nGõ 'đặt hàng: tên, sđt, địa chỉ' để chốt đơn."
+        reply += f"\nTổng: {total:,}đ\nGõ 'đặt hàng: Tên, SĐT, Địa chỉ'"
+        return reply
 
-    # Đặt hàng
     if t.startswith("đặt hàng"):
         if not cart:
             return "Giỏ hàng trống."
-        info = text.split(":",1)[1].strip()
+        info = text.split(":", 1)[1].strip()
         lines, total = [], 0
         for c in cart:
-            price = int(re.sub(r'\D','',c["gia"]))
+            price = int(re.sub(r'\D','', c["gia"]))
             total += price * c["qty"]
             lines.append(f"{c['ten']} x{c['qty']} - {c['gia']}")
-        CARTS[psid] = []  # Xóa giỏ sau khi đặt
+        CARTS[psid] = []
         return save_order_to_sheet(psid, info, lines, total)
 
-    # Nếu không khớp → AI trả lời
     return ask_llm(text)
 
 # ================= PAGE NHÀ HANDLER =================
 def handle_nha_page(text, t):
-    notes_nha = get_notes_from_nha()
+    if t.startswith("xem note"):
+        notes = get_notes_from_user()
+        if not notes:
+            return "Chưa có ghi chú nào."
+        keyword = t.replace("xem note", "").strip()
+        if not keyword:
+            reply = "📘 Ghi chú:\n\n"
+            for i, n in enumerate(notes, 1):
+                reply += f"{i}. ({n.get('category','')}) {n.get('text','')}\n"
+            return reply
+        matches = [
+            f"{i}. {n.get('text','')}"
+            for i, n in enumerate(notes, 1)
+            if keyword in n.get('text','').lower() or keyword in n.get('keywords','').lower()
+        ]
+        return "🔎 Ghi chú tìm thấy:\n" + "\n".join(matches) if matches else "Không tìm thấy."
 
-    # Tra vật tư
+    notes_nha = get_notes_from_nha()
     for item in notes_nha:
         kws = item.get("keywords","").lower().split()
-        if any(k in t for k in kws):
-            return (f"📌 {item['hang_muc']}\n"
-                    f"🔹 Chi tiết: {item['chi_tiet']}\n"
-                    f"🏷 Thương hiệu: {item['thuong_hieu']}\n"
-                    f"📏 Đơn vị: {item['don_vi']}")
+        if any(k in t for k in kws if len(k) >= 3):
+            return (
+                f"📌 {item.get('hang_muc','')}\n"
+                f"🔹 {item.get('chi_tiet','')}\n"
+                f"🏷 {item.get('thuong_hieu','')}\n"
+                f"📏 {item.get('don_vi','')}\n"
+            )
 
     return ask_llm(text)
 
-# ================= SMART REPLY =================
+# ================= SMART REPLY MAIN =================
 def get_smart_reply(text, image_url=None, page_id=None, psid=None):
     t = text.lower().strip()
 
@@ -184,17 +202,14 @@ def webhook():
             psid = event.get("sender", {}).get("id")
             msg = event.get("message", {})
             text = msg.get("text")
-            image_url = None
             if psid and text:
-                reply = get_smart_reply(text, image_url, page_id, psid)
+                reply = get_smart_reply(text, None, page_id, psid)
                 threading.Thread(target=send_text, args=(page_id, psid, reply)).start()
     return "OK", 200
-
 
 @app.route("/health")
 def health():
     return jsonify(status="running")
-
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
