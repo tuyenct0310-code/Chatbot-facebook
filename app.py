@@ -200,7 +200,7 @@ def get_smart_reply(text, image_url=None, page_id=None):
     # ================= TỪ ĐÂY TRỞ XUỐNG: CHỈ ÁP DỤNG CHO PAGE NHA =================
 
     # 🟢 2. Lệnh xem toàn bộ ghi chú cá nhân
-    if "xem note" in t or "xem ghi chú" in t or "xem ghi chu" in t:
+    if t in ["xem note", "xem ghi chú", "xem ghi chu", "notes"]:
         notes = get_notes_from_user()
         if not notes:
             return "Chưa có ghi chú nào."
