@@ -13,9 +13,9 @@ TEMPERATURE = 0.25
 MAX_TOKENS = 200
 
 # 🔹 API Google Sheet (Nhà, Ghi chú, Quần Áo)
-API_USER_NOTES = "https://script.google.com/macros/s/API_USER_NOTES_EXEC/exec"
-API_NOTES_NHA  = "https://script.google.com/macros/s/API_NOTES_NHA_EXEC/exec"
-API_FASHION    = "https://script.google.com/macros/s/API_FASHION_EXEC/exec"
+API_USER_NOTES = "https://script.google.com/macros/s/AKfycbwM_i1WJbKigoFOY3gpWC0a_glGMwt95wtg9wg0pAjPTrZ1--6UCRQ38n8zu0I5-oes/exec"
+#API_NOTES_NHA  = "https://script.google.com/macros/s/API_NOTES_NHA_EXEC/exec"
+API_FASHION    = "https://script.google.com/macros/s/AKfycbxiQt7qyLdeXtwSBqL5fS2yzZqbNRSTOaoYnly9LqpfAwxzqVh_tQ03TTHwF8livVfkIQ/exec"
 
 # 🔹 PAGE TOKEN MAP
 PAGE_TOKEN_MAP = {
@@ -214,3 +214,4 @@ def health():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
+
