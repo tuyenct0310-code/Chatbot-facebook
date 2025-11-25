@@ -1,0 +1,50 @@
+[
+  {
+    "ten": "Đầm suông vintage",
+    "gia": "450000",
+    "don_vi": "cái",
+    "size": "S, M, L",
+    "mo_ta": "Đầm suông phong cách vintage, chất voan mịn, phù hợp đi chơi và dự tiệc",
+    "tag": ["đầm", "váy", "đầm vintage", "đầm suông"]
+  },
+  {
+    "ten": "Áo croptop cotton",
+    "gia": "220000",
+    "don_vi": "cái",
+    "size": "S, M, L",
+    "mo_ta": "Áo croptop chất cotton co giãn, thấm mồ hôi cực tốt",
+    "tag": ["áo", "croptop", "áo thun"]
+  },
+  {
+    "ten": "Quần jean ống rộng nữ",
+    "gia": "390000",
+    "don_vi": "cái",
+    "size": "S, M, L, XL",
+    "mo_ta": "Quần jean ống rộng nữ phong cách Hàn Quốc, dày dặn, bền màu",
+    "tag": ["quần", "quần jean", "ống rộng"]
+  },
+  {
+    "ten": "Áo sơ mi form rộng",
+    "gia": "350000",
+    "don_vi": "cái",
+    "size": "M, L, XL",
+    "mo_ta": "Áo sơ mi form rộng Unisex, mặc đi làm hay đi chơi đều đẹp",
+    "tag": ["áo sơ mi", "form rộng", "unisex"]
+  },
+  {
+    "ten": "Set bộ áo và quần nữ đi chơi",
+    "gia": "520000",
+    "don_vi": "bộ",
+    "size": "S, M, L",
+    "mo_ta": "Set bộ nữ dễ thương, phù hợp đi chơi, dạo phố, chụp ảnh",
+    "tag": ["set đồ", "set nữ", "bộ quần áo"]
+  },
+  {
+    "ten": "Áo khoác dù chống thấm",
+    "gia": "480000",
+    "don_vi": "cái",
+    "size": "M, L, XL",
+    "mo_ta": "Áo khoác dù chống nước, siêu nhẹ, phù hợp đi phượt, đi mưa",
+    "tag": ["áo khoác", "chống thấm", "áo gió"]
+  }
+]
