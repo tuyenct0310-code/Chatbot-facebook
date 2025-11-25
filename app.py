@@ -13,6 +13,7 @@ MAX_TOKENS = 200
 
 # 🔹 API Apps Script
 API_USER_NOTES = "https://script.google.com/macros/s/AKfycbyovjcqIwqP9oLqljcrhcZojussoPkD5uKD1SMciw5flrN2cMf2LgdUgM1bVIrCr0vO/exec"
+API_NOTES_NHA  = "https://script.google.com/macros/s/AKfycbyovjcqIwqP9oLqljcrhcZojussoPkD5uKD1SMciw5flrN2cMf2LgdUgM1bVIrCr0vO/exec"
 
 
 # 🔹 Tokens của các page
@@ -274,3 +275,4 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     print(f"Server chạy tại port {port}")
     app.run(host="0.0.0.0", port=port)
+
