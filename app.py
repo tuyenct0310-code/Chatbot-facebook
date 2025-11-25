@@ -11,43 +11,61 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "")
 TEMPERATURE = 0.25
 MAX_TOKENS = 200
 
-# 🔹 Chỉ còn 1 API duy nhất
-API_NOTES = "https://script.google.com/macros/s/AKfycbyovjcqIwqP9oLqljcrhcZojussoPkD5uKD1SMciw5flrN2cMf2LgdUgM1bVIrCr0vO/exec"
+# 🔹 API Apps Script
+API_USER_NOTES = "https://script.google.com/macros/s/AKfycbyovjcqIwqP9oLqljcrhcZojussoPkD5uKD1SMciw5flrN2cMf2LgdUgM1bVIrCr0vO/exec"
 
-# 🔹 Facebook Page tokens
+
+# 🔹 Tokens của các page
 PAGE_TOKEN_MAP = {
     "813440285194304": os.getenv("PAGE_TOKEN_NHA", ""),  # Page Nhà
     "847842948414951": os.getenv("PAGE_TOKEN_CTT", ""),  # Page thời trang
     "895305580330861": os.getenv("PAGE_TOKEN_A", ""),    # Page khác
 }
+
 PAGE_ID_NHA = "813440285194304"
 
 app = Flask(__name__)
 client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
 
 
-# ================= GOOGLE SHEET =================
+# ================= GOOGLE SHEET HANDLERS =================
 
-def get_notes(sheet_name):
-    """Lấy dữ liệu từ Notes_Nha hoặc User_Notes"""
+def get_notes_from_user():
     try:
-        r = requests.get(API_NOTES, params={"action": "get", "sheet": sheet_name})
-        print(f"{sheet_name} raw:", r.text)
+        r = requests.get(API_USER_NOTES, params={"action": "get"})
+        print("User_Notes raw:", r.text)
         return r.json().get("notes", [])
     except Exception as e:
-        print(f"Lỗi get_notes({sheet_name}):", e)
+        print("Lỗi get_notes_from_user:", e)
         return []
 
 
-# ================= CRUD USER NOTES =================
+def get_notes_from_nha():
+    try:
+        r = requests.get(API_NOTES_NHA, params={"action": "get"})
+        print("Notes_Nha raw:", r.text)
+        return r.json().get("notes", [])
+    except Exception as e:
+        print("Lỗi get_notes_from_nha:", e)
+        return []
+
+
+# ================= SAVE / EDIT / DELETE USER NOTES =================
 
 def classify_note_category(text):
-    t = text.lower()
-    if any(k in t for k in ["giấy phép", "pháp lý", "xin phép"]): return "Giấy phép"
-    if any(k in t for k in ["thiết kế", "cửa", "cad", "bản vẽ"]): return "Thiết kế"
-    if any(k in t for k in ["móng", "thép", "cột", "ép", "đổ"]): return "Thi công"
-    if any(k in t for k in ["sơn", "lát", "thiết bị", "nội thất"]): return "Hoàn thiện"
-    if any(k in t for k in ["bàn giao", "nghiệm thu"]): return "Bàn giao"
+    n = text.lower()
+    if any(k in n for k in ["giấy phép", "pháp lý", "xin phép"]):
+        return "Giấy phép"
+    if any(k in n for k in ["thiết kế", "phối cảnh", "cửa", "cad", "bản vẽ"]):
+        return "Thiết kế"
+    if any(k in n for k in ["móng", "thép", "cột", "d16", "d14", "dầm", "ép", "đổ"]):
+        return "Thi công"
+    if any(k in n for k in ["cửa", "sơn", "lát", "thiết bị", "nội thất", "gạch"]):
+        return "Hoàn thiện"
+    if any(k in n for k in ["bàn giao", "nghiệm thu"]):
+        return "Bàn giao"
+    if any(k in n for k in ["hoàn công", "sổ đỏ"]):
+        return "Hoàn công"
     return "Chung"
 
 
@@ -56,11 +74,11 @@ def save_note_to_sheet(text, image_url=None):
         "action": "add",
         "text": text,
         "category": classify_note_category(text),
-        "keywords": ", ".join([w for w in text.lower().split() if len(w) >= 4]),
+        "keywords": ", ".join([w.lower() for w in text.split() if len(w) >= 4]),
         "image_url": image_url or ""
     }
     try:
-        requests.post(API_NOTES, data=payload)
+        requests.post(API_USER_NOTES, data=payload)
         return "Đã lưu ghi chú."
     except Exception as e:
         print("Lỗi save_note_to_sheet:", e)
@@ -73,10 +91,10 @@ def edit_note_in_sheet(index, new_text):
         "index": str(index),
         "text": new_text,
         "category": classify_note_category(new_text),
-        "keywords": ", ".join([w for w in new_text.lower().split() if len(w) >= 4])
+        "keywords": ", ".join([w.lower() for w in new_text.split() if len(w) >= 4]),
     }
     try:
-        requests.post(API_NOTES, data=payload)
+        requests.post(API_USER_NOTES, data=payload)
         return f"Đã sửa note {index}."
     except Exception as e:
         print("Lỗi edit_note_in_sheet:", e)
@@ -86,7 +104,7 @@ def edit_note_in_sheet(index, new_text):
 def delete_note_in_sheet(index):
     payload = {"action": "delete", "index": str(index)}
     try:
-        requests.post(API_NOTES, data=payload)
+        requests.post(API_USER_NOTES, data=payload)
         return f"Đã xóa note {index}."
     except Exception as e:
         print("Lỗi delete_note_in_sheet:", e)
@@ -103,27 +121,35 @@ def ask_llm(text):
             model=CHAT_MODEL,
             messages=[
                 {"role": "system",
-                 "content": "Bạn là trợ lý xây nhà, trả lời rõ ràng, gọn, thực tế."},
+                 "content": "Bạn là trợ lý xây nhà, trả lời rõ ràng, thực tế, ngắn gọn."},
                 {"role": "user", "content": text}
             ],
             temperature=TEMPERATURE,
             max_tokens=MAX_TOKENS
         )
         return resp.choices[0].message.content.strip()
-    except Exception:
+    except Exception as e:
+        print("Lỗi ask_llm:", e)
         return "Xin lỗi, tôi chưa rõ."
 
 
 # ================= SEARCH HELPERS =================
 
-def search_notes(query, notes, fields):
-    query = query.lower()
+def search_in_notes_nha(query, notes_nha):
     results = []
-    for item in notes:
-        for f in fields:
-            if f in item and query in str(item[f]).lower():
-                results.append(item)
-                break
+    for item in notes_nha:
+        kws = item.get("keywords", "").lower().split()
+        if any(k in query for k in kws if len(k) >= 3):
+            results.append(item)
+    return results
+
+
+def search_in_user_notes(query, notes_user):
+    results = []
+    for item in notes_user:
+        kws = item.get("keywords", "").lower().replace(";", ",").split(",")
+        if any(k.strip() in query for k in kws if len(k.strip()) >= 3):
+            results.append(item)
     return results
 
 
@@ -132,65 +158,65 @@ def search_notes(query, notes, fields):
 def get_smart_reply(text, image_url=None, page_id=None):
     t = text.lower().strip()
 
-    # Nếu không phải Page Nhà → chỉ dùng AI
     if page_id != PAGE_ID_NHA:
         return ask_llm(text)
 
-    # Xem ghi chú
-    if t in ["xem note", "xem ghi chú", "notes"]:
-        notes = get_notes("User_Notes")
+    # Xem note
+    if t in ["xem note", "xem ghi chú", "xem ghi chu", "notes"]:
+        notes = get_notes_from_user()
         if not notes:
             return "Chưa có ghi chú nào."
-        return "\n".join([
-            f"{i+1}. ({n.get('category','')}) {n.get('text','')}"
-            for i, n in enumerate(notes)
-        ])
+        reply = "📘 Ghi chú đã lưu:\n\n"
+        for i, n in enumerate(notes, 1):
+            reply += f"{i}. ({n.get('category', 'Chung')}) {n.get('text', '')}\n"
+        return reply.strip()
 
-    # Lưu ghi chú
-    if t.startswith(("note:", "ghi nhớ:", "thêm:", "lưu:")):
+    # Lưu note
+    if t.startswith(("note:", "ghi nhớ:", "ghi nho:", "thêm:", "them:", "lưu:", "luu:")):
         pure = text.split(":", 1)[1].strip()
         return save_note_to_sheet(pure, image_url)
 
-    # Sửa ghi chú
-    if t.startswith("sửa note"):
+    # Sửa note
+    if t.startswith(("sửa note", "sua note")):
         try:
-            idx = int(t.split()[2])
+            parts = text.split()
+            idx = int(parts[2])
             new_text = text.split(":", 1)[1].strip()
             return edit_note_in_sheet(idx, new_text)
-        except:
+        except Exception:
             return "Cú pháp đúng: sửa note 2: nội dung mới"
 
-    # Xóa ghi chú
-    if t.startswith(("xóa note", "xoá note")):
+    # Xóa note
+    if t.startswith(("xóa note", "xoá note", "xoa note")):
         try:
-            idx = int([x for x in t.split() if x.isdigit()][0])
+            idx = int([w for w in t.split() if w.isdigit()][0])
             return delete_note_in_sheet(idx)
-        except:
-            return "Cú pháp đúng: xóa note 2"
+        except Exception:
+            return "Cú pháp đúng: xóa note 3"
 
-    # ================= Tìm Notes_Nha (vật tư)
-    notes_nha = get_notes("Notes_Nha")
-    found_nha = search_notes(t, notes_nha,
-                             ["hang_muc", "chi_tiet", "thuong_hieu"])
+    # Tìm trong Notes_Nha
+    notes_nha = get_notes_from_nha()
+    found_nha = search_in_notes_nha(t, notes_nha)
     if found_nha:
-        reply = "📌 Thông tin vật tư:\n\n"
+        reply = "📌 Thông tin từ vật tư / thi công:\n\n"
         for item in found_nha[:3]:
             reply += (
-                f"📌 {item.get('hang_muc', '')}\n"
-                f"🔹 Chi tiết: {item.get('chi_tiet','')}\n"
-                f"🏷 Thương hiệu: {item.get('thuong_hieu','')}\n"
-                f"📏 Đơn vị: {item.get('don_vi','')}\n"
-                f"📝 Ghi chú: {item.get('ghi_chu','')}\n\n"
+                f"📌 *{item.get('hang_muc', '')}*\n"
+                f"🔹 Chi tiết: {item.get('chi_tiet', '')}\n"
+                f"🏷 Thương hiệu: {item.get('thuong_hieu', '')}\n"
+                f"📏 Đơn vị: {item.get('don_vi', '')}\n"
+                f"📝 Ghi chú: {item.get('ghi_chu', '')}\n\n"
             )
         return reply.strip()
 
-    # ================= Tìm ghi chú cá nhân
-    notes_user = get_notes("User_Notes")
-    found_user = search_notes(t, notes_user, ["text", "keywords"])
+    # Tìm trong User_Notes
+    notes_user = get_notes_from_user()
+    found_user = search_in_user_notes(t, notes_user)
     if found_user:
-        return "🗂 Ghi chú cá nhân:\n" + "\n".join(
-            f"• {n.get('text','')}" for n in found_user[:3]
-        )
+        reply = "🗂 *Thông tin từ ghi chú cá nhân:*\n\n"
+        for item in found_user[:3]:
+            reply += f"• {item.get('text', '')}\n"
+        return reply.strip()
 
     return ask_llm(text)
 
@@ -200,6 +226,7 @@ def get_smart_reply(text, image_url=None, page_id=None):
 def send_text(page_id, psid, text):
     token = PAGE_TOKEN_MAP.get(page_id)
     if not token:
+        print("Không có PAGE_TOKEN cho page", page_id)
         return
     try:
         requests.post(
@@ -223,6 +250,8 @@ def verify():
 @app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.get_json() or {}
+    print("\n🟢 DATA FACEBOOK GỬI VỀ:", data, "\n")
+
     for entry in data.get("entry", []):
         page_id = entry.get("id")
         for event in entry.get("messaging", []):
@@ -232,6 +261,7 @@ def webhook():
             if psid and text:
                 reply = get_smart_reply(text, None, page_id)
                 threading.Thread(target=send_text, args=(page_id, psid, reply)).start()
+
     return "OK", 200
 
 
@@ -242,4 +272,5 @@ def health():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
+    print(f"Server chạy tại port {port}")
     app.run(host="0.0.0.0", port=port)
