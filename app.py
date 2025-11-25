@@ -1,6 +1,7 @@
 import os
 import threading
 import requests
+import re
 from flask import Flask, request, jsonify
 from openai import OpenAI
 
@@ -11,251 +12,182 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "")
 TEMPERATURE = 0.25
 MAX_TOKENS = 200
 
-# 🔹 API của User Notes và Notes_Nha
-API_USER_NOTES = "https://script.google.com/macros/s/AKfycbxcEh41MUz1t9_Cwr3Q7mgk66iWn-brIN9jOtubPXFDbybidTKX7eVkun4M-Ps_Xrg/exec"
-API_NOTES_NHA  = "https://script.google.com/macros/s/AKfycbwM_i1WJbKigoFOY3gpWC0a_glGMwt95wtg9wg0pAjPTrZ1--6UCRQ38n8zu0I5-oes/exec"
+# 🔹 API của User Notes, Notes_Nha, và Quần Áo
+API_USER_NOTES = "https://script.google.com/macros/s/API_USER_NOTES_EXEC/exec"
+API_NOTES_NHA  = "https://script.google.com/macros/s/API_NOTES_NHA_EXEC/exec"
+API_FASHION    = "https://script.google.com/macros/s/API_FASHION_EXEC/exec"
 
 # 🔹 3 Page của bạn
 PAGE_TOKEN_MAP = {
     "813440285194304": os.getenv("PAGE_TOKEN_NHA", ""),  
     "847842948414951": os.getenv("PAGE_TOKEN_CTT", ""),  
-    "895305580330861": os.getenv("PAGE_TOKEN_A", ""),
+    "895305580330861": os.getenv("PAGE_TOKEN_A", ""),  # Quần áo
 }
 
 app = Flask(__name__)
 client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
 
+# Giỏ hàng trong RAM
+CARTS = {}
 
 # ================= GOOGLE SHEET HANDLERS =================
 
 def get_notes_from_user():
     try:
-        r = requests.get(API_USER_NOTES, params={
-            "action": "get",
-            "sheet": "User_Notes"
-        })
-        data = r.json()
-        return data.get("notes", [])
-    except Exception as e:
-        print("Lỗi get_notes_from_user:", e)
+        r = requests.get(API_USER_NOTES, params={"action": "get", "sheet": "User_Notes"})
+        return r.json().get("notes", [])
+    except:
         return []
-
 
 def get_notes_from_nha():
     try:
-        r = requests.get(API_NOTES_NHA, params={
-            "action": "get",
-            "sheet": "Notes_Nha"
-        })
-        data = r.json()
-        return data.get("notes", [])
-    except Exception as e:
-        print("Lỗi get_notes_from_nha:", e)
+        r = requests.get(API_NOTES_NHA, params={"action": "get", "sheet": "Notes_Nha"})
+        return r.json().get("notes", [])
+    except:
         return []
 
+def get_fashion_items():
+    try:
+        r = requests.get(API_FASHION, params={"action": "get", "sheet": "QuanAo"})
+        return r.json().get("items", [])
+    except:
+        return []
 
-# ================= SAVE / EDIT / DELETE USER NOTES =================
-
-def save_note_to_sheet(text, image_url=None):
+def save_order_to_sheet(psid, customer_info, cart_items, total_amount):
     payload = {
-        "action": "add",
-        "sheet": "User_Notes",
-        "text": text,
-        "category": classify_note_category(text),
-        "keywords": ", ".join([w.lower() for w in text.split() if len(w) >= 4]),
-        "image_url": image_url or ""
+        "action": "order",
+        "sheet": "Orders",
+        "psid": psid,
+        "customer_info": customer_info,
+        "cart": "\n".join(cart_items),
+        "total": str(total_amount)
     }
     try:
-        requests.get(API_USER_NOTES, params=payload)
-        return "Đã lưu ghi chú."
-    except Exception as e:
-        print("Lỗi save_note_to_sheet:", e)
-        return "Lỗi khi lưu ghi chú."
-
-
-def edit_note_in_sheet(index, new_text):
-    payload = {
-        "action": "edit",
-        "sheet": "User_Notes",
-        "index": str(index),
-        "text": new_text,
-        "category": classify_note_category(new_text),
-        "keywords": ", ".join([w.lower() for w in new_text.split() if len(w) >= 4]),
-    }
-    try:
-        requests.get(API_USER_NOTES, params=payload)
-        return f"Đã sửa note {index}."
-    except Exception as e:
-        print("Lỗi edit_note_in_sheet:", e)
-        return "Lỗi khi sửa ghi chú."
-
-
-def delete_note_in_sheet(index):
-    payload = {
-        "action": "delete",
-        "sheet": "User_Notes",
-        "index": str(index)
-    }
-    try:
-        requests.get(API_USER_NOTES, params=payload)
-        return f"Đã xóa note {index}."
-    except Exception as e:
-        print("Lỗi delete_note_in_sheet:", e)
-        return "Lỗi khi xóa ghi chú."
-
-
-# ================= AI CATEGORY =================
-
-def classify_note_category(text):
-    n = text.lower()
-    if any(k in n for k in ["giấy phép", "pháp lý", "xin phép"]):
-        return "Giấy phép"
-    if any(k in n for k in ["thiết kế", "phối cảnh", "cửa", "cad", "bản vẽ"]):
-        return "Thiết kế"
-    if any(k in n for k in ["móng", "thép", "cột", "d16", "d14", "dầm", "ép", "đổ"]):
-        return "Thi công"
-    if any(k in n for k in ["cửa", "sơn", "lát", "thiết bị", "nội thất", "gạch"]):
-        return "Hoàn thiện"
-    if any(k in n for k in ["bàn giao", "nghiệm thu"]):
-        return "Bàn giao"
-    if any(k in n for k in ["hoàn công", "sổ đỏ"]):
-        return "Hoàn công"
-    return "Chung"
-
+        requests.get(API_FASHION, params=payload)
+        return "Đơn hàng đã được ghi nhận, sẽ có người liên hệ bạn sớm."
+    except:
+        return "Lỗi khi lưu đơn hàng."
 
 # ================= AI FALLBACK =================
-
 def ask_llm(text):
     if not client:
-        return "AI chưa sẵn sàng (chưa có OPENAI_API_KEY)."
+        return "AI chưa sẵn sàng."
     try:
         resp = client.chat.completions.create(
             model=CHAT_MODEL,
-            messages=[
-                {"role": "system", "content": "Bạn là trợ lý xây nhà, trả lời rõ ràng, thực tế, ngắn gọn."},
-                {"role": "user", "content": text}
-            ],
+            messages=[{"role": "system", "content": "Trả lời ngắn, rõ ràng."},
+                      {"role": "user", "content": text}],
             temperature=TEMPERATURE,
             max_tokens=MAX_TOKENS
         )
         return resp.choices[0].message.content.strip()
-    except Exception as e:
-        print("Lỗi ask_llm:", e)
+    except:
         return "Xin lỗi, tôi chưa rõ."
 
+# ================= PAGE QUẦN ÁO HANDLER =================
+def handle_fashion_page(text, t, psid):
+    global CARTS
+    items = get_fashion_items()
+    cart = CARTS.get(psid, [])
 
-# ================= SMART REPLY =================
+    # Xem sản phẩm
+    if t in ["xem sp", "xem sản phẩm", "catalog"]:
+        reply = "🛍 DANH SÁCH SẢN PHẨM:\n\n"
+        for i, it in enumerate(items, 1):
+            reply += f"{i}. {it['ten_sp']} - {it['gia']} - Size {it['size']}\n"
+        return reply + "\nGõ: 'mua sp 1', 'mua sp 2 x2' để mua."
 
-def get_smart_reply(text, image_url=None):
-    t = text.lower().strip()
+    # Thêm vào giỏ
+    if "mua sp" in t or "thêm vào giỏ" in t:
+        nums = [int(x) for x in t.split() if x.isdigit()]
+        if not nums:
+            return "Gõ: mua sp 2 hoặc mua sp 2 x3."
+        idx = nums[0]
+        qty = nums[1] if len(nums) > 1 else 1
+        it = items[idx - 1]
+        cart.append({"ten": it["ten_sp"], "gia": it["gia"], "size": it["size"], "qty": qty})
+        CARTS[psid] = cart
+        return f"Đã thêm vào giỏ: {it['ten_sp']} x{qty}"
 
-    # Lưu ghi chú
-    if t.startswith(("note:", "ghi nhớ:", "ghi nho:", "thêm:", "them:", "lưu:", "luu:")):
-        pure = text.split(":", 1)[1].strip()
-        return save_note_to_sheet(pure, image_url)
+    # Xem giỏ hàng
+    if t in ["giỏ hàng", "xem giỏ"]:
+        if not cart:
+            return "Giỏ hàng đang trống."
+        reply = "🧺 GIỎ HÀNG:\n\n"
+        total = 0
+        for c in cart:
+            price = int(re.sub(r'\D','',c["gia"]))
+            total += price * c["qty"]
+            reply += f"{c['ten']} - {c['gia']} x{c['qty']}\n"
+        return reply + f"\nTổng: {total:,}đ\nGõ 'đặt hàng: tên, sđt, địa chỉ' để chốt đơn."
 
-    # Sửa ghi chú
-    if t.startswith(("sửa note", "sua note")):
-        try:
-            parts = text.split()
-            idx = int(parts[2])
-            new_text = text.split(":", 1)[1].strip()
-            return edit_note_in_sheet(idx, new_text)
-        except Exception:
-            return "Cú pháp đúng: sửa note 2: nội dung mới"
+    # Đặt hàng
+    if t.startswith("đặt hàng"):
+        if not cart:
+            return "Giỏ hàng trống."
+        info = text.split(":",1)[1].strip()
+        lines, total = [], 0
+        for c in cart:
+            price = int(re.sub(r'\D','',c["gia"]))
+            total += price * c["qty"]
+            lines.append(f"{c['ten']} x{c['qty']} - {c['gia']}")
+        CARTS[psid] = []  # Xóa giỏ sau khi đặt
+        return save_order_to_sheet(psid, info, lines, total)
 
-    # Xoá ghi chú
-    if t.startswith(("xóa note", "xoá note", "xoa note")):
-        try:
-            idx = int([w for w in t.split() if w.isdigit()][0])
-            return delete_note_in_sheet(idx)
-        except Exception:
-            return "Cú pháp đúng: xóa note 3"
-
-    # Xem toàn bộ note
-    if t in ["xem note", "xem ghi chú", "ghi chú", "notes", "xem tất cả note"]:
-        notes = get_notes_from_user()
-        if not notes:
-            return "Chưa có ghi chú nào."
-        reply = "📘 Ghi chú đã lưu:\n\n"
-        for i, n in enumerate(notes, 1):
-            reply += f"{i}. ({n.get('category', 'Chung')}) {n.get('text', '')}\n"
-        return reply
-
-    # 1️⃣ ƯU TIÊN TRA GOOGLE SHEET Notes_Nha (danh mục vật tư thi công)
-    notes_nha = get_notes_from_nha()
-    for item in notes_nha:
-        kws = item.get("keywords", "").lower().split()
-        if any(k in t for k in kws):
-            return (
-                f"📌 *{item.get('hang_muc','')}*\n"
-                f"🔹 Chi tiết: {item.get('chi_tiet','')}\n"
-                f"🏷 Thương hiệu: {item.get('thuong_hieu','')}\n"
-                f"📏 Đơn vị: {item.get('don_vi','')}\n"
-                f"📝 Ghi chú: {item.get('ghi_chu','')}"
-            )
-
-    # 2️⃣ Tra ghi chú cá nhân
-    notes_user = get_notes_from_user()
-    for item in notes_user:
-        kws = item.get("keywords", "").lower().split(",")
-        if any(k.strip() in t for k in kws):
-            return f"📌 Ghi chú đã lưu:\n{item.get('text', '')}"
-
-    # 3️⃣ Cuối cùng hỏi AI
+    # Nếu không khớp → AI trả lời
     return ask_llm(text)
 
+# ================= PAGE NHÀ HANDLER =================
+def handle_nha_page(text, t):
+    notes_nha = get_notes_from_nha()
+
+    # Tra vật tư
+    for item in notes_nha:
+        kws = item.get("keywords","").lower().split()
+        if any(k in t for k in kws):
+            return (f"📌 {item['hang_muc']}\n"
+                    f"🔹 Chi tiết: {item['chi_tiet']}\n"
+                    f"🏷 Thương hiệu: {item['thuong_hieu']}\n"
+                    f"📏 Đơn vị: {item['don_vi']}")
+
+    return ask_llm(text)
+
+# ================= SMART REPLY =================
+def get_smart_reply(text, image_url=None, page_id=None, psid=None):
+    t = text.lower().strip()
+
+    if page_id == "895305580330861":  
+        return handle_fashion_page(text, t, psid)
+
+    if page_id == "813440285194304":  
+        return handle_nha_page(text, t)
+
+    return ask_llm(text)
 
 # ================= FACEBOOK CONNECTOR =================
-
 def send_text(page_id, psid, text):
     token = PAGE_TOKEN_MAP.get(page_id)
     if not token:
-        print("Không tìm thấy token cho page_id:", page_id)
         return
-
-    try:
-        print(f"💬 Gửi tới {psid} (page {page_id}): {text}")
-        requests.post(
-            f"https://graph.facebook.com/v19.0/me/messages",
-            params={"access_token": token},
-            json={"recipient": {"id": psid}, "message": {"text": text}}
-        )
-    except Exception as e:
-        print("Lỗi send_text:", e)
-
-
-# ================= WEBHOOK =================
-
-@app.route("/webhook", methods=["GET"])
-def verify():
-    if request.args.get("hub.verify_token") == VERIFY_TOKEN:
-        return request.args.get("hub.challenge")
-    return "Sai verify token", 403
-
+    requests.post(
+        "https://graph.facebook.com/v19.0/me/messages",
+        params={"access_token": token},
+        json={"recipient": {"id": psid}, "message": {"text": text}}
+    )
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.get_json() or {}
-    print("\n🟢 DATA FACEBOOK GỬI VỀ:", data, "\n")
-
     for entry in data.get("entry", []):
         page_id = entry.get("id")
         for event in entry.get("messaging", []):
             psid = event.get("sender", {}).get("id")
-            msg = event.get("message", {}) or {}
+            msg = event.get("message", {})
             text = msg.get("text")
             image_url = None
-
-            for att in msg.get("attachments") or []:
-                if att.get("type") == "image":
-                    image_url = att.get("payload", {}).get("url")
-                    break
-
             if psid and text:
-                reply = get_smart_reply(text, image_url)
+                reply = get_smart_reply(text, image_url, page_id, psid)
                 threading.Thread(target=send_text, args=(page_id, psid, reply)).start()
-
     return "OK", 200
 
 
@@ -266,5 +198,4 @@ def health():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    print(f"Server chạy trên port {port}")
     app.run(host="0.0.0.0", port=port)
