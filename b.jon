@@ -1,0 +1,223 @@
+{
+  "quan": {
+    "ten": "Ốc Ngon 18",
+    "dia_chi": "Rạng Đông - Cách Vietcombank 100m",
+    "so_dien_thoai": ["0345 986 183", "0338 570 075"],
+    "gio_mo_cua": "16:00 - 23:00 hàng ngày",
+    "mo_ta": "Quán chuyên ốc, lẩu, đồ nhậu và món chiên nướng. Không gian rộng rãi, phục vụ nhanh, nguyên liệu tươi ngon và nước chấm đậm vị."
+  },
+
+  "menu": {
+    "mon_chien_nuong": {
+      "Hàu nướng mỡ hành": "10k/con",
+      "Hàu nướng phô mai": "15k/con",
+      "Hàu sống": "10k/con",
+      "Bánh mì nướng phô mai": "12k/miếng",
+      "Nem chua rán": "55k",
+      "Khoai tây chiên": "25k",
+      "Khoai tây lắc phô mai": "30k",
+      "Khoai lang kén": "25k",
+      "Ngô chiên bơ": "30k",
+      "Xúc xích": "10k - 15k",
+      "Lạp xưởng": "15k"
+    },
+    "mon_nhau": {
+      "Chân gà chiên mắm": "12k/c",
+      "Chân gà ngâm sả tắc": "60k",
+      "Chân gà sốt Thái": "65k",
+      "Trứng cút luộc": "40k",
+      "Trứng cút xào me": "55k",
+      "Dưa chuột": "10k",
+      "Hoa quả": "15k"
+    },
+    "lau_my": {
+      "Lẩu Thái Tomyum": "250k",
+      "Mỳ Thái xúc xích": "35k",
+      "Mỳ Thái bò": "40k",
+      "Mỳ Thái bò xúc xích": "45k",
+      "Mỳ Thái thập cẩm": "55k"
+    },
+    "topping": {
+      "Ba chỉ bò 250g": "80k",
+      "Xúc xích": "30k",
+      "Đậu hũ phô mai": "40k",
+      "Viên thả lẩu mix": "40k",
+      "Tôm / Mực 200g": "70k",
+      "Nấm": "15k",
+      "Rau": "15k",
+      "Mì": "5k/g",
+      "Bánh mì": "5k/c"
+    },
+    "oc_bien": {
+      "Ốc hương trứng muối": "135k",
+      "Ốc hương sữa dừa": "130k",
+      "Ốc hương bơ tỏi": "130k",
+      "Ốc hương bơ cay": "130k",
+      "Ốc hương cháy tỏi": "130k",
+      "Ốc hương hấp sả": "125k",
+      "Ốc mỡ trứng muối": "135k",
+      "Ốc mỡ sữa dừa": "130k",
+      "Ốc mỡ bơ tỏi": "130k",
+      "Ốc mỡ bơ cay": "130k",
+      "Ốc mỡ cháy tỏi": "130k",
+      "Ốc mỡ hấp sả": "125k"
+    },
+    "oc_dong": {
+      "Ốc vặn hấp sả": "35k",
+      "Ốc vặn luộc mắm": "35k",
+      "Ốc vặn hấp Thái": "35k",
+      "Ốc mít hấp sả": "70k",
+      "Ốc mít luộc mắm": "70k",
+      "Ốc mít hấp Thái": "70k",
+      "Ốc mít sốt me": "75k",
+      "Ốc lẫn hấp sả": "60k",
+      "Ốc lẫn luộc mắm": "60k",
+      "Ốc lẫn hấp Thái": "60k"
+    },
+    "ngao": {
+      "Ngao hấp sả": "40k",
+      "Ngao hấp Thái": "50k",
+      "Ngao sốt trứng muối": "70k",
+      "Ngao sữa dừa": "60k",
+      "Ngao bơ tỏi": "60k",
+      "Ngao bơ cay": "60k",
+      "Ngao sốt me": "60k"
+    },
+    "do_uong": {
+      "Pepsi": "15k",
+      "Trà đá": "5k",
+      "Trà đá ca": "20k",
+      "Trà chanh": "12k",
+      "Trà quất": "12k",
+      "Nước khoáng": "8k",
+      "Bia Hà Nội": "18k",
+      "Bia Sài Gòn": "18k"
+    },
+    "combo": {
+      "Combo 2-3 người": "219k - Gồm: Ốc vặn hấp sả, Ngao sốt sữa dừa, Trứng cút xào me, Nem chua rán, 1 Mỳ xúc xích",
+      "Combo 3-4 người": "349k - Gồm: Ốc lẫn hấp sả, Ốc hương trứng muối, Trứng cút xào me, Chân gà ngâm sả tắc, 4 Hàu nướng mỡ hành, 1 Mỳ xúc xích",
+      "Combo 4-5 người": "455k - Gồm: Ốc lẫn hấp sả, Ốc hương trứng muối, Khoai tây chiên, 3 chân gà chiên mắm, Lẩu Thái Tomyum",
+      "Combo 5-6 người": "550k - Gồm: Ốc mít hấp sả, Ốc hương trứng muối, Trứng cút luộc, Nem chua rán, 5 chân gà chiên mắm, Lẩu Thái Tomyum"
+    }
+  },
+
+  "quang_cao": {
+    "chao": [
+      "🦪 Xin chào bạn! Chào mừng đến với Ốc Ngon 18 — quán ốc ngon nhất khu Rạng Đông!",
+      "Xin chào 👋! Hôm nay quán Ốc Ngon 18 có nhiều món ngon và combo hấp dẫn lắm nha!"
+    ],
+    "gioi_thieu": [
+      "🍽️ Ốc Ngon 18 nổi tiếng với ốc tươi, nước chấm thần thánh và món lẩu Tomyum cay đậm đà.",
+      "🔥 Món nổi bật: Ốc hương trứng muối, Hàu nướng phô mai và Lẩu Thái Tomyum.",
+      "🎉 Không gian rộng rãi, phục vụ nhanh, đồ ăn tươi mỗi ngày."
+    ],
+    "khuyen_mai": [
+      "🎁 Giảm 10% cho khách gọi combo từ 3 người trở lên.",
+      "🍺 Tặng Pepsi khi gọi món ốc bất kỳ từ 17h–19h.",
+      "❤️ Check-in để nhận topping hoặc đồ uống miễn phí."
+    ],
+    "lien_he": [
+      "📍 Địa chỉ: Rạng Đông - Cách Vietcombank 100m.",
+      "📞 Gọi đặt bàn: 0345 986 183 • 0338 570 075.",
+      "🕓 Mở cửa 16:00 - 23:00 hàng ngày."
+    ],
+    "ket_thuc": [
+      "Cảm ơn bạn đã ghé Ốc Ngon 18 ❤️ Hẹn gặp lại bạn vào tối nay nhé!",
+      "🦪 Quán luôn sẵn sàng phục vụ — đặt bàn ngay để có chỗ đẹp!"
+    ]
+  },
+
+  "chatbot_triggers": [
+
+    {
+      "intent": "greeting",
+      "keywords": ["chào", "hello", "hi", "xin chào"],
+      "response": "🦪 Xin chào bạn! Chào mừng đến với Ốc Ngon 18 — quán ốc ngon nhất khu Rạng Đông! Bạn muốn xem menu, giá món, combo hay hỏi địa chỉ ạ?"
+    },
+
+    {
+      "intent": "hoi_dia_chi",
+      "keywords": ["địa chỉ", "ở đâu", "chỗ nào", "vị trí", "đâu vậy"],
+      "response": "📍 Địa chỉ: Rạng Đông - Cách Vietcombank 100m.\n🕓 Mở cửa 16:00 - 23:00 hàng ngày."
+    },
+
+    {
+      "intent": "hoi_so_dien_thoai",
+      "keywords": ["sdt", "số điện thoại", "liên hệ", "gọi", "hotline"],
+      "response": "📞 Hotline quán: 0345 986 183 • 0338 570 075."
+    },
+
+    {
+      "intent": "gio_mo_cua",
+      "keywords": ["mấy giờ", "giờ mở cửa", "đóng cửa", "giờ bán", "open"],
+      "response": "🕓 Quán mở cửa từ 16:00 đến 23:00 hàng ngày."
+    },
+
+    {
+      "intent": "menu",
+      "keywords": ["menu", "có món gì", "gồm gì", "đồ ăn gì"],
+      "response": "📘 Menu chính: Ốc biển, Ốc đồng, Món chiên – nướng, Lẩu – Mỳ, Topping, Đồ uống, Combo tiết kiệm. Bạn muốn xem nhóm nào?"
+    },
+
+    {
+      "intent": "mon_hau",
+      "keywords": ["hàu", "hầu"],
+      "response": "🦪 Hàu:\n• Nướng mỡ hành: 10k/con\n• Nướng phô mai: 15k/con\n• Hàu sống: 10k/con"
+    },
+
+    {
+      "intent": "oc_huong",
+      "keywords": ["ốc hương"],
+      "response": "🦪 Ốc hương:\n• Trứng muối: 135k\n• Sữa dừa: 130k\n• Bơ tỏi / Bơ cay / Cháy tỏi: 130k\n• Hấp sả: 125k"
+    },
+
+    {
+      "intent": "oc_mo",
+      "keywords": ["ốc mỡ"],
+      "response": "🦪 Ốc mỡ:\n• Trứng muối: 135k\n• Sữa dừa: 130k\n• Bơ tỏi / Bơ cay / Cháy tỏi: 130k\n• Hấp sả: 125k"
+    },
+
+    {
+      "intent": "oc_van_mit_dong",
+      "keywords": ["ốc vặn", "ốc đồng", "ốc mít", "ốc lẫn"],
+      "response": "🦪 Ốc đồng:\n• Ốc vặn: 35k\n• Ốc mít: 70–75k\n• Ốc lẫn: 60k\nCó các kiểu: hấp sả / luộc mắm / hấp Thái / sốt me."
+    },
+
+    {
+      "intent": "ngao",
+      "keywords": ["ngao", "nghêu"],
+      "response": "🦪 Ngao:\n• Hấp sả: 40k\n• Hấp Thái: 50k\n• Sốt trứng muối: 70k\n• Sữa dừa / Bơ tỏi / Bơ cay / Sốt me: 60k"
+    },
+
+    {
+      "intent": "lau",
+      "keywords": ["lẩu", "tomyum", "tomyam"],
+      "response": "🍲 Lẩu Thái Tomyum: 250k.\nCó gọi thêm topping: ba chỉ bò, viên lẩu, tôm/mực…"
+    },
+
+    {
+      "intent": "combo",
+      "keywords": ["combo", "set", "tiết kiệm", "gói"],
+      "response": "🎉 Combo:\n• 2–3 người: 219k\n• 3–4 người: 349k\n• 4–5 người: 455k\n• 5–6 người: 550k\nBạn đi mấy người để tôi tư vấn set phù hợp?"
+    },
+
+    {
+      "intent": "khuyen_mai",
+      "keywords": ["ưu đãi", "khuyến mãi", "giảm giá"],
+      "response": "🎁 Khuyến mãi:\n• Giảm 10% cho combo 3 người trở lên.\n• Tặng Pepsi 17h–19h.\n• Check-in tặng topping/đồ uống."
+    },
+
+    {
+      "intent": "gioi_thieu_quan",
+      "keywords": ["giới thiệu", "quán như nào", "review quán"],
+      "response": "🍽️ Ốc Ngon 18 — Ốc tươi mỗi ngày, nước chấm đậm vị, không gian rộng rãi, phục vụ nhanh. Món nổi bật: Ốc hương trứng muối, Hàu phô mai, Lẩu Tomyum."
+    },
+
+    {
+      "intent": "ket_thuc",
+      "keywords": ["cảm ơn", "bye", "tạm biệt"],
+      "response": "Cảm ơn bạn đã ghé Ốc Ngon 18 ❤️ Hẹn gặp lại bạn!"
+    }
+
+  ]
+}
