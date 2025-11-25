@@ -5,39 +5,41 @@ import requests
 from flask import Flask, request, jsonify
 from openai import OpenAI
 
-# ================= CONFIG ===================
+# ===================== CONFIG =====================
 CHAT_MODEL = "gpt-4o-mini"
 OPENAI_KEY = os.getenv("OPENAI_API_KEY", "")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "")
 TEMPERATURE = 0.25
 MAX_TOKENS = 200
 
-# ============== Page Data Config ==============
-API_SHEET_MAP = {
-    "847842948414951": None,  # Page Thời trang (chỉ JSON)
-    "895305580330861": None,  # Page Quán ốc (chỉ JSON)
-    "813440285194304": "https://script.google.com/macros/s/AKfycbwGzvGaTN0Ui96QUgQbQcEGqvesomGwgbSMOOCoJ_O7250EqIdNWAaz9UmYB0SpBqhk/exec"
-}
+# 🔹 API Apps Script (Page Nhà)
+API_USER_NOTES = "https://script.google.com/macros/s/AKfycbwGzvGaTN0Ui96QUgQbQcEGqvesomGwgbSMOOCoJ_O7250EqIdNWAaz9UmYB0SpBqhk/exec"
+API_NOTES_NHA  = "https://script.google.com/macros/s/AKfycbwGzvGaTN0Ui96QUgQbQcEGqvesomGwgbSMOOCoJ_O7250EqIdNWAaz9UmYB0SpBqhk/exec"
 
-JSON_FILE_MAP = {
-    "847842948414951": "a.json",  # Page Thời trang
-    "895305580330861": "b.json",  # Page Quán ốc
-    "813440285194304": None       # Page Nhà không dùng JSON
-}
+# 🔹 PAGE IDs
+PAGE_ID_NHA = "813440285194304"     # Page Nhà
+PAGE_ID_CTT = "847842948414951"     # Page Thời trang
+PAGE_ID_OC  = "895305580330861"     # Page Quán ốc
 
-PAGE_ID_NHA = "813440285194304"
-
+# 🔹 Tokens của các page
 PAGE_TOKEN_MAP = {
-    "813440285194304": os.getenv("PAGE_TOKEN_NHA", ""),
-    "847842948414951": os.getenv("PAGE_TOKEN_CTT", ""),
-    "895305580330861": os.getenv("PAGE_TOKEN_A", ""),
+    PAGE_ID_NHA: os.getenv("PAGE_TOKEN_NHA", ""),
+    PAGE_ID_CTT: os.getenv("PAGE_TOKEN_CTT", ""),
+    PAGE_ID_OC : os.getenv("PAGE_TOKEN_A", ""),
+}
+
+# 🔹 Gắn file JSON cho từng Page
+JSON_FILE_MAP = {
+    PAGE_ID_CTT: "a.json",   # Page thời trang
+    PAGE_ID_OC : "b.json",   # Page quán ốc
 }
 
 app = Flask(__name__)
 client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
 
 
-# ========= GENERIC JSON HANDLER ==========
+# ===================== JSON HANDLER =====================
+
 def load_page_json(page_id):
     file_name = JSON_FILE_MAP.get(page_id)
     if not file_name:
@@ -45,39 +47,28 @@ def load_page_json(page_id):
     try:
         with open(file_name, "r", encoding="utf-8") as f:
             return json.load(f)
-    except Exception:
+    except:
         return []
 
 
 def search_products_json(query, page_id):
     data = load_page_json(page_id)
     query = query.lower()
-    return [item for item in data if query in str(item).lower()]
+    results = []
+
+    for item in data:
+        text_join = " ".join(str(v).lower() for v in item.values())
+        if query in text_join:
+            results.append(item)
+
+    return results
 
 
-# ========= AI FALLBACK ==========
-def ask_llm(text):
-    if not client:
-        return "AI đang tạm không dùng được."
-    try:
-        resp = client.chat.completions.create(
-            model=CHAT_MODEL,
-            messages=[
-                {"role": "system", "content": "Trả lời ngắn gọn, chính xác."},
-                {"role": "user", "content": text}
-            ],
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS
-        )
-        return resp.choices[0].message.content.strip()
-    except:
-        return "Xin lỗi, tôi chưa hiểu."
+# ===================== GOOGLE SHEET HANDLER =====================
 
-
-# ========= PAGE NHA: GHI CHÚ & VẬT TƯ ==========
 def get_notes_from_user():
     try:
-        r = requests.get(API_SHEET_MAP[PAGE_ID_NHA], params={"action": "get", "sheet": "User_Notes"})
+        r = requests.get(API_USER_NOTES, params={"action": "get"})
         return r.json().get("notes", [])
     except:
         return []
@@ -85,101 +76,188 @@ def get_notes_from_user():
 
 def get_notes_from_nha():
     try:
-        r = requests.get(API_SHEET_MAP[PAGE_ID_NHA], params={"action": "get", "sheet": "Notes_Nha"})
+        r = requests.get(API_NOTES_NHA, params={"action": "get"})
         return r.json().get("notes", [])
     except:
         return []
 
 
+# ===================== NOTE HANDLER =====================
+
+def classify_note_category(text):
+    n = text.lower()
+    if any(k in n for k in ["giấy phép", "pháp lý", "xin phép"]): return "Giấy phép"
+    if any(k in n for k in ["thiết kế", "phối cảnh", "cửa", "cad", "bản vẽ"]): return "Thiết kế"
+    if any(k in n for k in ["móng", "thép", "cột", "d16", "d14", "dầm", "ép", "đổ"]): return "Thi công"
+    if any(k in n for k in ["cửa", "sơn", "lát", "thiết bị", "nội thất", "gạch"]): return "Hoàn thiện"
+    if any(k in n for k in ["bàn giao", "nghiệm thu"]): return "Bàn giao"
+    if any(k in n for k in ["hoàn công", "sổ đỏ"]): return "Hoàn công"
+    return "Chung"
+
+
 def save_note_to_sheet(text, image_url=None):
     payload = {
         "action": "add",
-        "sheet": "User_Notes",
         "text": text,
-        "image_url": image_url or "",
-        "keywords": ", ".join([w for w in text.split() if len(w) >= 3]),
+        "category": classify_note_category(text),
+        "keywords": ", ".join([w.lower() for w in text.split() if len(w) >= 4]),
+        "image_url": image_url or ""
     }
-    requests.post(API_SHEET_MAP[PAGE_ID_NHA], data=payload)
-    return "Đã lưu ghi chú."
+    try:
+        requests.post(API_USER_NOTES, data=payload)
+        return "Đã lưu ghi chú."
+    except:
+        return "Lỗi khi lưu ghi chú."
 
 
-def get_reply_for_page_nha(text, image_url=None):
+def edit_note_in_sheet(index, new_text):
+    payload = {
+        "action": "edit", "index": str(index),
+        "text": new_text,
+        "category": classify_note_category(new_text),
+        "keywords": ", ".join([w.lower() for w in new_text.split() if len(w) >= 4])
+    }
+    try:
+        requests.post(API_USER_NOTES, data=payload)
+        return f"Đã sửa note {index}."
+    except:
+        return "Lỗi khi sửa ghi chú."
+
+
+def delete_note_in_sheet(index):
+    payload = {"action": "delete", "index": str(index)}
+    try:
+        requests.post(API_USER_NOTES, data=payload)
+        return f"Đã xóa note {index}."
+    except:
+        return "Lỗi khi xóa ghi chú."
+
+
+# ===================== AI FALLBACK =====================
+
+def ask_llm(text):
+    if not client:
+        return "AI chưa sẵn sàng."
+    try:
+        resp = client.chat.completions.create(
+            model=CHAT_MODEL,
+            messages=[
+                {"role": "system", "content": "Trả lời rõ ràng, dễ hiểu."},
+                {"role": "user", "content": text}
+            ],
+            temperature=TEMPERATURE,
+            max_tokens=MAX_TOKENS
+        )
+        return resp.choices[0].message.content.strip()
+    except:
+        return "Xin lỗi, tôi chưa rõ."
+
+
+# ===================== SEARCH HELPERS =====================
+
+def search_in_notes_nha(query, notes_nha):
+    query = query.lower()
+    return [item for item in notes_nha if query in str(item).lower()]
+
+def search_in_user_notes(query, notes_user):
+    query = query.lower()
+    return [item for item in notes_user if query in str(item).lower()]
+
+
+# ===================== SMART REPLY =====================
+
+def get_smart_reply(text, image_url=None, page_id=None):
     t = text.lower().strip()
 
-    # Xem ghi chú cá nhân
-    if t in ["xem note", "xem ghi chú", "notes"]:
-        notes = get_notes_from_user()
-        if not notes:
-            return "📭 Chưa có ghi chú nào."
-        reply = "📘 Ghi chú của bạn:\n\n"
-        for i, n in enumerate(notes, 1):
-            reply += (
-                f"{i}. 📝 {n.get('text', '')}\n"
-                f"   📂 Loại: {n.get('category', '')}\n"
-                f"   ⏱ Thời gian: {n.get('date_added', '')}\n"
-                f"   🔑 Keywords: {n.get('keywords', '')}\n"
-                f"   🖼 Hình ảnh: {n.get('image_url', '')}\n\n"
-            )
-        return reply.strip()
-
-    # Lưu ghi chú
-    if t.startswith(("note:", "ghi nhớ:", "ghi chu:", "lưu:")):
-        return save_note_to_sheet(text.split(":", 1)[1].strip(), image_url)
-
-    # Tìm vật tư
-    notes_nha = get_notes_from_nha()
-    found = [item for item in notes_nha if t in str(item).lower()]
-    if found:
-        reply = "📌 Thông tin vật tư:\n\n"
-        for item in found[:3]:
-            reply += (
-                f"🏷 {item.get('hang_muc', '')}\n"
-                f"🔹 {item.get('chi_tiet', '')}\n"
-                f"📏 {item.get('don_vi', '')}\n"
-                f"💡 {item.get('ghi_chu', '')}\n\n"
-            )
-        return reply.strip()
-
-    return ask_llm(text)
-
-
-# ========= GENERIC SMART REPLY ==========
-def get_smart_reply(text, image_url=None, page_id=None):
-
-    # ===== PAGE NHÀ =====
+    # ====== PAGE NHÀ (GIỮ NGUYÊN LOGIC) ======
     if page_id == PAGE_ID_NHA:
-        return get_reply_for_page_nha(text, image_url)
 
-    # ===== PAGE JSON SẢN PHẨM =====
-    if page_id in ["847842948414951", "895305580330861"]:
-        found = search_products_json(text, page_id)
+        if t in ["xem note", "xem ghi chú", "xem ghi chu", "notes"]:
+            notes = get_notes_from_user()
+            if not notes:
+                return "Chưa có ghi chú nào."
+            reply = "📘 Ghi chú đã lưu:\n\n"
+            for i, n in enumerate(notes, 1):
+                reply += f"{i}. ({n.get('category', 'Chung')}) {n.get('text', '')}\n"
+            return reply.strip()
+
+        if t.startswith(("note:", "ghi nhớ:", "ghi nho:", "thêm:", "them:", "lưu:", "luu:")):
+            pure = text.split(":", 1)[1].strip()
+            return save_note_to_sheet(pure, image_url)
+
+        if t.startswith(("sửa note", "sua note")):
+            try:
+                idx = int(text.split()[2])
+                new_text = text.split(":", 1)[1].strip()
+                return edit_note_in_sheet(idx, new_text)
+            except:
+                return "Cú pháp đúng: sửa note 2: nội dung mới"
+
+        if t.startswith(("xóa note", "xoá note", "xoa note")):
+            try:
+                idx = int([w for w in t.split() if w.isdigit()][0])
+                return delete_note_in_sheet(idx)
+            except:
+                return "Cú pháp đúng: xóa note 3"
+
+        notes_nha = get_notes_from_nha()
+        found_nha = search_in_notes_nha(t, notes_nha)
+        if found_nha:
+            reply = "📌 Thông tin từ vật tư / thi công:\n\n"
+            for item in found_nha[:3]:
+                reply += (
+                    f"📌 *{item.get('hang_muc', '')}*\n"
+                    f"🔹 Chi tiết: {item.get('chi_tiet', '')}\n"
+                    f"🏷 Thương hiệu: {item.get('thuong_hieu', '')}\n"
+                    f"📏 Đơn vị: {item.get('don_vi', '')}\n"
+                    f"📝 Ghi chú: {item.get('ghi_chu', '')}\n\n"
+                )
+            return reply.strip()
+
+        notes_user = get_notes_from_user()
+        found_user = search_in_user_notes(t, notes_user)
+        if found_user:
+            reply = "🗂 *Thông tin từ ghi chú cá nhân:*\n\n"
+            for item in found_user[:3]:
+                reply += f"• {item.get('text', '')}\n"
+            return reply.strip()
+
+        return ask_llm(text)
+
+    # ====== PAGE JSON (THỜI TRANG, QUÁN ỐC) ======
+    if page_id in JSON_FILE_MAP:
+        found = search_products_json(t, page_id)
         if found:
-            reply = "📦 Sản phẩm tìm thấy:\n\n"
-            for item in found[:3]:
-                reply += "🛍 Sản phẩm:\n"
+            reply = "📦 Kết quả tìm thấy:\n\n"
+            for item in found[:5]:
                 for key, value in item.items():
-                    reply += f"• {key}: {value}\n"
+                    reply += f"{key}: {value}\n"
                 reply += "\n"
             return reply.strip()
-        return "❌ Không tìm thấy sản phẩm trong file."
+        return "❌ Không tìm thấy trong dữ liệu."
 
-    # ===== OFFICIAL AI FALLBACK =====
     return ask_llm(text)
 
 
-# ========= FACEBOOK CONNECTOR ==========
+# ===================== FACEBOOK CONNECTOR =====================
+
 def send_text(page_id, psid, text):
     token = PAGE_TOKEN_MAP.get(page_id)
     if not token:
+        print("Không có PAGE_TOKEN cho page", page_id)
         return
-    requests.post(
-        "https://graph.facebook.com/v19.0/me/messages",
-        params={"access_token": token},
-        json={"recipient": {"id": psid}, "message": {"text": text}}
-    )
+    try:
+        requests.post(
+            "https://graph.facebook.com/v19.0/me/messages",
+            params={"access_token": token},
+            json={"recipient": {"id": psid}, "message": {"text": text}}
+        )
+    except Exception as e:
+        print("Lỗi send_text:", e)
 
 
-# ========= WEBHOOK ==========
+# ===================== WEBHOOK =====================
+
 @app.route("/webhook", methods=["GET"])
 def verify():
     if request.args.get("hub.verify_token") == VERIFY_TOKEN:
@@ -194,7 +272,8 @@ def webhook():
         page_id = entry.get("id")
         for event in entry.get("messaging", []):
             psid = event.get("sender", {}).get("id")
-            text = event.get("message", {}).get("text")
+            msg = event.get("message", {}) or {}
+            text = msg.get("text")
             if psid and text:
                 reply = get_smart_reply(text, None, page_id)
                 threading.Thread(target=send_text, args=(page_id, psid, reply)).start()
@@ -208,5 +287,5 @@ def health():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    print(f"Server chạy port {port}")
+    print(f"Server chạy tại port {port}")
     app.run(host="0.0.0.0", port=port)
